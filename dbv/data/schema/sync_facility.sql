@@ -1,0 +1,21 @@
+CREATE TABLE `sync_facility` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `code` varchar(15) DEFAULT NULL,
+  `category` varchar(15) DEFAULT NULL,
+  `sponsors` varchar(255) DEFAULT NULL,
+  `services` varchar(255) DEFAULT NULL,
+  `manager_id` int(11) unsigned DEFAULT NULL,
+  `district_id` int(11) unsigned NOT NULL,
+  `address_id` int(11) unsigned DEFAULT NULL,
+  `parent_id` int(11) unsigned DEFAULT NULL,
+  `ordering` tinyint(1) NOT NULL DEFAULT '1',
+  `affiliation` varchar(255) DEFAULT NULL,
+  `service_point` tinyint(1) NOT NULL DEFAULT '1',
+  `county_id` int(11) unsigned DEFAULT NULL,
+  `hcsm_id` int(11) unsigned DEFAULT NULL,
+  `keph_level` varchar(25) DEFAULT 'Not Classified',
+  `location` varchar(255) DEFAULT NULL,
+  `affiliate_organization_id` int(11) unsigned DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8
