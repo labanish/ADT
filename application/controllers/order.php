@@ -652,6 +652,12 @@ class Order extends MY_Controller {
 				$data['map_id'] = $map_id;
 				$data['logs'] = Maps_Log::getMapLogs($map_id);
 
+				/*echo "<pre>";
+				print_r($data);
+				echo "</pre>";
+				die();*/
+
+
 				if ($data['options'] == "view") {
 					$data['hide_save'] = 1;	
 					$regimen_table = 'sync_regimen';

@@ -2,16 +2,22 @@
 class Dispensement_Management extends MY_Controller {
 	function __construct() {
 		parent::__construct();
+
 		$this -> load -> database();
+	//$this->output->enable_profiler(TRUE);
 	}
 
 	public function index() {
 		//$this -> listing();
 	}
-
+	public function trialdispense($patientID)
+	{
+		$this->load->model('patientmodel');
+		print_r($this->patientmodel->get_patient_details($patientID));
+	}
 	public function dispense($record_no) {
 		
-		
+		//$this->db->save_queries = FALSE;
 		$facility_code = $this -> session -> userdata('facility');
                 
 		$dispensing_date = "";
@@ -20,18 +26,22 @@ class Dispensement_Management extends MY_Controller {
 		$data['appointments'] = "";
 		$dispensing_date = date('Y-m-d');
 
-		$sql = "select p.*,ps.name as patient_source,FLOOR(DATEDIFF(CURDATE(),p.dob)/365) as age from patient p 
+		$sql = "select ps.name as patient_source,p.patient_number_ccc,FLOOR(DATEDIFF(CURDATE(),p.dob)/365) as age from patient p 
 				LEFT JOIN patient_source ps ON ps.id = p.source
 				where p.id='$record_no' and facility_code='$facility_code'
 				";
 		$query = $this -> db -> query($sql);
 		$results = $query -> result_array();
+		       
 		if ($results) {
 			$patient_no = $results[0]['patient_number_ccc'];
 			$age=@$results[0]['age'];
 			$data['results'] = $results;
+	
 		}
-		$sql = "SELECT r.id,
+
+		/***********/
+		/*$sql = "SELECT r.id,
 		               r.regimen_desc,
                        r.regimen_code,
                        pv.dispensing_date,
@@ -122,16 +132,41 @@ class Dispensement_Management extends MY_Controller {
 				$data['regimens']=Regimen::getChildRegimens();
 			}
 		}
+*/
+		/*************/
+		$sql1="SELECT dispensing_date FROM patient_visit pv WHERE pv.patient_id =  '$patient_no' AND pv.active=1 ORDER BY dispensing_date DESC LIMIT 1";
+		$query = $this -> db -> query($sql1);
+		$results1 = $query -> row_array();
+		
+		
+$dated=$results1['dispensing_date'];
+		
+		//die();
 
+		$sql = "SELECT d.id as drug_id,d.drug,d.dose,d.duration, pv.quantity,pv.dispensing_date,pv.pill_count,r.id as regimen_id,r.regimen_desc,r.regimen_code,pv.months_of_stock as mos,ds.value,ds.frequency
+					FROM patient_visit pv
+					LEFT JOIN drugcode d ON d.id = pv.drug_id
+					LEFT JOIN dose ds ON ds.Name=d.dose
+					LEFT JOIN regimen r ON r.id = pv.regimen
+					WHERE pv.patient_id =  '$patient_no'
+					AND pv.active=1
+					AND pv.dispensing_date = '$dated'
+				ORDER BY dispensing_date DESC";	
+		$query = $this -> db -> query($sql);
+		$results = $query -> result_array();
+		//getPreviouslyDispensedDrugs();
+		$data = array();
 		$data['non_adherence_reasons'] = Non_Adherence_Reasons::getAllHydrated();
 		$data['regimen_changes'] = Regimen_Change_Purpose::getAllHydrated();
 		$data['purposes'] = Visit_Purpose::getAll();
-		 
-		$data = array();
+		$data['dated']=$dated;
+		
 		$data['patient_id'] = $record_no; 
 		$data['purposes'] = Visit_Purpose::getAll();
-		$data['content_view'] = "patients/dispense_v";
+		$data['patient_appointment']=$results;
+		
 		$data['hide_side_menu'] = 1;
+		$data['content_view'] = "patients/dispense_v";
 		$this -> base_params($data);
                 
         
@@ -147,8 +182,37 @@ class Dispensement_Management extends MY_Controller {
 		echo json_encode($data);
 	}
 
+// 	public function getPreviouslyDispensedDrugs(){
+//       $patient_ccc = $this ->input ->post("patient_ccc");
+// 		//$patient_ccc=0887679;
+// 		$sql1="SELECT dispensing_date FROM patient_visit WHERE patient_id =  '$patient_ccc' AND active=1 ORDER BY dispensing_date DESC LIMIT 1";
+// 		$query = $this -> db -> query($sql1);
+// 		$results1 = $query -> result_array();
+		
+		
+// $dated=$results1[];
+// 		echo $dated;
+// 	die();
+
+// 		$sql = "SELECT d.id as drug_id,d.drug,d.dose,d.duration, pv.quantity,pv.dispensing_date,pv.pill_count,r.id as regimen_id,r.regimen_desc,r.regimen_code,pv.months_of_stock as mos,ds.value,ds.frequency
+// 					FROM patient_visit pv
+// 					LEFT JOIN drugcode d ON d.id = pv.drug_id
+// 					LEFT JOIN dose ds ON ds.Name=d.dose
+// 					LEFT JOIN regimen r ON r.id = pv.regimen
+// 					WHERE pv.patient_id =  '$patient_ccc'
+// 					AND pv.active=1
+// 					AND pv.dispensing_date = '$dated'
+// 				ORDER BY dispensing_date DESC";	
+
+// 		$query = $this -> db -> query($sql);
+// 		$results = $query -> result_array();
+// 		echo json_encode($results);
+// 		die();
+// 	} 
+
 	public function getPreviouslyDispensedDrugs(){
 		$patient_ccc = $this ->input ->post("patient_ccc");
+		//$patient_ccc=1088816;
 		$sql = "SELECT d.id as drug_id,d.drug,d.dose,d.duration, pv.quantity,pv.dispensing_date,pv.pill_count,r.id as regimen_id,r.regimen_desc,r.regimen_code,pv.months_of_stock as mos,ds.value,ds.frequency
 					FROM patient_visit pv
 					LEFT JOIN drugcode d ON d.id = pv.drug_id
@@ -162,7 +226,6 @@ class Dispensement_Management extends MY_Controller {
 		$results = $query -> result_array();
 		echo json_encode($results);
 	} 
-
 	//Get list of drugs for a specific regimen
 	public function getDrugsRegimens() {
 		 $regimen_id = $this -> input -> post('selected_regimen');
@@ -423,10 +486,10 @@ class Dispensement_Management extends MY_Controller {
 		$count = count($queries);
 		$c = 0;
 		foreach ($queries as $query) {
-			$c++;
-			if (strlen($query) > 0) {
+			//$c++;
+			//if (strlen($query) > 0) {
 				$this -> db -> query($query);
-			}
+			//}
 
 		}
 
@@ -720,6 +783,8 @@ class Dispensement_Management extends MY_Controller {
         
         echo $this -> session -> userdata($session_name);
 	}
+
+
 
 }
 ?>

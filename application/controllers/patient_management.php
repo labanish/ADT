@@ -4,8 +4,8 @@ class Patient_Management extends MY_Controller {
 		parent::__construct();
 		$this -> load -> database();
 		$this -> load -> library('PHPExcel');
-		ini_set("max_execution_time", "100000");
-		ini_set('memory_limit', '712M');
+		ini_set("max_execution_time", "5000");
+		ini_set('memory_limit', '1024M');
 	}
 
 	public function index() {
@@ -255,6 +255,7 @@ class Patient_Management extends MY_Controller {
 			$output['aaData'][] = $row;
 		}
 		echo json_encode($output,JSON_PRETTY_PRINT);
+		//die();
 	}
 
 	public function extract_illness($illness_list = "") {
@@ -1461,7 +1462,7 @@ class Patient_Management extends MY_Controller {
         $config['details'] = array(
         						'patient_id' => $id,
         						'content_view' => 'patients/details_v',
-        						'hide_side_menu' => '1',
+        						'hide_side_menu' => '0',
         						'patient_msg' => $this->get_patient_relations($id)
         					 );
 
@@ -1879,7 +1880,7 @@ class Patient_Management extends MY_Controller {
 		        LEFT JOIN regimen r ON r.id=p.current_regimen
 		        LEFT JOIN patient_status ps ON ps.id=p.current_status
 		        WHERE p.facility_code = '$facility_code'
-		        AND p.patient_number_ccc != ''";
+		        AND p.patient_number_ccc != '' AND ps.id=1";
 		$query = $this -> db -> query($sql);
 		$patients = $query ->result_array();
         $temp = array();
@@ -1906,7 +1907,7 @@ class Patient_Management extends MY_Controller {
 	        		
                                      if ($value==1) 
                                        {
-                                         $link = '<a href="' . base_url() . 'patient_management/load_view/details/' . $id . '">Detail</a> | <a href="' . base_url() . 'patient_management/edit/' . $id . '">Edit</a> ' . $link;
+                                         $link = '<a href="' . base_url() . 'dispensement_management/dispense/' . $id . '" target="_blank">Dispense</a> |<a href="' . base_url() . 'patient_management/load_view/details/' . $id . '" target="_blank">Detail</a> | <a href="' . base_url() . 'patient_management/edit/' . $id . '">Edit</a> ' . $link;
                                        }else{
                                            $link = str_replace("|", "", $link);
                                            $link .= '| <a href="' . base_url() . 'patient_management/delete/' . $id . '" class="red actual">Delete</a>';

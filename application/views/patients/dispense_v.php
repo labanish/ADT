@@ -157,7 +157,8 @@
 	            	<div class="span6 dispensing-field">
 	            		<div class="control-group">
 		            		<label id="scheduled_patients" class="message information " style="display:none; background-color: black;"></label><label>Last Regimen Dispensed</label>
-	                        <input type="text"name="last_regimen_disp" value="none" id="last_regimen_disp" readonly="">
+	                        <input type="text"name="last_regimen_disp" value="<?php  foreach($patient_appointment as $appointment): 
+	                        echo $appointment['regimen_desc']; endforeach; ?>" id="last_regimen_disp" readonly="">
 	                        <input type="hidden" name="last_regimen" value="0" id="last_regimen" value="0">
 			    		</div>
 	            	</div>
@@ -213,7 +214,7 @@
 	            	<div class="span6 dispensing-field">
 	            		<div class="control-group">
 		            		<label>Previous Visit Date</label>
-	                        <input type="text" readonly="" id="last_visit_date" name="last_visit_date"/>
+	                        <input type="text" value="<?php  echo $dated; ?>"readonly="" id="last_visit_date" name="last_visit_date"/>
 	                        <input type="hidden" id="last_visit"/>
 			    		</div>
 	            	</div>
@@ -224,7 +225,14 @@
 	            			<label>Previously Dispensed Drugs</label>
 		            		<table class="table table-bordered prev_dispense" id="last_visit_data" style="float:left;width:100%;">
 	                            <thead><th style="width: 70%">Drug Dispensed</th><th>Qty Dispensed</th></thead>
-	                            <tbody></tbody>
+	                            <tbody>
+									<?php foreach($patient_appointment as $appointment): ?>
+									<tr>
+										<td><?php echo $appointment['drug']; ?></td>
+										<td><?php echo $appointment['quantity']; ?></td>
+									</tr>
+									<?php endforeach; ?>
+								</tbody>
 	                        </table>
 	                    </div>
 	            	</div>
@@ -274,13 +282,13 @@
                             <input type="text" name="pill_count[]" class="pill_count input-small" readonly="readonly" />
                         </td>
                         <td>
-                            <input type="text" name="next_pill_count[]" class="next_pill_count input-small"qty  />
+                            <input type="number" name="next_pill_count[]" class="next_pill_count input-small"qty  />
                         </td>
                         <td>
-                            <input type="text" name="duration[]" class="duration input-small" />
+                            <input type="number" name="duration[]" class="duration input-small" />
                         </td>
                         <td>
-                            <input type="text" name="qty_disp[]" class="qty_disp input-small next_pill validate[requireds]"  id="qty_disp"/>
+                            <input type="number" name="qty_disp[]" class="qty_disp input-small next_pill validate[requireds]"  id="qty_disp"/>
                         <td>
                             <input type="text" name="soh[]" class="soh input-small" readonly="readonly"/>
                         </td>
@@ -292,7 +300,7 @@
                                 <option value="0">None</option>
                             </select></td>
                         <td>
-                            <input type="text" name="comment[]" id ="comment" class="comment input-small" />
+                            <input type="text" name="comment[]" class="comment input-small" />
                         </td>
                         <td>
                             <input type="text" name="missed_pills[]" class="missed_pills input-small" />
@@ -377,6 +385,7 @@
 		//Add listener to the 'days_to_next' field so that the date picker can reflect the correct number of days!
         $("#days_to_next").change(function() {
             var days = $("#days_to_next").attr("value");
+            if(days > 0){
             var base_date = new Date();
             var appointment_date = $("#next_appointment_date");
             var today = new Date(base_date.getFullYear(), base_date.getMonth(), base_date.getDate());
@@ -384,7 +393,9 @@
             var appointment_timestamp = (1000 * 60 * 60 * 24 * days) + today_timestamp;
             appointment_date.datepicker("setDate", new Date(appointment_timestamp));
             retrieveAppointedPatients();
-
+            }else{
+               bootbox.alert("<h4>Notice!</h4>\n\<center>Days cannot be empty or negative</center>");
+            }
             //Loop through Table to calculate pill counts for all rows
             $.each($(".drug"), function(i, v) {
                 var row = $(this);
@@ -661,6 +672,7 @@
 				has_tb		= data.Tb;
 				var age = data.age;
 				patient_ccc = data.Patient_Number_CCC;
+				//loadOtherDetails(patient_ccc);
 				//CHeck if patient is pregnant
 				checkIfPregnant(is_pregnant,patient_ccc);
 				//Check if still has tb
@@ -698,6 +710,8 @@
 			$("#ccc_store_id").css('border','solid 3px red');
 			return;
 		}
+//load previously dispensed drugs
+//loadMyPreviousDispensedDrugs();
 		//reset drug tables
 		resetRoutineDrugs();
 		var regimen = $("#current_regimen option:selected").attr("value");
@@ -814,6 +828,7 @@
                         	total_visits = (previous_dispensed_data.length) -1;
 	                        var count = 0;
 	                        getRoutineDrugs(previous_dispensed_data,total_visits,count); 
+
                         }
                         
                     }
@@ -832,15 +847,9 @@
         resetFields(row);
         row.closest("tr").find(".batch option").remove();
         row.closest("tr").find(".batch").append($("<option value='0'>Loading ...</option>"));
-       
         var row = $(this);
         var selected_drug = $(this).val();
         var patient_no = $("#patient").val();
-        var weighting = $("#weight").val();
-        var paed_dosage='';
-  
-
-
         //Check if patient allergic to selected drug
         var _url = "<?php echo base_url() . 'dispensement_management/drugAllergies'; ?>";
         var request = $.ajax({
@@ -920,8 +929,6 @@
                     dataType: "json",
                     async: false
                 });
-
-                //dosaging
                 request.done(function(data) {
                     var url_dose = "<?php echo base_url() . 'dispensement_management/getDoses'; ?>";
                     //Get doses
@@ -933,210 +940,9 @@
                     request_dose.done(function(data) {
                         row.closest("tr").find(".dose option").remove();
                         $.each(data, function(key, value) {
-                            
                             row.closest("tr").find(".dose").append("<option value='" + value.Name + "'  data-dose_val='" + value.value + "' data-dose_freq='" + value.frequency + "' >" + value.Name + "</option> ");
-                        //test dosaging here
-                       // bootbox.alert("<h4>Allergy Alert!</h4>\n\<hr/><center>This patient is allergic to "+selected_drug+"</center>");
-
                         });
-
                     });
-
-             
-
-
- //Check the selected drug map code
-
-       var new_urls = "<?php echo base_url() . 'dispensement_management/getMappedDrugCode'; ?>";
-                    var request_map = $.ajax({
-                        url: new_urls,
-                        type: 'post',
-                        data: {"selected_drug": selected_drug},
-                        dataType: "json"
-                    });
-                  
-                    request_map.done(function(data) {
-                       
-                    var resulting = data[0].map;
-
-               //bootbox.alert(resulting);
-                  
-                    //Calculate dosages based on the resulting drug code and the weight of the patient
-
-        if (resulting=='18'){ //Abacavir+Lamuvide 60/30mg
-
-            if (weighting>=3 && weighting<=5.9){
-
-                paed_dosage="1BD";
-             }else if (weighting>=6 && weighting<=9.9){
-                paed_dosage="1.5BD";
-            }else if (weighting>=10 && weighting<=13.9){
-                paed_dosage="2BD";
-            }else if (weighting>=14 && weighting<=19.9){
-                paed_dosage="2.5BD";
-            }else if (weighting>=20 && weighting<=24.9){
-                paed_dosage="3BD";
-            }else if (weighting>=25 && weighting<=34.9){
-                paed_dosage="300 +500mg";
-            }
-          
-        }else if (resulting==17){//zidovudine+Lamivudine 60/30mg
-			if (weighting>=3 && weighting<=5.9){
-
-                paed_dosage="1BD";
-             }else if (weighting>=6 && weighting<=9.9){
-                paed_dosage="1.5BD";
-            }else if (weighting>=10 && weighting<=13.9){
-                paed_dosage="2BD";
-            }else if (weighting>=14 && weighting<=19.9){
-                paed_dosage="2.5BD";
-            }else if (weighting>=20 && weighting<=24.9){
-                paed_dosage="3BD";
-            }else if (weighting>=25 && weighting<=34.9){
-                paed_dosage="300 +500mg";
-            }
-
-        }else if(resulting==16){//zidovudine+Lamivudine+Nevirapine (60/30/50mg)
-        	if (weighting>=3 && weighting<=5.9){
-
-                paed_dosage="1BD";
-             }else if (weighting>=6 && weighting<=9.9){
-                paed_dosage="1.5BD";
-            }else if (weighting>=10 && weighting<=13.9){
-                paed_dosage="2BD";
-            }else if (weighting>=14 && weighting<=19.9){
-                paed_dosage="2.5BD";
-            }else if (weighting>=20 && weighting<=24.9){
-                paed_dosage="3BD";
-            }else if (weighting>=25 && weighting<=34.9){
-                paed_dosage="300/150/200mg";
-            }
-
-        }else if(resulting==25){//Efivarenz 200mg
-        	if (weighting>=3 && weighting<=5.9){
-
-                paed_dosage="";
-             }else if (weighting>=6 && weighting<=9.9){
-                paed_dosage="";
-            }else if (weighting>=10 && weighting<=13.9){
-                paed_dosage="1OD";
-            }else if (weighting>=14 && weighting<=19.9){
-                paed_dosage="1.5OD";
-            }else if (weighting>=20 && weighting<=24.9){
-                paed_dosage="1.5OD";
-            }else if (weighting>=25 && weighting<=34.9){
-                paed_dosage="2OD";
-            }
-
-        }else if(resulting==30 || resulting==31 || resulting==141){//	Nevirapine 10mg/ml suspension
-        	if (weighting>=3 && weighting<=5.9){
-
-                paed_dosage="5ml";
-             }else if (weighting>=6 && weighting<=9.9){
-                paed_dosage="8ml";
-            }else if (weighting>=10 && weighting<=13.9){
-                paed_dosage="10ml";
-            }else if (weighting>=14 && weighting<=19.9){
-                paed_dosage="15ml";
-            }else if (weighting>=20 && weighting<=24.9){
-                paed_dosage="15ml";
-            }else if (weighting>=25 && weighting<=34.9){
-                paed_dosage="";
-            }
-
-        }else if(resulting==9){//	Nevirapine 200mg tabs 
-        	if (weighting>=3 && weighting<=5.9){
-
-                paed_dosage="";
-             }else if (weighting>=6 && weighting<=9.9){
-                paed_dosage="";
-            }else if (weighting>=10 && weighting<=13.9){
-                paed_dosage="0.5OD";
-            }else if (weighting>=14 && weighting<=19.9){
-                paed_dosage="1AM 0.5PM";
-            }else if (weighting>=20 && weighting<=24.9){
-                paed_dosage="1AM 0.5PM";
-            }else if (weighting>=25 && weighting<=34.9){
-                paed_dosage="1OD";
-            }
-
-        }else if(resulting==28){//	Lopinavir/ritonavir 80/20 MG/ML
-        	if (weighting>=3 && weighting<=5.9){
-
-                paed_dosage="1.5ml";
-             }else if (weighting>=6 && weighting<=9.9){
-                paed_dosage="1.5ml";
-            }else if (weighting>=10 && weighting<=13.9){
-                paed_dosage="2ml";
-            }else if (weighting>=14 && weighting<=19.9){
-                paed_dosage="2.5ml";
-            }else if (weighting>=20 && weighting<=24.9){
-                paed_dosage="3ml";
-            }else if (weighting>=25 && weighting<=34.9){
-                paed_dosage="4ml";
-            }
-
-        }else if(resulting==15){//	Lopinavir/ritonavir 200/50mg tab
-        	if (weighting>=3 && weighting<=5.9){
-
-                paed_dosage="";
-             }else if (weighting>=6 && weighting<=9.9){
-                paed_dosage="";
-            }else if (weighting>=10 && weighting<=13.9){
-                paed_dosage="";
-            }else if (weighting>=14 && weighting<=19.9){
-                paed_dosage="1BD";
-            }else if (weighting>=20 && weighting<=24.9){
-                paed_dosage="1BD";
-            }else if (weighting>=25 && weighting<=34.9){
-                paed_dosage="2AM 1PM";
-            }
-
-        }else if(resulting==147){//	ritonavir 80MG/ML
-        	if (weighting>=3 && weighting<=5.9){
-
-                paed_dosage="1ml";
-             }else if (weighting>=6 && weighting<=9.9){
-                paed_dosage="1ml";
-            }else if (weighting>=10 && weighting<=13.9){
-                paed_dosage="1.5ml";
-            }else if (weighting>=14 && weighting<=19.9){
-                paed_dosage="2ml";
-            }else if (weighting>=20 && weighting<=24.9){
-                paed_dosage="2.5ml";
-            }else if (weighting>=25 && weighting<=34.9){
-                paed_dosage="4mlAM 2mlPM";
-            }
-
-        }else if(resulting==110){//	100mg tablets
-        	if (weighting>=3 && weighting<=5.9){
-
-                paed_dosage="";
-             }else if (weighting>=6 && weighting<=9.9){
-                paed_dosage="";
-            }else if (weighting>=10 && weighting<=13.9){
-                paed_dosage="";
-            }else if (weighting>=14 && weighting<=19.9){
-                paed_dosage="2BD";
-            }else if (weighting>=20 && weighting<=24.9){
-                paed_dosage="2BD";
-            }else if (weighting>=25 && weighting<=34.9){
-                paed_dosage="2AM 3PM";
-            }
-
-        }
-       // bootbox.alert(paed_dosage);
-  row.closest("tr").find(".dose").val(paed_dosage);
-                    
-                    });
-                    request_map.fail(function(data) {
-                        bootbox.alert("failed");
-                    });
-
-                    /*****************************/
-
-
-        
 
                     row.closest("tr").find(".batch option").remove();
                     row.closest("tr").find(".batch").append($("<option value='0'>Select</option>"));
@@ -1246,7 +1052,8 @@
             alert_qty_check = true;
         }
         var selected_value = $(this).attr("value");
-        var stock_at_hand = row.closest("tr").find(".soh ").attr("value");
+        if(selected_value > 0){
+        stock_at_hand = row.closest("tr").find(".soh ").attr("value");
         var stock_validity = stock_at_hand - selected_value;
         
         if (stock_validity < 0) {
@@ -1261,7 +1068,11 @@
             row.closest("tr").find(".qty_disp").css("background-color", "white");
             row.closest("tr").find(".qty_disp").removeClass("input_error");
         }
-
+        }else{
+            bootbox.alert("<h4>Notice!</h4>\n\<hr/><center>Quantity dispensed cannot be negative or empty</center>");
+            row.closest("tr").find(".qty_disp").css("background-color", "red");
+            row.closest("tr").find(".qty_disp").addClass("input_error");
+        }
     });
 
     //next pill count change event
@@ -1276,6 +1087,7 @@
     $(".duration").on('keyup', function() {
         var row = $(this);
         var duration = $(this).val();
+        if(duration>0){
         var val = row.closest("tr").find('#doselist').val();
         var dose_val = row.closest("tr").find('.dose option').filter(function() {
             return this.value == val;
@@ -1288,6 +1100,14 @@
         row.closest("tr").find(".qty_disp").val(qty_disp);
         alert_qty_check = true;
         $(".qty_disp").trigger('keyup',[row]);
+        
+            row.closest("tr").find(".duration").css("background-color", "white");
+            row.closest("tr").find(".duration").removeClass("input_error");
+        }else {
+           //bootbox.alert("<h4>Notice!</h4>\n\<hr/><center>Duration cannot be negative or empty</center>"); 
+            row.closest("tr").find(".duration").css("background-color", "red");
+            row.closest("tr").find(".duration").addClass("input_error");
+        }
     });
 	//-------------------------------- CHANGE EVENT END ----------------------------------
 	
@@ -1296,7 +1116,7 @@
 	//function to add drug row in table 
     $(".add").click(function() {
         routine_check=0;
-        var last_row = $('#tbl-dispensing-drugs tr:last');
+        var last_row = $('#tbl-dispensing-drugs tr');
         var drug_selected = last_row.find(".drug").val();
         var quantity_entered = last_row.find(".qty_disp").val();
         if (last_row.find(".qty_disp").hasClass("input_error")) {
@@ -1456,11 +1276,12 @@
     function saveData(){
         $("#btn_submit").attr("readonly","readonly");
         var timestamp = new Date().getTime();
-        var all_rows=$('#drugs_table>tbody>tr');
+        var all_rows=$('#tbl-dispensing-drugs>tbody>tr');
         var msg = '';
-        
+    
         //Loop through all rows to check values
         $.each(all_rows,function(i,v){
+            
             var last_row = $(this);
             var drug_name = last_row.find(".drug option:selected").text();
 
@@ -1468,13 +1289,16 @@
                 msg+='There is no commodity selected<br/>';
             }
             if(last_row.find(".batch").val()==0){
-                msg+='<b>'+drug_name + '</b><br/> There is no batch for the commodity selected<br/>';
+                msg+='<b>'+drug_name + '</b> : There is no batch for the commodity selected<br/>';
+            }
+            if(last_row.find(".duration").val()==0 || last_row.find(".duration").val()=="" || isNaN(last_row.find(".duration").val())==true){
+                msg+='<b>'+drug_name + '</b> :  You have not entered the duration<br/>';
             }
             if(last_row.find(".qty_disp").val()==0 || last_row.find(".qty_disp").val()=="" || isNaN(last_row.find(".qty_disp").val())==true){
-                msg+='<b>'+drug_name + '</b><br/> You have not entered the quantity being dispensed for a commodity entered<br/>';
+                msg+='<b>'+drug_name + '</b> :  You have not entered the quantity being dispensed for a commodity entered<br/>';
             }
-            if(last_row.find(".qty_disp").hasClass("input_error")){
-                msg+='<b>'+drug_name + '</b><br/> There is a commodity that has a quantity greater than the quantity available<br/>';
+            if(last_row.find(".qty_disp").hasClass("input_error")&&last_row.find(".qty_disp").val()>stock_at_hand){
+                msg+='<b>'+drug_name + '</b> :  There is a commodity that has a quantity greater than the quantity available<br/>';
             }
         
         });
@@ -1520,6 +1344,7 @@
 	}
 	
 	function loadOtherDetails(patient_ccc){
+
 		//Load Non adherence reasons, regimen change reasons previously dispensed drugs
 		var link ="<?php echo base_url();?>dispensement_management/get_other_dispensing_details";
 		var request = $.ajax({
@@ -1557,7 +1382,7 @@
 				if(patient_appointment.length==2){
 					appointment_date = patient_appointment[0].Appointment;
 					$("#last_appointment_date").val(appointment_date);//Latest appointment date
-					
+					//loadMyPreviousDispensedDrugs();
 					//------------------------------- PREVIOUS VISIT DATA
 					var link ="<?php echo base_url();?>dispensement_management/getPreviouslyDispensedDrugs";
 					var request = $.ajax({
@@ -1588,7 +1413,8 @@
 			            });
 					
 					
-				}else if(patient_appointment.length==1){
+				}
+				else if(patient_appointment.length==1){
 					appointment_date = patient_appointment[0].Appointment;
 					$("#last_appointment_date").val(appointment_date);
 				}
@@ -1642,6 +1468,40 @@
 
 		}
 	}
+	/*********TESTING FUNCTION*********/
+
+	function loadMyPreviousDispensedDrugs(){
+var link ="<?php echo base_url();?>dispensement_management/getPreviouslyDispensedDrugs";
+					var request = $.ajax({
+			                        url: link,
+			                        type: 'post',
+			                        data: {"patient_ccc": patient_ccc},
+			                        dataType: "json"
+			                    });
+			                    
+						request.done(function(msg){
+							$("#last_visit_data tbody").empty();
+							$(msg).each(function(i,v){//Load last visit data
+								previous_dispensed_data = msg;
+								
+								if(i==0){//Previous dispense details
+									previous_dispensing_date = v.dispensing_date;
+									$("#last_visit_date").val(previous_dispensing_date);
+									$("#last_visit").val(previous_dispensing_date);
+									$("#last_regimen_disp").val(v.regimen_code+" | " +v.regimen_desc);
+									$("#last_regimen").val(v.regimen_id);
+									checkIfDispensed(previous_dispensing_date,$("#dispensing_date").val());
+								}
+								$("#last_visit_data tbody").append("<tr><td>"+v.drug+"</td><td>"+v.quantity+"</td></tr>");
+							});
+						});
+
+
+	}
+/***********************************/
+
+
+
 	
 	function checkIfDispensed(last_visit_date,dispensing_date){//check if patient has already been dispensed drugs for current dispensing date
 		if (last_visit_date) {
