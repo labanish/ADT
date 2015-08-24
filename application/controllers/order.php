@@ -189,7 +189,7 @@ class Order extends MY_Controller {
 
 				$this -> db -> insert_batch($table, $main_array);
 				$success_log .= "Success: " . $table . " Synched <br/>";
-				//start mapping process
+			
 				//$this -> map_process();
 			}
 		}
