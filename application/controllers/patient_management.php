@@ -1458,6 +1458,7 @@ class Patient_Management extends MY_Controller {
 
 	public function load_view( $page_id = NULL ,$id = NULL)
 	{
+		phpinfo(); die;
         $config['details'] = array(
         						'patient_id' => $id,
         						'content_view' => 'patients/details_v',

@@ -179,11 +179,11 @@ class Order extends MY_Controller {
 					unset($main_array[$key]['lmis_id']);
 					# code...
 				}
-					echo "<pre>";
-				print_r($main_array);
-				echo "</pre>";
+// 					echo "<pre>";
+// 				print_r($main_array);
+// 				echo "</pre>";
 
-die();
+// die();
 
 				$this -> db -> query("TRUNCATE $table");
 
