@@ -1,6 +1,6 @@
 <?php
 class Order extends MY_Controller {
-	var $esm_url = "http://api.kenyapharma.org/";
+	var $esm_url = "http://api.kenyapharma.org/demo";
 	var $nascop_url = "";
 	function __construct() {
 		parent::__construct();
@@ -9,15 +9,8 @@ class Order extends MY_Controller {
 
 		$dir = realpath($_SERVER['DOCUMENT_ROOT']);
 	    $link = $dir . "\\ADT\\assets\\nascop.txt";
-	   // $vr = file_get_contents($link)."/laban";
-	   // $vr1=str_replace(" ",'',$vr);
-	   // print_r($vr);
-	    //die();
-		$this -> nascop_url = file_get_contents($link);
-		//nascop_url = file_get_contents($link);
-//print_r(nascop_url);
-	  //  die();
 
+		$this -> nascop_url = file_get_contents($link);
 	}
 
 	public function index() {
@@ -179,11 +172,6 @@ class Order extends MY_Controller {
 					unset($main_array[$key]['lmis_id']);
 					# code...
 				}
-					/*echo "<pre>";
-				print_r($main_array);
-				echo "</pre>";*/
-
-//die();
 
 				$this -> db -> query("TRUNCATE $table");
 
