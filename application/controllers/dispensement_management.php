@@ -139,7 +139,7 @@ class Dispensement_Management extends MY_Controller {
 		$results1 = $query -> row_array();
 		
 		
-$dated=$results1['dispensing_date'];
+		$dated=$results1['dispensing_date'];
 		
 		//die();
 

@@ -1,6 +1,7 @@
 <?php
 class Order extends MY_Controller {
-	var $esm_url = "http://api.kenyapharma.org/demo";
+
+	var $esm_url = "http://api.kenyapharma.org/demo/";
 	var $nascop_url = "";
 	function __construct() {
 		parent::__construct();
