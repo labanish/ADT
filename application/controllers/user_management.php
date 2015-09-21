@@ -27,7 +27,7 @@ class User_Management extends MY_Controller {
 			$this -> session -> set_flashdata('message', 0);
 			$data = array();
 			$data['title'] = "webADT | System Login";
-			$this -> load -> view("login_v", $data);
+			$this->load->view("login_v", $data);
 		} else {
 			/*
 			 * if user_id is present

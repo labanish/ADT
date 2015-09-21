@@ -48,15 +48,15 @@ class Patient_Management extends MY_Controller {
 		$data['who_stages'] = Who_Stage::getAllHydrated();
 		$data['hide_side_menu'] = '1';
 		$data['content_view'] = "add_patient_v";
-		$this -> base_params($data);
+		$this ->base_params($data);
 	}
 
 	public function checkpatient_no($patient_no) {
 		//Variables
 		$facility_code = $this -> session -> userdata('facility');
-		$sql = "select * from patient where facility_code='$facility_code' and patient_number_ccc='$patient_no'";
-		$query = $this -> db -> query($sql);
-		$results = $query -> result_array();
+		$sql = "SELECT * FROM patient WHERE facility_code='$facility_code' and patient_number_ccc='$patient_no'";
+		$query = $this->db->query($sql);
+		$results = $query->result_array();
 		if ($results) {
 			echo json_decode("1");
 		} else {
