@@ -35,13 +35,19 @@ if($login_type==1){
 				<?php echo form_close();?>
 			</div>
 			<div class="span4" style="margin-top:1em;">
-				<h3>CDRR Templates <i><img class="img-rounded" style="height:30px;" src="<?php echo base_url() . 'assets/images/excel.gif';?>"/> </i></h3>
+				<h3>CDRR Templates  <i><img class="img-rounded" style="height:30px;" src="<?php echo base_url().'assets/images/excel.jpg';?>"/> </i></h3>
 				<div class="accordion-inner">
-					<a href="<?php echo base_url() . 'downloads/F-CDRR for Satellite Sites.xls';?>"> <i class="icon-download-alt"></i> F-CDRR for Satellite Sites.xls</a>
+					<a href="<?php echo base_url().'downloads/modern-templates/F-CDRR for Satellite Sites.xlsx';?>"> <i class="icon-download-alt"></i> F-CDRR for Satellite Sites.xlsx</a>
+				<div>
+				</div class="accordion-inner">	
+					<a href="<?php echo base_url().'downloads/modern-templates/D-CDRR for Central Sites.xlsx';?>"> <i class="icon-download-alt"></i> D-CDRR for Central Sites.xlsx</a>
 				</div>
-				<h3>MAPS Templates <i><img class="img-rounded" style="height:30px;" src="<?php echo base_url() . 'assets/images/excel.gif';?>"/> </i></h3>
+				<h3>MAPS Templates <i><img class="img-rounded" style="height:30px;" src="<?php echo base_url() . 'assets/images/excel.jpg';?>"/> </i></h3>
 				<div class="accordion-inner">
-					<a href="<?php echo base_url() . 'downloads/F-MAPS for Satellite Sites.xls';?>"><i class="icon-download-alt"></i> F-MAPS for Satellite Sites.xls</a>
+					<a href="<?php echo base_url().'downloads/modern-templates/F-MAPS for Satellite Sites.xlsx';?>"><i class="icon-download-alt"></i> F-MAPS for Satellite Sites.xlsx</a>
+				<div>
+				</div class="accordion-inner">	
+					<a href="<?php echo base_url().'downloads/modern-templates/D-CDRR for Central Sites.xlsx';?>"><i class="icon-download-alt"></i> D-CDRR for Central Sites.xlsx</a>
 				</div>
 			</div>
 		</div>
@@ -81,15 +87,21 @@ if($login_type==1){
 				<?php echo form_close();?>
 			</div>
 			<div class="span4" style="margin-top:1em;">
-				<h3>CDRR Templates <i><img class="img-rounded" style="height:30px;" src="<?php echo base_url() . 'assets/images/excel.gif';?>"/> </i></h3>
+				<h3>CDRR Templates  <i><img class="img-rounded" style="height:30px;" src="<?php echo base_url().'assets/images/excel.jpg';?>"/> </i></h3>
 				<div class="accordion-inner">
-				<!-- addition of the most recent downloads from MOH (templates) -->
-					<a href="<?php echo base_url().'downloads/modern-templates/F-CDRR for Satellite Sites.xls';?>"> <i class="icon-download-alt"></i> F-CDRR for Satellite Sites.xls</a>
+					<a href="<?php echo base_url().'downloads/modern-templates/F-CDRR for Satellite Sites.xlsx';?>"> <i class="icon-download-alt"></i> F-CDRR for Satellite Sites.xlsx</a>
+				<div>
+				</div class="accordion-inner">	
+					<a href="<?php echo base_url().'downloads/modern-templates/D-CDRR for Central Sites.xlsx';?>"> <i class="icon-download-alt"></i> D-CDRR for Central Sites.xlsx</a>
 				</div>
-				<h3>MAPS Templates <i><img class="img-rounded" style="height:30px;" src="<?php echo base_url() . 'assets/images/excel.gif';?>"/> </i></h3>
+				<h3>MAPS Templates <i><img class="img-rounded" style="height:30px;" src="<?php echo base_url() . 'assets/images/excel.jpg';?>"/> </i></h3>
 				<div class="accordion-inner">
-					<a href="<?php echo base_url().'downloads/F-MAPS for Satellite Sites.xls';?>"><i class="icon-download-alt"></i> F-MAPS for Satellite Sites.xls</a>
+					<a href="<?php echo base_url().'downloads/modern-templates/F-MAPS for Satellite Sites.xlsx';?>"><i class="icon-download-alt"></i> F-MAPS for Satellite Sites.xlsx</a>
+				<div>
+				</div class="accordion-inner">	
+					<a href="<?php echo base_url().'downloads/modern-templates/D-CDRR for Central Sites.xlsx';?>"><i class="icon-download-alt"></i> D-CDRR for Central Sites.xlsx</a>
 				</div>
+			</div>
 			</div>
 		</div>
 	</div>
