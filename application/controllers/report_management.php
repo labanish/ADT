@@ -1,4 +1,6 @@
 <?php
+
+echo $_ci_view; die();
 class report_management extends MY_Controller {
 
 	var $counter = 0;
