@@ -191,13 +191,16 @@ o		<a href='<?php echo site_url("order/download_order/cdrr/".$cdrr_id);?>'><?php
 						<th class="number" rowspan="3">Unit Pack Size</th>
 						<th class="number">Beginning Balance</th>
 						<th class="number">Quantity <br/>Received in this period</th>
-						<th class="col_dispensed_units">Total Quantity ISSUED to <br/> ARV dispensing sites <br/>(Satellite sites plus<br/>Central site dispensing <br/>point(s) where relevant)</th>
-						<th class="col_losses_units">Losses<br/>(Damages, Expiries, Missing)</th>
-						<th class="col_adjustments">Adjustments (Borrowed from <br/>or Issued out to Other Facilities)</th>
+						<th class="col_dispensed_units">Total Quantity ISSUED to <br/> ARV dispensing sites <br/><font style="font-weight:lighter; color:blue;">(Satellite sites plus<br/>Central site dispensing <br/>point(s) where relevant)</font></th>
+						<th class="col_losses_units">Losses<br/><font style="font-weight:lighter; color:blue;">(Damages, Expiries, Missing)</font></th>
+<!-- new column for the cdrr_array -->
+						<th class="col_adjustments">Positive</br> Adjustments</br><font style="font-weight:lighter; color:blue;"> (Stocks transfers from other facilities)</font></th>
+						<th class="col_adjustments">Negative </br>Adjustments</br><font style="font-weight:lighter; color:blue;"> (Borrowed from <br/>or Issued out to Other Facilities)</font></th>
+<!-- end of new column for the cdrr_array -->						
 						<th class="number">End of Month Physical Count</th>
-						<th class="number">Reported Aggregated Quantity CONSUMED in the reporting period (Satellite sites plus Central site dispensing point where relevant)</th>
-						<th class="number">Reported Aggregated Physical Stock on Hand at end of reporting period (Satellite sites plus Central site dispensing point where relevant)</th>
-						<th class="number" colspan="2">Drugs with less than 6 months to expiry(Central Site/District Store)</th>
+						<th class="number">Reported Aggregated Quantity CONSUMED in the reporting period <font style="font-weight:lighter; color:blue;">(Satellite sites plus Central site dispensing point where relevant)</font></th>
+						<th class="number">Reported Aggregated Physical Stock on Hand at end of reporting period <font style="font-weight:lighter; color:blue;">(Satellite sites plus Central site dispensing point where relevant)</font></th>
+						<th class="number" colspan="2">Drugs with less than 6 months to expiry<font style="font-weight:lighter; color:blue;">(Central Site/District Store)</font></th>
 						<th class="number">Days out of stock this Month</th>
 						<th class="number">Quantity required for RESUPPLY</th>
 					</tr>
@@ -206,6 +209,7 @@ o		<a href='<?php echo site_url("order/download_order/cdrr/".$cdrr_id);?>'><?php
 						<th>In Packs</th>
 						<th class="col_dispensed_units">In Packs</th>
 						<th class="col_dispensed_units">In Packs</th>
+						<th>In Packs</th>
 						<th>In Packs</th>
 						<th>In Packs</th>
 						<th>In Packs</th>
@@ -221,6 +225,7 @@ o		<a href='<?php echo site_url("order/download_order/cdrr/".$cdrr_id);?>'><?php
 						<th>C</th>
 						<th>D</th>
 						<th>E</th>
+						<th>E1</th>
 						<th>F</th>
 						<th>G</th>
 						<th>H</th>
