@@ -287,28 +287,32 @@ o		<a href='<?php echo site_url("order/download_order/cdrr/".$cdrr_id);?>'><?php
 		$header_text = '<thead style="text-align:left;background:#c3d9ff;">
 					<tr>
 						<th class="col_drug" rowspan="3">Drug Name</th>
-						<th class="number" rowspan="3">Basic Unit</th>
+						<th class="number" rowspan="3">Unit Pack Size</th>
 						<th class="number">Beginning Balance</th>
-						<th class="number">Quantity <br/>Received in this period</th>
+						<th class="number">Quantity <br/>Received this period</th>
 						<th class="col_dispensed_units">Total Quantity Dispensed <br/>this period</th>
-						<th class="col_losses_units">Losses <br/>(Damages, Expiries, Missing)</th>
-						<th class="col_adjustments">Adjustments (Borrowed from <br/>or Issued out to Other Facilities)</th>
-						<th class="number">End of Month Physical Count</th>
+						<th class="col_losses_units">Losses <br/><font style="font-weight:lighter; color:blue;">(Damages, Expiries, Missing)</font></th>
+<!-- new column for the cdrr_array -->
+						<th class="col_adjustments">Positive</br> Adjustments</br><font style="font-weight:lighter; color:blue;"> (Stocks transfers from other facilities)</font></th>
+						<th class="col_adjustments">Negative </br>Adjustments</br><font style="font-weight:lighter; color:blue;"> (Borrowed from <br/>or Issued out to Other Facilities)</font></th>
+<!-- end of new column for the cdrr -->
+						<th class="number">End of Month</br> Physical Count</br><font style="font-weight:lighter; color:blue;">(For CS </br>Dispensing </br>Point, please </br><strong>exclude</strong> the central site Store stocks)</font></th>
 						<th class="number" colspan="2">Drugs with less than 6 months to expiry</th>
 						<th class="number">Days out of stock this Month</th>
 						<th class="number">Quantity required for RESUPPLY</th>
 					</tr>
 					<tr>
-						<th>In Units</th>
-						<th>In Units</th>
-						<th class="col_dispensed_units">In Units</th>
-						<th class="col_dispensed_units">In Units</th>
-						<th>In Units</th>
-						<th>In Units</th>
+						<th>In Packs</th>
+						<th>In Packs</th>
+						<th class="col_dispensed_units">In Packs</th>
+						<th class="col_dispensed_units">In Packs</th>
+						<th>In Packs</th>
+						<th>In Packs</th>
+						<th>In Packs</th>
 						<th>Quantity</th>
 						<th>Expiry Date</th>
 						<th></th>
-						<th>In Units</th>
+						<th>In Packs</th>
 					</tr>
 					<tr>
 						<th>A</th>
@@ -317,10 +321,11 @@ o		<a href='<?php echo site_url("order/download_order/cdrr/".$cdrr_id);?>'><?php
 						<th>D</th>
 						<th>E</th>
 						<th>F</th>
-						<th>In Units</th>
-						<th>mm-yy</th>
 						<th>G</th>
+						<th>In Unit Packs</th>
+						<th>mm-yy</th>
 						<th>H</th>
+						<th>I</th>
 					</tr>
 			</thead>';}echo $header_text;?>
 				<tbody>
