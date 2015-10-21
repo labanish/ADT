@@ -225,14 +225,14 @@ o		<a href='<?php echo site_url("order/download_order/cdrr/".$cdrr_id);?>'><?php
 						<th>C</th>
 						<th>D</th>
 						<th>E</th>
-						<th>E1</th>
 						<th>F</th>
 						<th>G</th>
 						<th>H</th>
+						<th>I</th>
 						<th>In Packs</th>
 						<th>mm-yy</th>
-						<th>I</th>
 						<th>J</th>
+						<th>K</th>
 					</tr>
 			</thead>';
 
