@@ -343,15 +343,15 @@ o		<a href='<?php echo site_url("order/download_order/cdrr/".$cdrr_id);?>'><?php
 			                   }
 						  if($hide_generate==2){
 						  if($commodity->Category==1 && $count_one==0){
-						  	  echo '<tr><td colspan="14" style="text-align:center;background:#999;">Adult Preparations</td></tr>';
+						  	  echo '<tr><td colspan="15" style="text-align:center;background:#999;">Adult Preparations</td></tr>';
 							  $count_one++;
 						  }	   
 						  if($commodity->Category==2 && $count_two==0){
-						  	  echo '<tr><td colspan="14" style="text-align:center;background:#999;">Pediatric Preparations</td></tr>';
+						  	  echo '<tr><td colspan="15" style="text-align:center;background:#999;">Pediatric Preparations</td></tr>';
 							  $count_two++;
 						  }
                           if($commodity->Category==3 && $count_three==0){
-						  	  echo '<tr><td colspan="14" style="text-align:center;background:#999;">Drugs for OIs</td></tr>';
+						  	  echo '<tr><td colspan="15" style="text-align:center;background:#999;">Drugs for OIs</td></tr>';
 							  $count_three++;
 						  }
 						  }else{
@@ -391,31 +391,34 @@ o		<a href='<?php echo site_url("order/download_order/cdrr/".$cdrr_id);?>'><?php
 						<?php	
 						}
 						?>
-						<td> <input name="opening_balance[]" id="opening_balance_<?php echo $commodity -> id;?>" type="text" class="opening_balance"/></td>
-						<td> <input name="quantity_received[]" id="received_in_period_<?php echo $commodity -> id;?>" type="text" class="quantity_received"/></td>
-						<td> <input name="quantity_dispensed[]" id="dispensed_in_period_<?php echo $commodity -> id;?>" type="text" class="quantity_dispensed"/></td>
+						<td> <input name="opening_balance[]" id="opening_balance_<?php echo $commodity -> id;?>" type="text" class="opening_balance" style="width:100%;"/></td>
+						<td> <input name="quantity_received[]" id="received_in_period_<?php echo $commodity -> id;?>" type="text" class="quantity_received" style="width:100%;"/></td>
+						<td> <input name="quantity_dispensed[]" id="dispensed_in_period_<?php echo $commodity -> id;?>" type="text" class="quantity_dispensed" style="width:100%;"/></td>
 						<?php
 	                    if($stand_alone==1){
 	                    ?>
-	                    <td> <input name="quantity_dispensed_packs[]" id="dispensed_in_period_packs_<?php echo $commodity -> id;?>" type="text" class="quantity_dispensed_packs"/></td>
+	                    <td> <input name="quantity_dispensed_packs[]" id="dispensed_in_period_packs_<?php echo $commodity -> id;?>" type="text" class="quantity_dispensed_packs" style="width:100%;"/></td>
 	                    <?php
 						}
 	                    ?>
-						<td> <input name="losses[]" id="losses_in_period_<?php echo $commodity->id;?>" type="text" class="losses"/></td>
-						<td> <input name="adjustments[]" id="adjustments_in_period_<?php echo $commodity->id;?>" type="text" class="adjustments"/></td>
-						<td> <input tabindex="-1" name="physical_count[]" id="physical_in_period_<?php echo $commodity->id;?>" type="text" class="physical_count"/></td>
+						<td> <input name="losses[]" id="losses_in_period_<?php echo $commodity->id;?>" type="text" class="losses" style="width:100%;"/></td>
+<!-- added column to the new cdrr templates ... Positive Adjustments -->
+	<td> <input name="positive_adjustments[]" id="ppositive_adjustments_in_period_<?php echo $commodity->id;?>" type="text" class="adjustments" style="width:100%;"/></td>
+<!-- end of added column to the new cdrr templates ... Positive Adjustments -->						
+						<td> <input name="adjustments[]" id="adjustments_in_period_<?php echo $commodity->id;?>" type="text" class="adjustments" style="width:100%;"/></td>
+						<td> <input tabindex="-1" name="physical_count[]" id="physical_in_period_<?php echo $commodity->id;?>" type="text" class="physical_count" style="width:100%;"/></td>
 						<?php
 	                    if($hide_generate==2){
 	                    ?>
-						<td> <input tabindex="-1" name="aggregated_qty[]" id="aggregated_qty_<?php echo $commodity->id;?>" type="text" class="aggregated_qty"/></td>
-						<td> <input tabindex="-1" name="aggregated_physical_qty[]" id="aggregated_physical_qty_<?php echo $commodity->id;?>" type="text" class="aggregated_physical_qty"/></td>
+						<td> <input tabindex="-1" name="aggregated_qty[]" id="aggregated_qty_<?php echo $commodity->id;?>" type="text" class="aggregated_qty" style="width:100%;"/></td>
+						<td> <input tabindex="-1" name="aggregated_physical_qty[]" id="aggregated_physical_qty_<?php echo $commodity->id;?>" type="text" class="aggregated_physical_qty" style="width:100%;"/></td>
 						<?php
 						}
 						?>
-						<td> <input tabindex="-1" name="expire_qty[]" id="expire_qty_<?php echo $commodity -> id;?>" type="text" class="expire_qty"/></td>
-						<td> <input tabindex="-1" name="expire_period[]" id="expire_period_<?php echo $commodity -> id;?>" type="text" class="expire_period"/></td>	
-						<td> <input tabindex="-1" name="out_of_stock[]" id="out_of_stock_<?php echo $commodity -> id;?>" type="text" class="out_of_stock"/></td>
-						<td> <input tabindex="-1" name="resupply[]" id="resupply_<?php echo $commodity -> id;?>" type="text" class="resupply"/></td>	
+						<td> <input tabindex="-1" name="expire_qty[]" id="expire_qty_<?php echo $commodity -> id;?>" type="text" class="expire_qty" style="width:100%;"/></td>
+						<td> <input tabindex="-1" name="expire_period[]" id="expire_period_<?php echo $commodity -> id;?>" type="text" class="expire_period" style="width:100%;"/></td>	
+						<td> <input tabindex="-1" name="out_of_stock[]" id="out_of_stock_<?php echo $commodity -> id;?>" type="text" class="out_of_stock" style="width:100%;"/></td>
+						<td> <input tabindex="-1" name="resupply[]" id="resupply_<?php echo $commodity -> id;?>" type="text" class="resupply" style="width:100%;"/></td>	
 						<input type="hidden" name="commodity[]" value="<?php echo $commodity -> id;?>"/>					
 					</tr>					
 					<?php 
