@@ -304,6 +304,7 @@
 	  //update function
 	  
 	  $(".updater").click(function(){
+	  	$.blockUI({ message: '<h3><img width="30" height="30" src="<?php echo asset_url().'images/loading_spin.gif' ?>" /> synchronizing...</h3>' }); 
 	  	var type=$(this).attr("id");
 	  	if(type=="updates"){
 	  	  var link=base_url+"order/get_updates";	
