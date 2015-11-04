@@ -35,15 +35,15 @@
 		   
 	  	</div>
 		<div class="span5">
-		<label style="float:right;">Welcome <b><?php echo $this->session->userdata("api_user"); ?></b> 
-	  		<div class="dropdown" style="display:inline-block;">
-				<a class="dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-wrench"></i></a>
-				<ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
-					<li><a id="updates" href="#" class="updater"><i class="icon-refresh"></i> Update Records</a>
-	                <li><a  href="#" class="updater"><i class="icon-download"></i> Update Settings</a>
-				</ul>
-			</div>
-		<a href='<?php echo site_url("order/logout"); ?>'>logout</a></label>
+			<label style="float:right;"><i class="icon-user icon-black"></i> <b><?php echo $this->session->userdata("api_user");?> |</b> 
+		  		<div class="dropdown" style="display:inline-block;">
+					<a class="dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-wrench"></i> Updates</a> <strong> |</strong>
+					<ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+						<li><a id="updates" href="#" class="updater"><i class="icon-refresh"></i> Update Records</a>
+		                <li><a  href="#" class="updater"><i class="icon-download"></i> Update Settings</a>
+					</ul>
+				</div>
+			<a href='<?php echo site_url("order/logout"); ?>'><i class="icon-off"></i> Logout</a></label>
 		</div>
 	</div>
 	<!--row for tabs-->
