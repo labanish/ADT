@@ -270,7 +270,7 @@ if (isset($styles)) {
 		        </ul>
 	        </div><!--/.nav-collapse -->
 			<div class="welcome_msg">
-				<span>Welcome <b style="font-weight: bolder;font-size: 20px;"><?php echo $this -> session -> userdata('full_name');?></b>. <a id="logout_btn" href="<?php echo base_url().'user_management/logout/2' ?>"><i class="icon-off"></i>Logout</a></span>
+				<span><font style="color:#B8B8B8; text-transform: uppercase; font-weight: bold;" >username: </font><b style="font-weight: bold;font-size: 15px;text-transform: uppercase;"><?php echo $this -> session -> userdata('full_name');?> | </b><a id="logout_btn" href="<?php echo base_url().'user_management/logout/2' ?>"><i class="icon-off"></i> Logout</a></span>
 				<br>
 				<span class="date"><?php echo date('l, jS F Y') ?></span>
 				<input type="hidden" id="facility_hidden" />
