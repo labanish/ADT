@@ -42,7 +42,10 @@
          
          $(".listing_table").wrap('<div class="dataTables_scroll" />');
 	});
-
+  function notActive()
+	  	{
+       		bootbox.alert("<h4>Status Not Active</h4>\n\<hr/><center>Cannot Dispense to Patient</center>");
+		}
 </script>
 <?php
 $access_level = $this -> session -> userdata('user_indicator');
