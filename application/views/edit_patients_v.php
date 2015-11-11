@@ -1290,10 +1290,10 @@ foreach($results as $result){
 		<div class="max-row" id="isoniazid_view">
 				<div class="mid-row" id="isoniazid_start_date_view">
 				<label>Isoniazid Start Date</label>
-				<input type="text" name="iso_start_date" id="iso_start_date"  style="color:red"/>
+				<input type="text" name="iso_start_date" id="iso_start_date"  style="color:red" class="validate[required]"/>
 				</div>
 				<div class="mid-row" id="isoniazid_end_date_view">
-				<label> Isoniazid End Date</label>
+				<label > Isoniazid End Date</label>
 				<input  type="text"name="iso_end_date" id="iso_end_date" style="color:red">
 				</div>								
 			</div>
