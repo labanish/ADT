@@ -11,6 +11,7 @@
 	td {
 	  white-space: nowrap;
 	  overflow: hidden;         /* <- this does seem to be required */
+	  text-align: left !important;
 	  text-overflow: ellipsis;
 	}
 	
@@ -25,7 +26,7 @@
 				"sDom" : '<"H"T<"clear">lfr>t<"F"ip>',
 				"bProcessing" : true,
 				"bServerSide" : true,
-				"bAutoWidth" : true,
+				"bAutoWidth" : false,
 				"bDeferRender" : true,
 				"bInfo" : true,
 				"sAjaxSource": "patient_management/listing",
