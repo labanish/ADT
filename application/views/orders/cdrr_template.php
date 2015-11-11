@@ -403,7 +403,7 @@ o		<a href='<?php echo site_url("order/download_order/cdrr/".$cdrr_id);?>'><?php
 	                    ?>
 						<td> <input name="losses[]" id="losses_in_period_<?php echo $commodity->id;?>" type="text" class="losses" style="width:100%;"/></td>
 <!-- added column to the new cdrr templates ... Positive Adjustments -->
-	<td> <input name="positive_adjustments[]" id="ppositive_adjustments_in_period_<?php echo $commodity->id;?>" type="text" class="adjustments" style="width:100%;"/></td>
+	<td> <input name="positive_adjustments[]" id="positive_adjustments_in_period_<?php echo $commodity->id;?>" type="text" class="adjustments" style="width:100%;"/></td>
 <!-- end of added column to the new cdrr templates ... Positive Adjustments -->						
 						<td> <input name="adjustments[]" id="adjustments_in_period_<?php echo $commodity->id;?>" type="text" class="adjustments" style="width:100%;"/></td>
 						<td> <input tabindex="-1" name="physical_count[]" id="physical_in_period_<?php echo $commodity->id;?>" type="text" class="physical_count" style="width:100%;"/></td>
