@@ -3,7 +3,7 @@
 		letter-spacing:0px;
 	}
 	table.dataTable{
-	    zoom:0.85;	
+	    zoom:0.85;
 	}
 	.table-bordered input {
 		width:8em;
@@ -25,7 +25,7 @@
 				"sDom" : '<"H"T<"clear">lfr>t<"F"ip>',
 				"bProcessing" : true,
 				"bServerSide" : true,
-				"bAutoWidth" : false,
+				"bAutoWidth" : true,
 				"bDeferRender" : true,
 				"bInfo" : true,
 				"sAjaxSource": "patient_management/listing",
@@ -103,7 +103,7 @@ if ($access_level == "facility_administrator") {
 			?>
 		</div>
 		<div class="table-responsive">
-		<table class="listing_table table table-bordered table-hover table-condensed" id="patient_listing1" >
+		<table class="listing_table table table-bordered table-hover table-condensed" id="patient_listing1">
 			<thead>
 				<tr>
 					<th >CCC No</th>
