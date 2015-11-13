@@ -35,7 +35,7 @@
 		letter-spacing:0px;
 	}
 	table.dataTable{
-	    zoom:0.80;	
+	    zoom:0.9;	
 	}
 	.table-bordered input {
 		width:4em;
