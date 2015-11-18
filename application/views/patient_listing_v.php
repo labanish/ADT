@@ -3,7 +3,7 @@
 		letter-spacing:0px;
 	}
 	table.dataTable{
-	    zoom:0.85;	
+	    zoom:0.85;
 	}
 	.table-bordered input {
 		width:8em;
@@ -11,6 +11,7 @@
 	td {
 	  white-space: nowrap;
 	  overflow: hidden;         /* <- this does seem to be required */
+	  text-align: left !important;
 	  text-overflow: ellipsis;
 	}
 	
@@ -103,7 +104,7 @@ if ($access_level == "facility_administrator") {
 			?>
 		</div>
 		<div class="table-responsive">
-		<table class="listing_table table table-bordered table-hover table-condensed" id="patient_listing1" >
+		<table class="listing_table table table-bordered table-hover table-condensed" id="patient_listing1">
 			<thead>
 				<tr>
 					<th >CCC No</th>
