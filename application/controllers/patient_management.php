@@ -9,7 +9,8 @@ class Patient_Management extends MY_Controller {
 	}
 
 	public function index() {
-		$data['content_view'] = "patient_listing_v";
+		//$data['content_view'] = "patient_listing_v";
+		$data['content_view'] = "patients/listing_view";
 		$this -> base_params($data);
 	}
 	public function merge_list() {
