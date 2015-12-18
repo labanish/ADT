@@ -14,8 +14,7 @@ class auto_management extends MY_Controller {
 	    $link = $dir . "\\ADT\\assets\\nascop.txt";
 		$this -> nascop_url = trim(file_get_contents($link));
 		$this -> eid_url="http://nascop.org/eid/";
-               // $this->ftp_url='41.89.6.210';
-                  $this->ftp_url='192.168.133.10';
+        $this->ftp_url='192.168.133.10';
 	}
 
 	public function index($manual=FALSE){
@@ -626,12 +625,12 @@ class auto_management extends MY_Controller {
 		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
-		$json_data = curl_exec($ch);
+		$json_data = curl_exec($ch); 
 		if (empty($json_data)) {
 			$message = "cURL Error: " . curl_error($ch)."<br/>";
 			$this -> session -> set_userdata("curl_error", 1);
 		} else {
-			$data = json_decode($json_data, TRUE);
+			$data = json_decode($json_data, TRUE); 
 			$lab_data=$data['posts'];
 			foreach($lab_data as $lab){
 				foreach($lab as $tests){
