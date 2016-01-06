@@ -213,6 +213,8 @@ if ($facility_object -> service_pep == "1") {
 						</tr>
 					</tbody>
 				</table>
+
+<!-- End of the top section -->
 				<?php
 					if($hide_generate==2 && $hide_btn==0){
 				?>
@@ -239,6 +241,8 @@ if ($facility_object -> service_pep == "1") {
 							</span>No of Cumulative Active Patients/Clients on this regimen at the End of the Reporting period<span></th>
 						</tr>
 					</thead>
+
+			<!-- start to display the available Regimens from the system DB -->
 					<?php
 			$counter = 1;
 			foreach($regimen_categories as $category){
@@ -247,7 +251,7 @@ if ($facility_object -> service_pep == "1") {
 					<tbody>
 						<?php
 						if($options=='view'){
-							//Don't displai OI regimens
+							//Don't display OI regimens
 							if(strtoupper($category) == 'OI REGIMEN'){
 								continue;
 							}
@@ -335,11 +339,13 @@ if ($facility_object -> service_pep == "1") {
 					?>
 				</table>
 			</div>
+
+<!--Start of Remove from the maps -->
 			<div class="facility_info_bottom" style="width:100%;">
 				<table class=" table table-bordered ">
 					<tr>
 						<td colspan="3">
-							<strong>List Any Other Regimen</strong><br>
+							<strong>List Any Other Regimens</strong><br>
 							<textarea name="other_regimen" id="other_regimen" style="width:100%" value="<?php echo @$fmaps_array[0]['comments'];?>" ></textarea>
 						</td>
 					</tr>
@@ -368,6 +374,7 @@ if ($facility_object -> service_pep == "1") {
 						<td><span>Children (&lt;=15yrs)</span><input type="text"  class="validate[requied] tbl_header_input f_right" name="diflucan_child" id="diflucan_child" value="<?php echo @$fmaps_array[0]['diflucan_child'];?>" /></td>
 					</tr>
 				</table>
+	<!-- Second section of remove from MAPS -->
 				<table class=" table table-bordered ">
 					<tr>
 						<th colspan="2" style="text-align: center">CM</th><th colspan="2" style="text-align: center">OC</th>
@@ -393,6 +400,9 @@ if ($facility_object -> service_pep == "1") {
 					}
 					?>
 				</table>
+	<!-- End of second secion -->
+
+<!-- End of the Remove section from MAPS -->
 				<?php
 				if($is_view==1 || $is_update==1){
 				?>
