@@ -9,7 +9,7 @@ class Order extends MY_Controller {
 		$this -> load -> library('Curl');
 
 		$dir = realpath($_SERVER['DOCUMENT_ROOT']);
-	    $link = $dir . "\\ADT\\assets\\nascop.txt";
+	    $link = $dir . "/ADT/assets/nascop.txt";
 
 		$this -> nascop_url = file_get_contents($link);
 	}
@@ -3724,14 +3724,16 @@ class Order extends MY_Controller {
 			    'received_from'=>0,
 			    'dispensed_to_patients'=>0,
 			    'losses'=>0,
+			    'positive_adjustment' =>0,
 			    'adjustments'=>0,
 			    'physical_stock'=>0,
 			    'expiry_qty'=>0,
-			    'expiry_month'=>"-",
+			    'expiry_month'=>"--",
 			    'stock_out'=>0,
 			    'resupply'=>0
 			    );
-          
+         // echo 'me';
+		 //die();
         //set parameters
         $param=array(
 	             "drug_id"=>$this->input->post("drug_id"),
@@ -3740,6 +3742,14 @@ class Order extends MY_Controller {
 			     "code"=>$this->input->post("code"),
 			     "stores"=>$this->input->post("stores")
 		        );
+
+       // print_r($param);
+        //$me=$this->getBeginningBalance($param);
+        //$balance=Cdrr_Item::getLastPhysicalStock($param['period_begin'], $param['drug_id'], $param['facility_id']);
+        //$balance=Cdrr_Item::getLastPhysicalStock2();
+        //echo '<br>';
+        //print_r($balance);
+        //die();
 
         $code=$param['code'];
         $facility_id=$param['facility_id'];
@@ -3760,7 +3770,14 @@ class Order extends MY_Controller {
 
 
 		$row['beginning_balance']=$this->getBeginningBalance($param);
+        //$row['positive_adjustment']=$this->getBeginningBalance($param);
+        //$row['positive_adjustment']=Cdrr_Item::getPositiveAdjustment($param['period_begin'], $param['drug_id'], $param['facility_id']);
 	    $row=$this->getOtherTransactions($param,$row);
+        //unset($row['adjustment_plus']);
+
+		//print_r($row['beginning_balance']);
+		//die();
+		//$row['']=0;
 	    
 	    if($row['stock_out']==null){
 			$row['stock_out']=0;
@@ -3938,9 +3955,12 @@ class Order extends MY_Controller {
 		}
 		//losses
 		$row['losses'] = @$row['losses_'];
+        $row['positive_adjustment'] = @$row['adjustment_plus'];
 		unset($row['losses_']);
 		//adjustments
-		$row['adjustments'] = @$row['adjustment_plus'] - @$row['adjustment__'];
+		//$row['adjustments'] = @$row['adjustment_plus'] - @$row['adjustment__'];
+		$row['adjustments'] = @$row['adjustment__'];
+
 		unset($row['adjustment_plus']);
 		unset($row['adjustment__']);
 

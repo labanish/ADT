@@ -402,9 +402,9 @@ o		<a href='<?php echo site_url("order/download_order/cdrr/".$cdrr_id);?>'><?php
 						}
 	                    ?>
 						<td> <input name="losses[]" id="losses_in_period_<?php echo $commodity->id;?>" type="text" class="losses" style="width:100%;"/></td>
-<!-- added column to the new cdrr templates ... Positive Adjustments -->
-	<td> <input name="positive_adjustments[]" id="positive_adjustments_in_period_<?php echo $commodity->id;?>" type="text" class="adjustments" style="width:100%;"/></td>
-<!-- end of added column to the new cdrr templates ... Positive Adjustments -->						
+						<!-- added column to the new cdrr templates ... Positive Adjustments -->
+						<td> <input name="positive[]" id="positive_adjustment_<?php echo $commodity->id;?>" type="text" class="positive_adjustment_" style="width:100%;"/></td>
+						<!-- end of added column to the new cdrr templates ... Positive Adjustments -->
 						<td> <input name="adjustments[]" id="adjustments_in_period_<?php echo $commodity->id;?>" type="text" class="adjustments" style="width:100%;"/></td>
 						<td> <input tabindex="-1" name="physical_count[]" id="physical_in_period_<?php echo $commodity->id;?>" type="text" class="physical_count" style="width:100%;"/></td>
 						<?php
@@ -573,6 +573,9 @@ o		<a href='<?php echo site_url("order/download_order/cdrr/".$cdrr_id);?>'><?php
 				calculatePacks($(this));
 			}
 		});
+        $(".positive").live('change',function() {
+            calculateResupply($(this));
+        });
 		$(".losses").live('change',function() {
 			calculateResupply($(this));
 		});
@@ -624,6 +627,7 @@ o		<a href='<?php echo site_url("order/download_order/cdrr/".$cdrr_id);?>'><?php
 		<?php	
 		}
 		?>
+          $("#positive_adjustment_<?php echo $cdrr['drug_id']; ?>").val("<?php echo $cdrr['positive']; ?>");
 		  $("#losses_in_period_<?php echo $cdrr['drug_id']; ?>").val("<?php echo $cdrr['losses']; ?>");
 		  $("#adjustments_in_period_<?php echo $cdrr['drug_id']; ?>").val("<?php echo $cdrr['adjustments']; ?>");
 		  $("#physical_in_period_<?php echo $cdrr['drug_id']; ?>").val("<?php echo $cdrr['count']; ?>");
