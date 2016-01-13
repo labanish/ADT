@@ -303,7 +303,7 @@ class Regimen_management extends MY_Controller {
 	
 	public function getNonMappedRegimens($param='0'){
 		$data = array();
-		$query = $this -> db -> query("SELECT s.id,s.code,s.name,sr.Name as category_name,s.category_id
+		$query = $this->db->query("SELECT s.id,s.code,s.name,sr.Name as category_name,s.category_id
                                        FROM sync_regimen s 
                                        LEFT JOIN sync_regimen_category sr ON sr.id = s.category_id
                                        WHERE s.id NOT IN(SELECT r.map
@@ -311,7 +311,7 @@ class Regimen_management extends MY_Controller {
                                                          WHERE r.map !='0')
                                                          OR s.name LIKE '%other%'
                                        ORDER BY s.category_id,s.code asc");
-		$data['sync_regimen'] = $query -> result_array();
+		$data['sync_regimen'] = $query->result_array();
 		if($param==1){
 			echo json_encode($data['sync_regimen']);
 			die();

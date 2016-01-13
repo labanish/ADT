@@ -595,6 +595,10 @@
 						<tr><th style="width: 5%">#</th><th style="width:65%">Regimens</th><th>Sync Regimens</th></tr>
 					</thead>
 					<tbody>
+
+<!-- the body of the Map regiments contents -->
+
+
 					</tbody>
 				</table>
 			</div>
@@ -624,6 +628,7 @@
 		
 		//Select bulk map change
 		$(".sel_bulk_map").live("change",function(){
+			// alert("Im here instead");
 			var map_id = $(this).attr("value");
 			$(this).closest('tr').attr("map_id",map_id);
 		});
@@ -640,10 +645,12 @@
 		});
 		
 	})
-	
+
+// function to create the map regimens table in the moodle
 	function appendRows(counter,total,data){
 		var name = data[counter]['Regimen_Desc'];
 		var code = data[counter]['Regimen_Code'];
+		alert(name);
 		var id = data[counter]['id'];
 		if(counter<(total-1)){
 			var c = counter+1;

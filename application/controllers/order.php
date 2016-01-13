@@ -2899,7 +2899,10 @@ class Order extends MY_Controller {
 		$query = $this -> db -> query($sql);
 		$results = $query -> result_array();
 		echo json_encode($results);
+
 	}
+
+	// echo "<pre>"; print_r($results); die();
 	
 	public function getNotMappedRegimenPatients($from,$to){
 		$facility_code = $this -> session -> userdata("facility");
