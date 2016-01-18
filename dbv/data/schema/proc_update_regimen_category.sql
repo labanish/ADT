@@ -1,6 +1,8 @@
 
 -- Add new rows to the regimens' table [regimen_category]
 
+-- To call- call regimen_category(17,'Adult Third Line','1',2);
+
 DELIMITER $$
 
 DROP PROCEDURE IF EXISTS `regimen_category` $$

@@ -336,6 +336,8 @@
 	        <button id="disable_mutliple_regimens" class="btn btn-danger">Disable selected regimens</button>
 	      	<button id="enable_mutliple_regimens" class="btn btn-info">Enable selected regimens</button>
 	      	<a href="#md_bulk_mapping" role="button" class="btn btn-success" id="btn_bulk_mapping"  data-toggle="modal">Bulk mapping</a>
+	      	<!-- New button for updating regimens' table -->
+	      	<button id="update_regimens_table" class="btn btn-danger"><i class="icon-plus icon-black"></i> Update Tables</button>
 	      	<?php echo $regimens;?>
 	      </div>
 	    </div><!--/span-->
@@ -460,12 +462,14 @@
 		echo form_open('regimen_management/update', $attributes);
 		echo validation_errors('<p class="error">', '</p>');
 		?>
+<!-- Modal for adding a new regimen to the database -->
 		<div class="modal-header">
 		    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
 		    <h3 id="EditRegimen">Regimen details</h3>
 		</div>
 		<div class="modal-body">
-		
+
+<!--Generate the table for addding new reimen to the database  -->
 		<table id="regimen_edit_tbl">
 			<tr><td><strong class="label">Regimen Code</strong></td>
 				<td><input type="hidden" name="regimen_id" id="edit_regimen_id" class="input" >
@@ -513,6 +517,7 @@
 			</tr>
 			<tr><td><strong class="label">Mapping</strong></td>
 				<td>
+		<!-- generate the drop down for selecting the mappings  -->
 				 <select class="input all_mappings" id="edit_regimen_mapping" name="regimen_mapping">
 					<option value='0'>-Select One--</option>
 					<?php
@@ -570,7 +575,7 @@
 				</td>	
 			</tr>
 		</table>
-		
+<!-- End of Modal, End of Table  -->
 		
 		</div>
 		<div class="modal-footer">
@@ -581,7 +586,7 @@
 		
 	</div>
 	
-	<!-- Modal for bulk regimen mapping -->
+<!-- Modal for bulk regimen mapping -->
 	<form id="fmBulkMapping" action="">
 		<div id="md_bulk_mapping" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="BulkMapping" aria-hidden="true">
 			<div class="modal-header">
@@ -596,8 +601,7 @@
 					</thead>
 					<tbody>
 
-<!-- the body of the Map regiments contents -->
-
+		<!-- the body of the Map regiments contents -->
 
 					</tbody>
 				</table>
@@ -609,7 +613,7 @@
 			</div>
 		</div>
 	</form>
-	<!-- Modal for bulk regimen mapping  End-->
+<!-- Modal for bulk regimen mapping  End-->
 		
 </div>
 
@@ -628,7 +632,6 @@
 		
 		//Select bulk map change
 		$(".sel_bulk_map").live("change",function(){
-			// alert("Im here instead");
 			var map_id = $(this).attr("value");
 			$(this).closest('tr').attr("map_id",map_id);
 		});
@@ -650,7 +653,6 @@
 	function appendRows(counter,total,data){
 		var name = data[counter]['Regimen_Desc'];
 		var code = data[counter]['Regimen_Code'];
-		alert(name);
 		var id = data[counter]['id'];
 		if(counter<(total-1)){
 			var c = counter+1;

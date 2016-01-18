@@ -1,6 +1,8 @@
 
 -- Add new rows to the regimens' table [sync_regimen_category]
 
+-- To call- call sync_regimen_category(17,'Adult Third Line','1',2);
+
 DELIMITER $$
 
 DROP PROCEDURE IF EXISTS `sync_regimen_category` $$
