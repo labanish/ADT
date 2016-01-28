@@ -15,6 +15,9 @@ class auto_management extends MY_Controller {
 		$this -> nascop_url = trim(file_get_contents($link));
 		$this -> eid_url="http://nascop.org/eid/";
         $this->ftp_url='192.168.133.10';
+
+        // off Campus access
+        // $this->ftp_url='41.89.6.210';
 	}
 
 	public function index($manual=FALSE){
