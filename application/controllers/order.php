@@ -1,4 +1,8 @@
 <?php
+
+// create the buffer
+ob_start();
+
 class Order extends MY_Controller {
 
 	var $esm_url = "http://portal.kemsa.co.ke/escm-api/";
@@ -2811,27 +2815,36 @@ class Order extends MY_Controller {
 		$facility_code = $this -> session -> userdata('facility');
 		//Get maps
 		$sql_maps = 'SELECT m.* FROM maps m WHERE m.id="' . $map_id . '" ORDER BY m.code DESC';
-		$query = $this -> db -> query($sql_maps);
-		$results = $query -> result_array();
+		$query = $this->db->query($sql_maps);
+		$results = $query->result_array();
 		$maps_array = array();
 		$maps_items_array = array();
-		$maps_array['reports_expected'] = $this -> expectedReports($facility_code);
+		$maps_array['reports_expected'] = $this->expectedReports($facility_code);
 		$maps_array['reports_actual'] = 0;
 		$maps_array['art_adult'] = 0;
 		$maps_array['art_child'] = 0;
-		$maps_array['new_male'] = 0;
+		$maps_array['new_male']  = 0;
 		$maps_array['revisit_male'] = 0;
-		$maps_array['new_female'] = 0;
+		$maps_array['new_female']   = 0;
 		$maps_array['revisit_female'] = 0;
 		$maps_array['new_pmtct'] = 0;
 		$maps_array['revisit_pmtct'] = 0;
-		$maps_array['total_infant'] = 0;
+		$maps_array['total_infant']  = 0;
 		$maps_array['pep_adult'] = 0;
 		$maps_array['pep_child'] = 0;
-		$maps_array['total_adult'] = 0;
-		$maps_array['total_child'] = 0;
+		// Reusable variables
+		$maps_array['total_adult'] 	= 0;
+		$maps_array['total_child'] 	= 0;
 		$maps_array['diflucan_adult'] = 0;
 		$maps_array['diflucan_child'] = 0;
+		// Used in the new template. NEW ADDED******
+		$maps_array['cm&oc_adult'] 	= 0;
+		$maps_array['cm&oc_child'] 	= 0;
+		$maps_array['new_cm&oc'] 	= 0;
+		$maps_array['revisit_cm&oc']= 0;
+		$maps_array['cm&oc_child'] 	= 0;
+
+		// not used in the new tenplate. Discard****
 		$maps_array['new_cm'] = 0;
 		$maps_array['revisit_cm'] = 0;
 		$maps_array['new_oc'] = 0;
@@ -3071,6 +3084,16 @@ class Order extends MY_Controller {
 				$results = $query -> result_array();
 				$data['revisit_cm_oc'] = $results;
 			}
+
+
+// New aggregations from the KEMSA template
+
+
+
+
+
+
+// End of the new aggregations from the KEMSA template
 
 			echo json_encode($data);
 		}
@@ -4021,4 +4044,6 @@ class Order extends MY_Controller {
 		echo json_encode($data);
 	}
 }
+// end of buffer: Exit and Clear
+ob_get_clean();
 ?>
