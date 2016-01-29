@@ -2925,8 +2925,6 @@ class Order extends MY_Controller {
 	}
 
 	public function getCentralDataMaps($start_date, $end_date,$data_type ='') {//Get data when generating reports for central site
-		//$start_date='2013-01-01';
-		//$end_date='2013-01-31';
 		$data = array();
 		$facility_code = $this -> session -> userdata("facility");
 		if (isset($facility_code)) {

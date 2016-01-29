@@ -5,7 +5,7 @@ class notification_management extends MY_Controller {
 	function __construct() {
 		parent::__construct();
 
-		ini_set("max_execution_time", "100000");
+		ini_set("max_execution_time", "1000000");
 		ini_set("memory_limit", '2048M');
 		ini_set("allow_url_fopen", '1');
 
@@ -161,6 +161,7 @@ class notification_management extends MY_Controller {
 										   OR p.gender='null' 
 										   OR p.gender is null)
 										   AND p.active='1'
+										   -- AND p.current_status = '1'
 										   GROUP BY p.patient_number_ccc;";
 
 		/*Patients without DOB*/
@@ -309,6 +310,7 @@ class notification_management extends MY_Controller {
 															LEFT JOIN regimen_service_type rst2 ON rst2.id = r.type_of_service
 															WHERE rst1.id != rst2.id
 															AND rst2.Name NOT LIKE '%oi%'
+															-- AND p.current_status = 1
 															GROUP BY p.patient_number_ccc;";
 
 		if($display_array==true){

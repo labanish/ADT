@@ -1,4 +1,9 @@
 <?php
+
+// buffer created
+
+ob_start();
+
 if ($facility_object -> supported_by == "1") {
 	$supporter = "GOK";
 }
@@ -27,6 +32,9 @@ if ($facility_object -> service_pep == "1") {
 	}
 
 }
+ // flush Buffer
+
+ob_get_clean();
 ?>
 <script type="text/javascript">
 	$(document).ready(function(){
@@ -291,7 +299,7 @@ if ($facility_object -> service_pep == "1") {
 						   }
 						}
 						else{
-							//Don't displai OI regimens
+							//Don't display OI regimens
 							if(strtoupper($category -> Name) == 'OI REGIMEN'){
 							 continue;
 							}
@@ -341,6 +349,9 @@ if ($facility_object -> service_pep == "1") {
 			</div>
 
 <!--Start of Remove from the maps -->
+
+<!-- need to Remove the controller that generate the data -->
+
 			<div class="facility_info_bottom" style="width:100%;">
 				<table class=" table table-bordered ">
 					<tr>
