@@ -63,6 +63,7 @@ ob_get_clean();
 		<?php if (empty($fmaps_array)) {?>
 		var report_period="<?php echo date('F-Y', strtotime(date('Y-m-d') . "-1 month")); ?>";
 		$("#reporting_period").val(report_period);
+		$("#reporting_period_end").val(report_period);
 		var month=parseInt("<?php echo date('m', strtotime(date('Y-m-d') . "-1 month")); ?>");
 		var year=parseInt("<?php echo date('Y', strtotime(date('Y-m-d') . "-1 month")); ?>");
         var last_day_month=LastDayOfMonth(year,month);
@@ -75,6 +76,7 @@ ob_get_clean();
 		<?php }else{?>
 		var report_period="<?php echo date('F-Y', strtotime($fmaps_array[0]['period_begin'])); ?>";
 		$("#reporting_period").val(report_period);	
+		$("#reporting_period_end").val(report_period);	
 		var month=parseInt("<?php echo date('m', strtotime($fmaps_array[0]['period_begin'])); ?>");
 		var year=parseInt("<?php echo date('Y', strtotime($fmaps_array[0]['period_begin'])); ?>");
         var last_day_month=LastDayOfMonth(year,month);
@@ -201,13 +203,13 @@ ob_get_clean();
 						<tr>
 							<th>Reporting Period : <span style="float:right;">Beginning</span>  </th>
 							<td colspan="1">
-								<input class="_green" name="reporting_period" id="reporting_period" type="text" placeholder="Click here to select period" readonly="readonly">
+								<input name="start_date" id="period_start" type="text" style="width:10%" readonly="readonly"> <input class="_green" name="reporting_period" id="reporting_period" type="text" placeholder="Click here to select period" style="width:35%" readonly="readonly">
 							</td>
-							<th colspan="2">Ending : <input class="_green" name="reporting_period" id="reporting_period" type="text" placeholder="Click here to select period" readonly="readonly"> </th>
+							<th colspan="2">Ending : <input name="end_date" id="period_end" type="text" readonly="readonly" style="width:10%" disabled="true"> <input class="_green" name="reporting_period_end" id="reporting_period_end" type="text" style="width:35%" readonly="readonly"></th>
 
 						<!-- add start and end date -->
-							<input name="start_date" id="period_start" type="text">
-							<input name="end_date" id="period_end" type="text">
+							<!-- <input name="start_date" id="period_start" type="text"> -->
+							<!-- <input name="end_date" id="period_end" type="text"> -->
 							</td> 
 							<td colspan="2"></td>
 						</tr>
@@ -222,7 +224,7 @@ ob_get_clean();
 									<!-- <th>Revisit <input type="text"  class="validate[requied] tbl_header_input f_right" name="revisit_male" id="revisit_male" value="<?php echo @$fmaps_array[0]['new_female'];?>" /></th> -->
 									<!-- <th>New <input type="text"  class="validate[requied] tbl_header_input f_right" name="new_female" id="new_female" value="<?php echo @$fmaps_array[0]['revisit_male'];?>" /></th> -->
 									<!-- <th>Revisit <input type="text"  class="validate[requied] tbl_header_input f_right" name="revisit_female" id="revisit_female" value="<?php echo @$fmaps_array[0]['revisit_female'];?>"/></th>				 -->
-								<!-- </tr> -->
+								</tr>
 					</tbody>
 				</table>
 
