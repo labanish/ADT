@@ -199,26 +199,30 @@ ob_get_clean();
 							</td>
 						</tr>
 						<tr>
-							<th>Reporting Period : </th><td>
-							<input class="_green" name="reporting_period" id="reporting_period" type="text" placeholder="Click here to select period" readonly="readonly">
+							<th>Reporting Period : <span style="float:right;">Beginning</span>  </th>
+							<td colspan="1">
+								<input class="_green" name="reporting_period" id="reporting_period" type="text" placeholder="Click here to select period" readonly="readonly">
 							</td>
-							<input name="start_date" id="period_start" type="hidden">
-							<input name="end_date" id="period_end" type="hidden">
+							<th colspan="2">Ending : <input class="_green" name="reporting_period" id="reporting_period" type="text" placeholder="Click here to select period" readonly="readonly"> </th>
+
+						<!-- add start and end date -->
+							<input name="start_date" id="period_start" type="text">
+							<input name="end_date" id="period_end" type="text">
 							</td> 
 							<td colspan="2"></td>
 						</tr>
-						<tr>
-							<th colspan="2">Total Number of Patients on ART ONLY:</th>
-							<td><span>Adults (&gt;15yrs)</span><input type="text"  class="validate[requied] tbl_header_input f_right"  name="art_adult" id="art_adult" readonly="readonly" value="<?php echo @$fmaps_array[0]['art_adult'];?>"/></td>
-							<td><span>Children (&lt;= 15yrs)</span><input type="text" class="validate[requied] tbl_header_input f_right" name="art_child" id="art_child" readonly="readonly" value="<?php echo @$fmaps_array[0]['art_child'];?>"/></td>
-						</tr>
-						<tr><th style="text-align: center" colspan="2">Males</th><th style="text-align: center" colspan="2">Females</th></tr>
-						<tr>
-							<th>New <input type="text"  class="validate[requied] tbl_header_input f_right" name="new_male" id="new_male" value="<?php echo @$fmaps_array[0]['new_male'];?>" /></th>
-							<th>Revisit <input type="text"  class="validate[requied] tbl_header_input f_right" name="revisit_male" id="revisit_male" value="<?php echo @$fmaps_array[0]['new_female'];?>" /></th>
-							<th>New <input type="text"  class="validate[requied] tbl_header_input f_right" name="new_female" id="new_female" value="<?php echo @$fmaps_array[0]['revisit_male'];?>" /></th>
-							<th>Revisit <input type="text"  class="validate[requied] tbl_header_input f_right" name="revisit_female" id="revisit_female" value="<?php echo @$fmaps_array[0]['revisit_female'];?>"/></th>				
-						</tr>
+								<!-- <tr> -->
+									<!-- <th colspan="2">Total Number of Patients on ART ONLY:</th> -->
+									<!-- <td><span>Adults (&gt;15yrs)</span><input type="text"  class="validate[requied] tbl_header_input f_right"  name="art_adult" id="art_adult" readonly="readonly" value="<?php echo @$fmaps_array[0]['art_adult'];?>"/></td> -->
+									<!-- <td><span>Children (&lt;= 15yrs)</span><input type="text" class="validate[requied] tbl_header_input f_right" name="art_child" id="art_child" readonly="readonly" value="<?php echo @$fmaps_array[0]['art_child'];?>"/></td> -->
+								<!-- </tr> -->
+								<!-- <tr><th style="text-align: center" colspan="2">Males</th><th style="text-align: center" colspan="2">Females</th></tr> -->
+								<!-- <tr> -->
+									<!-- <th>New <input type="text"  class="validate[requied] tbl_header_input f_right" name="new_male" id="new_male" value="<?php echo @$fmaps_array[0]['new_male'];?>" /></th> -->
+									<!-- <th>Revisit <input type="text"  class="validate[requied] tbl_header_input f_right" name="revisit_male" id="revisit_male" value="<?php echo @$fmaps_array[0]['new_female'];?>" /></th> -->
+									<!-- <th>New <input type="text"  class="validate[requied] tbl_header_input f_right" name="new_female" id="new_female" value="<?php echo @$fmaps_array[0]['revisit_male'];?>" /></th> -->
+									<!-- <th>Revisit <input type="text"  class="validate[requied] tbl_header_input f_right" name="revisit_female" id="revisit_female" value="<?php echo @$fmaps_array[0]['revisit_female'];?>"/></th>				 -->
+								<!-- </tr> -->
 					</tbody>
 				</table>
 
@@ -350,9 +354,9 @@ ob_get_clean();
 
 <!--Start of Remove from the maps -->
 
-<!-- need to Remove the controller that generate the data -->
+			<!-- need to Remove the controller that generate the data -->
 
-			<div class="facility_info_bottom" style="width:100%;">
+			<!-- <div class="facility_info_bottom" style="width:100%;">
 				<table class=" table table-bordered ">
 					<tr>
 						<td colspan="3">
@@ -384,9 +388,9 @@ ob_get_clean();
 						<td><span>Adults (&gt;15yrs)</span><input type="text"  class="validate[requied] tbl_header_input f_right" name="diflucan_adult" id="diflucan_adult" value="<?php echo @$fmaps_array[0]['diflucan_adult'];?>" /></td>
 						<td><span>Children (&lt;=15yrs)</span><input type="text"  class="validate[requied] tbl_header_input f_right" name="diflucan_child" id="diflucan_child" value="<?php echo @$fmaps_array[0]['diflucan_child'];?>" /></td>
 					</tr>
-				</table>
+				</table> -->
 	<!-- Second section of remove from MAPS -->
-				<table class=" table table-bordered ">
+				<!-- <table class=" table table-bordered ">
 					<tr>
 						<th colspan="2" style="text-align: center">CM</th><th colspan="2" style="text-align: center">OC</th>
 					</tr>
@@ -410,8 +414,8 @@ ob_get_clean();
 						<?php
 					}
 					?>
-				</table>
-	<!-- End of second secion -->
+				</table> -->
+	<!-- End of second section -->
 
 <!-- End of the Remove section from MAPS -->
 				<?php

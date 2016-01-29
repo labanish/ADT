@@ -2903,19 +2903,20 @@ class Order extends MY_Controller {
 		        INNER JOIN regimen r ON r.id=p.current_regimen
 		        INNER JOIN patient_status ps ON ps.id=p.current_status
 		        INNER JOIN regimen_category rc ON rc.id=r.category
+		        -- INNER JOIN sync_regimen_category rc ON rc.id=r.category
 		        WHERE p.date_enrolled<='$to' 
 				AND ps.name LIKE '%active%' 
 				AND r.id=p.current_regimen 
 				AND p.facility_code='$facility_code'
 				GROUP BY $regimen_column 
 				ORDER BY r.regimen_code ASC";
-		$query = $this -> db -> query($sql);
-		$results = $query -> result_array();
+		$query = $this ->db->query($sql);
+		$results = $query->result_array();
 		echo json_encode($results);
-
+// echo "<pre>"; print_r($results); die();
 	}
 
-	// echo "<pre>"; print_r($results); die();
+	
 	
 	public function getNotMappedRegimenPatients($from,$to){
 		$facility_code = $this -> session -> userdata("facility");
@@ -2937,14 +2938,14 @@ class Order extends MY_Controller {
 		echo json_encode($results);
 	}
 
-	public function getCentralDataMaps($start_date, $end_date,$data_type ='') {//Get data when generating reports for central site
+	public function getCentralDataMaps($start_date, $end_date, $data_type ='') {//Get data when generating reports for central site
 		$data = array();
-		$facility_code = $this -> session -> userdata("facility");
+		$facility_code = $this->session->userdata("facility");
 		if (isset($facility_code)) {
 			//Defines which data to get
-			$counter = $this -> input -> post('counter');
+			$counter = $this->input->post('counter'); 
 			if($data_type=='new_patient'){
-				//Males,females, revisit and new
+				//Males,females, revisit and new patients
 				//New , only get ART
 				$sql_clients = 'SELECT COUNT(DISTINCT(pv.id)) as total,IF(pv.gender=1,"new_male","new_female") as gender 
 								FROM v_patient_visits pv
@@ -3051,8 +3052,7 @@ class Order extends MY_Controller {
 			}else if($data_type=='new_cm_oc'){
 				//New and revisit CM/OM
 				//New
-				$sql_clients = "
-								SELECT IF(p.other_illnesses LIKE '%cryptococcal%','new_cm',
+				$sql_clients = "SELECT IF(p.other_illnesses LIKE '%cryptococcal%','new_cm',
 							    	   IF(oi.name LIKE '%oesophageal%','new_oc','')) as OI, COUNT(DISTINCT(p.patient_number_ccc)) as total 
 							    	   FROM patient p
 								LEFT JOIN patient_visit pv ON pv.patient_id = p.patient_number_ccc
