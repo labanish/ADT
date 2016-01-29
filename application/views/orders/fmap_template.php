@@ -201,9 +201,9 @@ ob_get_clean();
 							</td>
 						</tr>
 						<tr>
-							<th>Reporting Period : <span style="float:right;">Beginning</span>  </th>
+							<th>Reporting Period : </th>
 							<td colspan="1">
-								<input name="start_date" id="period_start" type="text" style="width:10%" readonly="readonly"> <input class="_green" name="reporting_period" id="reporting_period" type="text" placeholder="Click here to select period" style="width:35%" readonly="readonly">
+								<strong>Beginning:</strong> <input name="start_date" id="period_start" type="text" style="width:10%" readonly="readonly"> <input class="_green" name="reporting_period" id="reporting_period" type="text" placeholder="Click here to select period" style="width:35%" readonly="readonly">
 							</td>
 							<th colspan="2">Ending : <input name="end_date" id="period_end" type="text" readonly="readonly" style="width:10%" disabled="true"> <input class="_green" name="reporting_period_end" id="reporting_period_end" type="text" style="width:35%" readonly="readonly"></th>
 
