@@ -2842,7 +2842,6 @@ class Order extends MY_Controller {
 		$maps_array['cm&oc_child'] 	= 0;
 		$maps_array['new_cm&oc'] 	= 0;
 		$maps_array['revisit_cm&oc']= 0;
-		$maps_array['cm&oc_child'] 	= 0;
 
 		// not used in the new tenplate. Discard****
 		$maps_array['new_cm'] = 0;
