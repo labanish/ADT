@@ -6,6 +6,7 @@ ob_start();
 class Order extends MY_Controller {
 
 	var $esm_url = "http://portal.kemsa.co.ke/escm-api/";
+	// var $esm_url = "http://192.168.100.30/escm-api/";
 	var $nascop_url = "";
 	function __construct() {
 		parent::__construct();

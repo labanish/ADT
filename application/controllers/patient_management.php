@@ -1861,8 +1861,16 @@ class Patient_Management extends MY_Controller {
 		
 	}
 
-	public function get_patients()
+	public function get_patients($status=null)
 	{   
+		$filter = "";
+		if ($status != NULL){
+			if($status=='inactive'){
+				$filter.="AND p.current_status != 1";
+			}
+		}else{
+			$filter.="AND p.current_status = 1";
+		}
 		$facility_code = $this -> session -> userdata("facility");
 		$access_level = $this -> session -> userdata('user_indicator');
 
@@ -1874,12 +1882,13 @@ class Patient_Management extends MY_Controller {
                     CONCAT_WS(' | ',r.regimen_code,r.regimen_desc) as regimen,
                     ps.name as status,
                     p.active,
-                    p.id
+                    p.id,
+                    p.current_status
 		        FROM patient p  
 		        LEFT JOIN regimen r ON r.id=p.current_regimen
 		        LEFT JOIN patient_status ps ON ps.id=p.current_status
 		        WHERE p.facility_code = '$facility_code'
-		        AND p.patient_number_ccc != ''";
+		        AND p.patient_number_ccc != '' $filter ";
 		$query = $this -> db -> query($sql);
 		$patients = $query ->result_array();
         $temp = array();
@@ -1896,21 +1905,21 @@ class Patient_Management extends MY_Controller {
 	        		{   
 	        			if ($value==1) 
 	        			{
-                                            $link = '| <a href="' . base_url() . 'patient_management/disable/' . $id . '" class="red actual">Disable</a>';
-                                        }else
-                                        {
-                                          $link = '| <a href="' . base_url() . 'patient_management/enable/' . $id . '" class="green actual">Enable</a>';  
-                                        }            
+                                $link = '| <a href="' . base_url() . 'patient_management/disable/' . $id . '" class="red actual">Disable</a>';
+                            }else
+                            {
+                              $link = '| <a href="' . base_url() . 'patient_management/enable/' . $id . '" class="green actual">Enable</a>';  
+                            }            
                                 }
 	        		
 	        		
-                                     if ($value==1) 
-                                       {
-                                         $link = '<a href="' . base_url() . 'patient_management/load_view/details/' . $id . '">Detail</a> | <a href="' . base_url() . 'patient_management/edit/' . $id . '">Edit</a> ' . $link;
-                                       }else{
-                                           $link = str_replace("|", "", $link);
-                                           $link .= '| <a href="' . base_url() . 'patient_management/delete/' . $id . '" class="red actual">Delete</a>';
-                                       }                                        
+                             if ($value==1) 
+                               {
+                                 $link = '<a href="' . base_url() . 'patient_management/load_view/details/' . $id . '">Detail</a> | <a href="' . base_url() . 'patient_management/edit/' . $id . '">Edit</a> ' . $link;
+                               }else{
+                                   $link = str_replace("|", "", $link);
+                                   $link .= '| <a href="' . base_url() . 'patient_management/delete/' . $id . '" class="red actual">Delete</a>';
+                               }                                        
 				
 					$value = $link; 
 					unset($patient['id']);      		

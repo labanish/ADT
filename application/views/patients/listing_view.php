@@ -32,8 +32,20 @@
 			?>
         </div>
     </div>
+
+    <h3 style="margin-top: 0;">
+    	<select id="filter">
+    		<option value="0">Active</option>
+    		<option value="1">Inactive</option>
+    		<option value="2">All</option>
+    	</select>
+
+    	<button id="btn_filter">Filter</button>
+
+    </h3>
+
     <!--table row-->
-    <div class="row-fluid">
+    <div class="row-fluid" style="margin-top: 0;">
         <div class="span12">
             <div class="table-responsive">
                 <table class="table table-bordered table-condensed table-hover" id="patient_listing">
@@ -69,3 +81,4 @@
 
 <!--custom js-->
 <script src="./assets/modules/patients/listing.js"></script>
+
