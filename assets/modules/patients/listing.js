@@ -52,7 +52,7 @@ function filter(status){
 }
 
 $(document).ready(function(){
-		$('#btn_filter').click(function(){
+		$('#filter').change(function(){
 			var choice = $('#filter').val();
 			var url = "<?php echo base_url(); ?>";
 			if(choice ==0){

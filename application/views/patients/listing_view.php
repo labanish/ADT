@@ -33,14 +33,16 @@
         </div>
     </div>
 
-    <h3 style="margin-top: 0;">
+    <h3 style="margin-top: 0; width: auto;">
+
+    Filter Patients Based on Status: 
     	<select id="filter">
     		<option value="0">Active</option>
     		<option value="1">Inactive</option>
     		<option value="2">All</option>
     	</select>
 
-    	<button id="btn_filter">Filter</button>
+ <!--    	<button id="btn_filter">Filter</button> -->
 
     </h3>
 

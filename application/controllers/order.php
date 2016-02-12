@@ -1,5 +1,4 @@
 <?php
-
 // create the buffer
 ob_start();
 

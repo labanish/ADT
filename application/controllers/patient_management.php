@@ -1,4 +1,7 @@
 <?php
+// create buffer
+ob_start();
+
 class Patient_Management extends MY_Controller {
 	function __construct() {
 		parent::__construct();
@@ -1522,7 +1525,7 @@ class Patient_Management extends MY_Controller {
 			$regimens = Regimen::getItems();
 			$data['start_regimen'] = $regimens;
 			$data['current_regimen'] = $regimens;
-		        $data['who_stage'] = Who_Stage::getItems();
+		    $data['who_stage'] = Who_Stage::getItems();
             
             //Get facilities beacuse of UTF-8 encoding
 		    $this -> db-> select('facilitycode AS id, name AS Name');
@@ -1910,17 +1913,15 @@ class Patient_Management extends MY_Controller {
                             {
                               $link = '| <a href="' . base_url() . 'patient_management/enable/' . $id . '" class="green actual">Enable</a>';  
                             }            
-                                }
-	        		
-	        		
-                             if ($value==1) 
-                               {
-                                 $link = '<a href="' . base_url() . 'patient_management/load_view/details/' . $id . '">Detail</a> | <a href="' . base_url() . 'patient_management/edit/' . $id . '">Edit</a> ' . $link;
-                               }else{
-                                   $link = str_replace("|", "", $link);
-                                   $link .= '| <a href="' . base_url() . 'patient_management/delete/' . $id . '" class="red actual">Delete</a>';
-                               }                                        
-				
+                        }
+                         if ($value==1) 
+                           {
+                             $link = '<a href="' . base_url() . 'dispensement_management/dispense/' . $id . '">Dispense</a>|<a href="' . base_url() . 'patient_management/load_view/details/' . $id . '">Detail</a> | <a href="' . base_url() . 'patient_management/edit/' . $id . '">Edit</a> ' . $link;
+                           }else{
+                               $link = str_replace("|", "", $link);
+                               $link .= '| <a href="' . base_url() . 'patient_management/delete/' . $id . '" class="red actual">Delete</a>';
+                           }                                        
+	
 					$value = $link; 
 					unset($patient['id']);      		
         		}
@@ -1941,4 +1942,5 @@ public function get_patient_details(){
 }
 
 }
+ob_get_clean();
 ?>
