@@ -1,4 +1,6 @@
 <?php
+ob_start();
+
 class Dispensement_Management extends MY_Controller {
 	function __construct() {
 		parent::__construct();
@@ -787,4 +789,5 @@ class Dispensement_Management extends MY_Controller {
 
 
 }
+ob_get_clean();
 ?>
