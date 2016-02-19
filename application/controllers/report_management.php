@@ -1057,7 +1057,7 @@ class report_management extends MY_Controller {
 				AND ps.Name LIKE '%active%'
 				GROUP BY p.patient_number_ccc";
 		$query = $this -> db -> query($sql);
-		$results = $query -> result_array();
+		$results = $query -A> result_array();
 		if ($results) {
 			foreach ($results as $result) {
 				if (strtolower($result['gender']) == "female") {
@@ -2483,6 +2483,150 @@ class report_management extends MY_Controller {
 		$data['content_view'] = 'reports/patients_started_on_date_v';
 		$this -> load -> view('template', $data);
 
+	}
+//************************************************************added patients on isoniazid*****************************************************************8
+	  public function getisoniazidPatients($from = "", $to = "") {
+		//Variables
+		
+		$row_string = "";
+		$status = "";
+		$overall_total = 0;
+		$today = date('Y-m-d');
+		$late_by = "";
+		$facility_code = $this -> session -> userdata("facility");
+		$from = date('Y-m-d', strtotime($from));
+		$to = date('Y-m-d', strtotime($to));
+
+		//Get all patients who have apppointments on the selected date range
+		
+		//male adult
+		$sql1 = "SELECT * FROM patient WHERE (isoniazid_end_date > '$to') AND gender=1 AND FLOOR(DATEDIFF('$from',dob)/365)>15 ";
+		
+		$query1 = $this -> db -> query($sql1);
+		$result = $query1 ->num_rows();
+		//$count=$result['COUNT(*)'];
+		//female adult
+		$sql2 = "SELECT * FROM patient WHERE (isoniazid_end_date > '$to') AND gender=2 AND FLOOR(DATEDIFF('$from',dob)/365)>15";
+		
+		$query2 = $this -> db -> query($sql2);
+		$result1 = $query2 -> num_rows();
+//male child
+		$sql3 = "SELECT * FROM patient WHERE (isoniazid_end_date > '$to') AND gender=1 AND FLOOR(DATEDIFF('$from',dob)/365)<15 ";
+		
+		$query3 = $this -> db -> query($sql3);
+		$result3 = $query3 -> num_rows();
+		//female adult
+		$sql4 = "SELECT * FROM patient WHERE (isoniazid_end_date > '$to') AND gender=2 AND FLOOR(DATEDIFF('$from',dob)/365)<15 ";
+		
+		$query4 = $this -> db -> query($sql4);
+		$result4 = $query4 -> num_rows();
+
+
+
+
+				//male adult
+		$sql5 = "SELECT * FROM patient WHERE (isoniazid_start_date > '$to') AND gender=1 AND FLOOR(DATEDIFF('$from',dob)/365)>15 ";
+		
+		$query5 = $this -> db -> query($sql5);
+		$result5 = $query5 ->num_rows();
+		//$count=$result['COUNT(*)'];
+		//female adult
+		$sql6 = "SELECT * FROM patient WHERE (isoniazid_start_date > '$to') AND gender=2 AND FLOOR(DATEDIFF('$from',dob)/365)>15";
+		
+		$query6 = $this -> db -> query($sql6);
+		$result6= $query6 -> num_rows();
+//male child
+		$sql7 = "SELECT * FROM patient WHERE (isoniazid_start_date > '$to') AND gender=1 AND FLOOR(DATEDIFF('$from',dob)/365)<15 ";
+		
+		$query7 = $this -> db -> query($sql7);
+		$result7 = $query7 -> num_rows();
+		//female adult
+		$sql8 = "SELECT * FROM patient WHERE (isoniazid_start_date > '$to') AND gender=2 AND FLOOR(DATEDIFF('$from',dob)/365)<15";
+		
+		$query8 = $this -> db -> query($sql8);
+		$result8 = $query8 -> num_rows();
+
+
+
+
+//male adult
+		$sql9 = "SELECT * FROM patient WHERE (isoniazid_start_date > '$to') AND gender=1 AND FLOOR(DATEDIFF('$from',dob)/365)>15 ";
+		
+		$query9 = $this -> db -> query($sql9);
+		$result9 = $query9 ->num_rows();
+		//$count=$result['COUNT(*)'];
+		//female adult
+		$sql10 = "SELECT * FROM patient WHERE (isoniazid_start_date > '$to') AND gender=2 AND FLOOR(DATEDIFF('$from',dob)/365)>15";
+		
+		$query10 = $this -> db -> query($sql10);
+		$result10= $query10 -> num_rows();
+//male child
+		$sql11 = "SELECT * FROM patient WHERE (isoniazid_start_date > '$to') AND gender=1 AND FLOOR(DATEDIFF('$from',dob)/365)<15 ";
+		
+		$query11 = $this -> db -> query($sql11);
+		$result11 = $query11 -> num_rows();
+		//female adult
+		$sql12 = "SELECT * FROM patient WHERE (isoniazid_start_date > '$to') AND gender=2 AND FLOOR(DATEDIFF('$from',dob)/365)<15";
+		
+		$query12 = $this -> db -> query($sql12);
+		$result12 = $query12 -> num_rows();
+
+
+				$row_string = "
+			<table border='1' class='dataTables'>
+				<thead >
+					<tr>
+						<th> </th>
+						<th> Male Adults </th>
+						<th> Female Adults</th>
+						<th> Male Children </th>
+						<th> Female Children</th>
+						
+						
+
+					</tr></thead><tbody>
+					<tr>
+			<td>No of patients on Routine isoniazid </td>
+			<td>".$result."</td>
+			<td>".$result1."</td>
+			<td>".$result3 ."</td>
+			<td>".$result4."</td>
+			</tr>
+			<tr>
+			<td>No of patients started on  isoniazid </td>
+		<td>".$result5."</td>
+			<td>".$result6."</td>
+			<td>".$result7 ."</td>
+			<td>".$result8."</td>
+			</tr>
+			<tr>
+			<td>No of patients completed  isoniazid </td>
+		<td>".$result9."</td>
+			<td>".$result10."</td>
+			<td>".$result11 ."</td>
+			<td>".$result12."</td>
+		</tr>
+
+
+				
+				";
+	
+
+		$row_string .= "</tbody></table>";
+		$data['from'] = date('d-M-Y', strtotime($from));
+		$data['to'] = date('d-M-Y', strtotime($to));
+		$data['dyn_table'] = $row_string;
+		$data['visited_later'] = $visited_later;
+		
+		$data['title'] = "webADT | Reports";
+		$data['hide_side_menu'] = 1;
+		$data['banner_text'] = "Facility Reports";
+		//$data['selected_report_type_link'] = "visiting_patient_report_row";
+		//$data['selected_report_type'] = "Visiting Patients";
+		$data['report_title'] = "List of Patients on isoniazid";
+		$data['facility_name'] = $this -> session -> userdata('facility_name');
+		$data['content_view'] = 'reports/patients_on_isoniazid_v';
+		$this -> load -> view('template', $data);
 	}
 
 	public function getPatientsforRefill($from = "", $to = "") {
