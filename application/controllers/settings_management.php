@@ -44,7 +44,17 @@ class Settings_Management extends MY_Controller {
 	// new update tables functions
 
 	public function updateTables(){
-		
+
+		$sql = "SELECT * FROM `testadt.sync_regimen_category` WHERE `sync_regimen_category.name` = 'Other Adult ART'";
+		$result = $this->db->query($sql);
+
+			if ($result) {
+					
+			}
+			else{
+
+			}
+
 	}
 
 }
