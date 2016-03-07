@@ -41,4 +41,10 @@ class Settings_Management extends MY_Controller {
 		echo json_encode($access);
 	}
 
+	// new update tables functions
+
+	public function updateTables(){
+		
+	}
+
 }
