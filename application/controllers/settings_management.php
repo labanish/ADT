@@ -45,10 +45,16 @@ class Settings_Management extends MY_Controller {
 
 	public function updateTables(){
 
+		$succuss = "Updates finished successfully";
+		$error = "Updates already exists in the Database";
+
 		$sql = "SELECT * FROM `testadt.sync_regimen_category` WHERE `sync_regimen_category.name` = 'Other Adult ART'";
 		$result = $this->db->query($sql);
 
 			if ($result) {
+
+				$updatequery = "DELETE FROM `testadt`.`sync_regimen_category` WHERE `sync_regimen_category.name` = 'Other Adult ART'";
+				$this->db->query($updatequery);
 					
 			}
 			else{
