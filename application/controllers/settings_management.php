@@ -44,22 +44,56 @@ class Settings_Management extends MY_Controller {
 	// new update tables functions
 
 	public function updateTables(){
-
-		$succuss = "Updates finished successfully";
+		// success Messages and Information
+		$succuss = "Updates finished successfully.  ";
 		$error = "Updates already exists in the Database";
+		$counter = 0;
+		$message = " Table(s) updated.";
+		// arrays for adding new changes ito the sync_regimen Category
+		$names = array('Adult Third Line','Paediatric Third Line','OIs Medicines [1. Universal Prophylaxis]','OIs Medicines [2. IPT]','OIs Medicines {CM} and {OC} For Diflucan Donation Program ONLY');
+		$ids = array(17,18);
+		// check the data if available
+		$sql = "SELECT * FROM `testadt`.`sync_regimen_category` WHERE `sync_regimen_category`.`name` = 'Other Adult ART'";
+		$result = $this->db->query($sql)->result_array();
 
-		$sql = "SELECT * FROM `testadt.sync_regimen_category` WHERE `sync_regimen_category.name` = 'Other Adult ART'";
-		$result = $this->db->query($sql);
 
-			if ($result) {
+		// check the data if available
+		$sql_check = "SELECT * FROM `testadt`.`sync_regimen_category` WHERE id in (17,18,19,20,21)";
+		$result_check = $this->db->query($sql)->result_array();
 
-				$updatequery = "DELETE FROM `testadt`.`sync_regimen_category` WHERE `sync_regimen_category.name` = 'Other Adult ART'";
-				$this->db->query($updatequery);
-					
+		//check if data is available
+
+		$sql_check = "SELECT * FROM `testadt`.`cdrr_item` WHERE `cdrr_item`.`Name` = 'adjustments_neg'";
+		$result_check = $this->db->query($sql)->result_array();
+
+
+			if (count($result)>0) {
+
+				$updatequery = "DELETE FROM `testadt`.`sync_regimen_category` WHERE `sync_regimen_category`.`name` = 'Other Adult ART'";
+				$newresult = $this->db->query($updatequery);
+
+				$counter = ++$counter;
+				echo $succuss.'['.$counter.']'.$message;
 			}
-			else{
+			else {
 
+				$counter;
+				echo $succuss.'['.$counter.']'.$message;
 			}
+
+			if(count($result_check)<=0){
+				$this->db->query("ALTER TABLE `sync_regimen_category` CHANGE `Name` `Name` VARCHAR(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL");
+
+				for ($i=0; $i < count($ids); $i++) { 
+					$id = $ids[$i];
+					$name = $names[$i];
+					$sql_insert = "INSERT INTO `testadt`.`sync_regimen_category` VALUES ('$id','$name','1','2')";
+					$this->db->query($sql_insert);
+				}
+			}
+
+			// Altering the cdrr_Item table (adding one column adjustments_neg)
+
 
 	}
 
