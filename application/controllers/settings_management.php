@@ -1,4 +1,7 @@
 <?php
+
+ob_start();
+
 if (!defined('BASEPATH'))
 	exit('No direct script access allowed');
 
@@ -47,11 +50,14 @@ class Settings_Management extends MY_Controller {
 		// success Messages and Information
 		$succuss = "Updates finished successfully.  ";
 		$error = "Updates already exists in the Database";
+		$error2 = "No changes were made";
 		$counter = 0;
+		$counter_1 = 0;
+		$counter_2 = 0;
 		$message = " Table(s) updated.";
 		// arrays for adding new changes ito the sync_regimen Category
 		$names = array('Adult Third Line','Paediatric Third Line','OIs Medicines [1. Universal Prophylaxis]','OIs Medicines [2. IPT]','OIs Medicines {CM} and {OC} For Diflucan Donation Program ONLY');
-		$ids = array(17,18);
+		$ids = array(17,18,19,20,21);
 		// check the data if available
 		$sql = "SELECT * FROM `testadt`.`sync_regimen_category` WHERE `sync_regimen_category`.`name` = 'Other Adult ART'";
 		$result = $this->db->query($sql)->result_array();
@@ -59,12 +65,14 @@ class Settings_Management extends MY_Controller {
 
 		// check the data if available
 		$sql_check = "SELECT * FROM `testadt`.`sync_regimen_category` WHERE id in (17,18,19,20,21)";
-		$result_check = $this->db->query($sql)->result_array();
+		$result_check = $this->db->query($sql_check)->result_array();
 
 		//check if data is available
 
-		$sql_check = "SELECT * FROM `testadt`.`cdrr_item` WHERE `cdrr_item`.`Name` = 'adjustments_neg'";
-		$result_check = $this->db->query($sql)->result_array();
+		$sql_check_1 = "SELECT * FROM `testadt`.`cdrr_item` WHERE `cdrr_item`.`Name` IN ('adjustments_neg')";
+		$result_check_1 = array($this->db->query($sql_check_1));
+
+		// echo "<pre>"; print_r($result_check_1); die('Done'); // stuck here
 
 
 			if (count($result)>0) {
@@ -72,13 +80,11 @@ class Settings_Management extends MY_Controller {
 				$updatequery = "DELETE FROM `testadt`.`sync_regimen_category` WHERE `sync_regimen_category`.`name` = 'Other Adult ART'";
 				$newresult = $this->db->query($updatequery);
 
-				$counter = ++$counter;
-				echo $succuss.'['.$counter.']'.$message;
+				++$counter;
 			}
 			else {
 
 				$counter;
-				echo $succuss.'['.$counter.']'.$message;
 			}
 
 			if(count($result_check)<=0){
@@ -90,11 +96,35 @@ class Settings_Management extends MY_Controller {
 					$sql_insert = "INSERT INTO `testadt`.`sync_regimen_category` VALUES ('$id','$name','1','2')";
 					$this->db->query($sql_insert);
 				}
+				++$counter_1 ;
 			}
 
 			// Altering the cdrr_Item table (adding one column adjustments_neg)
+
+			if($result_check_1){
+				$this->db->query("ALTER TABLE `cdrr_item` ADD `adjustments_neg` INT(11) NULL DEFAULT NULL AFTER `adjustments`");
+
+				++$counter_2;
+			}
+
+			if(($counter && $counter_1 && $counter_2)==0){
+
+				echo $error;
+
+			}
+			elseif ($counter ==1 && $$counter1 ==1 && $counter2){
+
+				echo $succuss;
+				
+			}
+			else{
+
+			}
+
 
 
 	}
 
 }
+ob_get_clean();
+?>
