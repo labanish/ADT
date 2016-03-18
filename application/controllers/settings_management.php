@@ -72,8 +72,6 @@ class Settings_Management extends MY_Controller {
 		$sql_check_1 = "SELECT * FROM `testadt`.`cdrr_item` WHERE `cdrr_item`.`Name` IN ('adjustments_neg')";
 		$result_check_1 = array($this->db->query($sql_check_1));
 
-		// echo "<pre>"; print_r($result_check_1); die('Done'); // stuck here
-
 
 			if (count($result)>0) {
 
@@ -89,7 +87,7 @@ class Settings_Management extends MY_Controller {
 
 			if(count($result_check)<=0){
 				$this->db->query("ALTER TABLE `sync_regimen_category` CHANGE `Name` `Name` VARCHAR(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL");
-
+				// updatating the table {sync_regimen_category}
 				for ($i=0; $i < count($ids); $i++) { 
 					$id = $ids[$i];
 					$name = $names[$i];
@@ -97,6 +95,14 @@ class Settings_Management extends MY_Controller {
 					$this->db->query($sql_insert);
 				}
 				++$counter_1 ;
+			}
+
+			// Inheriting insert statement for reuse in table {reimen_category}
+
+			for ($i=0; $i < count($names) ; $i++) { 
+				$name = $names[$i];
+				$sql_insert = "INSERT INTO `testadt`.`regimen_category` VALUES (,'$name','1','2')";
+				$this->db->query($sql_insert);
 			}
 
 			// Altering the cdrr_Item table (adding one column adjustments_neg)
@@ -112,7 +118,7 @@ class Settings_Management extends MY_Controller {
 				echo $error;
 
 			}
-			elseif ($counter ==1 && $$counter1 ==1 && $counter2){
+			elseif ($counter ==1 && $$counter_1 ==1 && $counter2){
 
 				echo $succuss;
 				
