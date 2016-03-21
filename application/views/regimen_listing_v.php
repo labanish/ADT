@@ -337,7 +337,7 @@
 	      	<button id="enable_mutliple_regimens" class="btn btn-info">Enable selected regimens</button>
 	      	<a href="#md_bulk_mapping" role="button" class="btn btn-success" id="btn_bulk_mapping"  data-toggle="modal">Bulk mapping</a>
 	      	<!-- New button for updating regimens' table -->
-	      	<a href="#updates_messages" role="button" id="" class="btn btn-danger" data-toggle="modal"><i class="icon-plus icon-black"></i> Update Tables</a>
+	      	<a href="#updates_messages" role="button" id="updates_messagesbtn" class="btn btn-danger" data-toggle="modal"><i class="icon-plus icon-black"></i> Update Tables</a>
 	      	<!-- end of updating regimens' table -->
 	      	<?php echo $regimens;?>
 	      </div>
@@ -353,7 +353,7 @@
 			echo form_open('regimen_management/save', $attributes);
 		?>
 		<div class="modal-header">
-		    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+		    <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><font color="white">close</font></button>
 		    <h3 id="NewRegimen">Regimen details</h3>
 		</div>
 		<div class="modal-body">
@@ -458,7 +458,21 @@
 	</div>
 
 <!-- Modal for showing Update Tables messages -->
-	<div id="updates_messages" class="modal hide fade" tabindex="-1" role="dialog" aria-lebelledby"" aria-hidden="true"></div>
+	<div id="updates_messages" class="modal hide fade" tabindex="-1" role="dialog" aria-lebelledby"UpdateTables" aria-hidden="true">
+		<div class="modal-header">
+		    <button type="button" class="close" data-dismiss="modal" aria-hidden="false"><font color="white">close</font></button>
+		    <h3 id="UpdateTables">Update Table Details</h3>
+		</div>	
+
+		<div class="modal-body">
+			<span id="test"></span>			
+		</div>
+		<div class="modal-footer">
+		   <button class="btn" data-dismiss="modal" aria-hidden="true">Okay</button>
+		</div>
+
+	
+	</div>
 
 <!-- End of modal showing the Update Tables Messages  -->
 	
@@ -470,7 +484,7 @@
 		?>
 <!-- Modal for adding a new regimen to the database -->
 		<div class="modal-header">
-		    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+		    <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><font color="white">close</font></button>
 		    <h3 id="EditRegimen">Regimen details</h3>
 		</div>
 		<div class="modal-body">
@@ -596,7 +610,7 @@
 	<form id="fmBulkMapping" action="">
 		<div id="md_bulk_mapping" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="BulkMapping" aria-hidden="true">
 			<div class="modal-header">
-			    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+			    <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><font color="white">close</font></button>
 			    <h3 id="BulkMapping">Bulk regimen Mapping [ Regimens details ]</h3>
 			</div>
 			<div class="modal-body">
@@ -652,8 +666,24 @@
 			mappRegimens(counter,total,data);
 			
 		});
-		
-	})
+
+		//trigger update tables form settings/updateTables
+		$("#updates_messagesbtn").live("click",function(){			
+			$.ajax({
+	                url: base_url+'settings_management/updateTables',
+	                type: 'POST', 
+	                dataType:'html',
+	                success: function(msg) {	
+	                	$("#test").html(msg);
+	                },
+	                error: function(){
+	                	toastr.error('No Relevant Data Found');
+	                }
+	           });
+			 });
+
+			
+	});
 
 // function to create the map regimens table in the moodle
 	function appendRows(counter,total,data){

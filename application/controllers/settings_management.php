@@ -101,7 +101,7 @@ class Settings_Management extends MY_Controller {
 
 			for ($i=0; $i < count($names) ; $i++) { 
 				$name = $names[$i];
-				$sql_insert = "INSERT INTO `testadt`.`regimen_category` VALUES (,'$name','1','2')";
+				$sql_insert = "INSERT INTO `testadt`.`regimen_category` VALUES (NULL,'$name','1','2')"; //LOL!! Dont Jugde!
 				$this->db->query($sql_insert);
 			}
 
@@ -113,21 +113,19 @@ class Settings_Management extends MY_Controller {
 				++$counter_2;
 			}
 
-			if(($counter && $counter_1 && $counter_2)==0){
+			if($counter ==0 && $counter_1==0 && $counter_2 ==0){
 
 				echo $error;
 
 			}
-			elseif ($counter ==1 && $$counter_1 ==1 && $counter2){
+			elseif ($counter ==1 || $counter_1 ==1 || $counter_2 ==1){
 
 				echo $succuss;
 				
 			}
 			else{
-
+				echo $error2;
 			}
-
-
 
 	}
 
