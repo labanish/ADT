@@ -337,7 +337,8 @@
 	      	<button id="enable_mutliple_regimens" class="btn btn-info">Enable selected regimens</button>
 	      	<a href="#md_bulk_mapping" role="button" class="btn btn-success" id="btn_bulk_mapping"  data-toggle="modal">Bulk mapping</a>
 	      	<!-- New button for updating regimens' table -->
-	      	<button id="update_regimens_table" class="btn btn-danger"><i class="icon-plus icon-black"></i> Update Tables</button>
+	      	<a href="#updates_messages" role="button" id="" class="btn btn-danger" data-toggle="modal"><i class="icon-plus icon-black"></i> Update Tables</a>
+	      	<!-- end of updating regimens' table -->
 	      	<?php echo $regimens;?>
 	      </div>
 	    </div><!--/span-->
@@ -455,6 +456,11 @@
 		</div>
 		<?php echo form_close(); ?>
 	</div>
+
+<!-- Modal for showing Update Tables messages -->
+	<div id="updates_messages" class="modal hide fade" tabindex="-1" role="dialog" aria-lebelledby"" aria-hidden="true"></div>
+
+<!-- End of modal showing the Update Tables Messages  -->
 	
 	<div id="edit_form" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="EditRegimen" aria-hidden="true">
 		<?php
