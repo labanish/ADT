@@ -58,19 +58,22 @@ class Settings_Management extends MY_Controller {
 		// arrays for adding new changes ito the sync_regimen Category
 		$names = array('Adult Third Line','Paediatric Third Line','OIs Medicines [1. Universal Prophylaxis]','OIs Medicines [2. IPT]','OIs Medicines {CM} and {OC} For Diflucan Donation Program ONLY');
 		$ids = array(17,18,19,20,21);
-		// check the data if available
+		// check the data if available table name = "sync_regimen_category"
 		$sql = "SELECT * FROM `testadt`.`sync_regimen_category` WHERE `sync_regimen_category`.`name` = 'Other Adult ART'";
 		$result = $this->db->query($sql)->result_array();
 
 
-		// check the data if available
+		// check the data if available table name = "sync_regimen_category"
 		$sql_check = "SELECT * FROM `testadt`.`sync_regimen_category` WHERE id in (17,18,19,20,21)";
 		$result_check = $this->db->query($sql_check)->result_array();
 
-		//check if data is available
-
+		//check if data is available table name = "cdrr_Item"
 		$sql_check_1 = "SELECT * FROM `testadt`.`cdrr_item` WHERE `cdrr_item`.`Name` IN ('adjustments_neg')";
 		$result_check_1 = array($this->db->query($sql_check_1));
+
+		//check data is available. Table name = regimen_category
+		$sql_check_2 = "SELECT * FROM `testadt`.`regimen_category` WHERE id > 11";
+		$result_check_2 = array($this->db->query($sql_check_2)->result());
 
 
 			if (count($result)>0) {
@@ -85,7 +88,7 @@ class Settings_Management extends MY_Controller {
 				$counter;
 			}
 
-			if(count($result_check)<=0){
+			if(count($result_check[0])<=0){
 				$this->db->query("ALTER TABLE `sync_regimen_category` CHANGE `Name` `Name` VARCHAR(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL");
 				// updatating the table {sync_regimen_category}
 				for ($i=0; $i < count($ids); $i++) { 
@@ -97,14 +100,19 @@ class Settings_Management extends MY_Controller {
 				++$counter_1 ;
 			}
 
-			// Inheriting insert statement for reuse in table {reimen_category}
+			// Inheriting insert statement for reuse in table {regimen_category}
+			if (count($result_check_2[0])<=0) {
 
-			for ($i=0; $i < count($names) ; $i++) { 
+				// echo "<pre>";print_r($names);die;
+				for ($i=0; $i < count($names) ; $i++) { 
 				$name = $names[$i];
 				$sql_insert = "INSERT INTO `testadt`.`regimen_category` VALUES (NULL,'$name','1','2')"; //LOL!! Dont Jugde!
+				// echo "$sql_insert<br/>";
 				$this->db->query($sql_insert);
-			}
+				}
 
+			}
+		
 			// Altering the cdrr_Item table (adding one column adjustments_neg)
 
 			if($result_check_1){
