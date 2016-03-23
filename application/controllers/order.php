@@ -3747,6 +3747,7 @@ class Order extends MY_Controller {
 			    'received_from'=>0,
 			    'dispensed_to_patients'=>0,
 			    'losses'=>0,
+// adding a new variable, adjustments
 			    'positive_adjustment' =>0,
 			    'adjustments'=>0,
 			    'physical_stock'=>0,

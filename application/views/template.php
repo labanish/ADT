@@ -456,9 +456,9 @@ if (isset($styles)) {
 		})
 	</script>   
 <!-- Script for reading the system version -->
-	<?php
-	$file_location = base_url()."version.txt";
-	?>
+<!-- 	<?php
+	$filename = base_url()."version.txt";
+	?> -->
 		<div class="row-fluid">
 			<footer id="bottom_ribbon">
 				<div class="container-fluid">
@@ -467,11 +467,13 @@ if (isset($styles)) {
 							Government of Kenya &copy; <?php echo date('Y');?>.
 							All Rights Reserved . <strong>Web-ADT version 3.0.1</strong>
 
-							<?php
-								$myfile = fopen($file_location, "r") or die("Unable to open file!");
-								echo fread($myfile,filesize($file_location));
-								fclose($myfile);
-							?> 
+<!-- 							<?php
+								$fp = fopen($filename, "r") or die("Unable to open file!");
+								$content = fread($fp, filesize($filename));
+								$lines = explode("\n", $content);
+								fclose($fp);
+								print_r($lines);
+							?>  -->
 							
 							<!-- <p class="text-right"> 
 							    <sub>
