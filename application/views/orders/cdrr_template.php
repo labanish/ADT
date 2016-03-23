@@ -371,7 +371,6 @@ o		<a href='<?php echo site_url("order/download_order/cdrr/".$cdrr_id);?>'><?php
 					?>
 					<tr class="ordered_drugs" drug_id="<?php echo $commodity -> id;?>">
 						<td class="col_drug"><?php echo $commodity -> Drug;?>
-							<input type="hidden" class="pack_size" name="pack_size[]" id="pack_size_<?php echo $commodity -> id;?>" value="<?php echo $commodity ->Pack_Size;?>"/>
 							<?php 
 							if($options=="update" || $options=="view"){
 							?>
@@ -380,14 +379,20 @@ o		<a href='<?php echo site_url("order/download_order/cdrr/".$cdrr_id);?>'><?php
 							}
 							?>
 						</td>
+
 						<?php
 	                    if($hide_generate==2){
 	                    ?>
-						<td class="number calc_count"><?php echo $commodity ->Pack_Size;?></td>
+
+						<td class="number calc_count">
+							<input type="text"  class="pack_size" name="pack_size[]" id="pack_size_<?php echo $commodity -> id;?>" value="<?php echo $commodity ->Pack_Size;?>" style="color: blue; font-weight: bold; text-align:center;"/>
+						</td>
 						<?php
-						}else{
+
+						}else{ 
 						?>
-						<td class="number calc_count"><?php if($options=="view"){echo $commodity->Unit_Name;}else{echo $commodity->Unit_Name;}?></td>
+<!-- showing the input of the column unit pack size -->
+						<td class="number calc_count"><input type="text"  class="pack_size" name="pack_size[]" id="pack_size_<?php echo $commodity -> id;?>" value="<?php echo $commodity ->Pack_Size;?>" style="color: blue; font-weight: bold; text-align:center;"/></td>
 						<?php	
 						}
 						?>
