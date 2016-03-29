@@ -68,12 +68,12 @@ class Patient_Management extends MY_Controller {
 
 	}
 	public function merge_spouse($patient_no,$spouse_no){
-	    $spousedata=array('primary_spouse'=>$patient_no,'secondary_spouse'=>$spouse_no);
-	    $this->db->insert('spouses',$spousedata);
+		$spousedata=array('primary_spouse'=>$patient_no,'secondary_spouse'=>$spouse_no);
+		$this->db->insert('spouses',$spousedata);
 	}
 
 	public function unmerge_spouse($patient_no){
-	    $sql="DELETE FROM spouses WHERE primary_spouse='$patient_no'";
+		$sql="DELETE FROM spouses WHERE primary_spouse='$patient_no'";
 		$this->db->query($sql);
 	}
 	public function merge_parent($patient_no,$parent_no){
@@ -132,7 +132,7 @@ class Patient_Management extends MY_Controller {
 		for ($i = 0; $i < count($aColumns); $i++) {
 			if ($i >= 1) {
 				$j++;
-			} 
+			}
 			$bSearchable = $this -> input -> get_post('bSearchable_' . $j, true);
 			$sSearch_ = $this -> input -> get_post('sSearch_' . $j, true);
 			// Individual column filtering
@@ -144,7 +144,7 @@ class Patient_Management extends MY_Controller {
 				if($col=='First_Name' ){
 					$value=$this -> db -> escape_like_str($sSearch_);
 					$where = "(First_Name LIKE '%$value%' OR Last_Name LIKE '%$value%' OR Last_Name LIKE '%$value%')";
-                    $this ->db -> where($where);
+					$this ->db -> where($where);
 				}else{
 					$this -> db -> like($col, $this -> db -> escape_like_str($sSearch_));
 				}
@@ -290,7 +290,7 @@ class Patient_Management extends MY_Controller {
 		        GROUP BY p.id";
 		$query = $this -> db -> query($sql);
 		$results = $query -> result_array();
-		
+
 		$depdendant_msg = "";
 		if ($results) {
 			$results[0]['other_illnesses'] = $this -> extract_illness($results[0]['other_illnesses']);
@@ -302,19 +302,19 @@ class Patient_Management extends MY_Controller {
 			$spouse = $results[0]['secondary_spouse'];
 			$patient_name  = strtoupper($results[0]['first_name'].' '.$results[0]['last_name']);
 			if($child!=NULL){
-				
+
 				$pat = $this ->getDependentStatus($child);
 				if($pat!=''){
 					$depdendant_msg.="Patient $patient_name\'s dependant ".$pat." is lost to follow up ";
 				}
-				
+
 			}
 			if($spouse!=NULL){
 				$pat = $this ->getDependentStatus($spouse);
 				if($pat!=''){
 					$depdendant_msg.="Patient $patient_name\'s spouse ".$pat." is lost to follow up ";
 				}
-				
+
 			}
 		}
 		//Patient History
@@ -350,7 +350,7 @@ class Patient_Management extends MY_Controller {
 		        ORDER BY  pv.patient_visit_id DESC";
 		$query = $this -> db -> query($sql);
 		$results = $query -> result_array();
-        if ($results) {
+		if ($results) {
 			$data['history_logs'] = $results;
 		} else {
 			$data['history_logs'] = "";
@@ -376,7 +376,7 @@ class Patient_Management extends MY_Controller {
 	}
 
 	public function edit($record_no) {
-		 $sql = "SELECT p.*,
+		$sql = "SELECT p.*,
 		               rst.Name as service_name,
 		               dp.child,
 		               s.secondary_spouse 
@@ -526,11 +526,11 @@ class Patient_Management extends MY_Controller {
 		if($spouse_no != NULL){
 			$this->merge_spouse($patient_no,$spouse_no);
 		}
-		//Map child to parent/guardian 
+		//Map child to parent/guardian
 		if($child_no != NULL){
 			$this->merge_parent($patient_no,$child_no);
 		}
-		
+
 		$sql = "SELECT MAX(id) as id FROM patient";
 		$query = $this -> db -> query($sql);
 		$result = $query -> result_array();
@@ -547,7 +547,7 @@ class Patient_Management extends MY_Controller {
 			redirect("dispensement_management/dispense/$auto_id");
 		}
 	}
-	
+
 	public function getDependentStatus($patient_number_ccc){
 		$sql = "SELECT ps.name,p.patient_number_ccc,p.first_name,p.last_name,p.other_name FROM patient p
 				INNER JOIN patient_status ps ON ps.id = p.current_status
@@ -562,7 +562,7 @@ class Patient_Management extends MY_Controller {
 			return '';
 		}
 	}
-	
+
 	public function update($record_id) {
 		$family_planning = "";
 		$other_illness_listing = "";
@@ -635,56 +635,56 @@ class Patient_Management extends MY_Controller {
 		}
 		//echo $this -> input -> post('pregnant', TRUE);die();
 		$data = array(
-						'drug_prophylaxis' => $drug_prophylaxis, 
-						'isoniazid_start_date'=>$this->input->post('iso_start_date',TRUE),
-						'isoniazid_end_date'=>$this->input->post('iso_end_date',TRUE),
-						'tb_test' => $this -> input -> post('tested_tb', TRUE), 
-						'who_stage' => $this -> input -> post('who_stage', TRUE), 
-						'pep_reason' => $this -> input -> post('pep_reason', TRUE), 
-						'Medical_Record_Number' => $this -> input -> post('medical_record_number', TRUE), 
-						'Patient_Number_CCC' => $this -> input -> post('patient_number', TRUE), 
-						'First_Name' => $this -> input -> post('first_name', TRUE), 
-						'Last_Name' => $this -> input -> post('last_name', TRUE), 
-						'Other_Name' => $this -> input -> post('other_name', TRUE), 
-						'Dob' => $this -> input -> post('dob', TRUE), 
-						'Pob' => $this -> input -> post('pob', TRUE), 
-						'Gender' => $this -> input -> post('gender', TRUE), 
-						'pregnant' => $this -> input -> post('pregnant', TRUE), 
-						'Start_Weight' => $this -> input -> post('start_weight', TRUE), 
-						'Start_Height' => $this -> input -> post('start_height', TRUE), 
-						'Start_Bsa' => $this -> input -> post('start_bsa', TRUE), 
-						'Weight' => $this -> input -> post('current_weight', TRUE), 
-						'Height' => $this -> input -> post('current_height', TRUE), 
-						'Sa' => $this -> input -> post('current_bsa', TRUE), 
-						'Phone' => $this -> input -> post('phone', TRUE), 
-						'SMS_Consent' => $this -> input -> post('sms_consent', TRUE), 
-						'Physical' => $this -> input -> post('physical', TRUE), 
-						'Alternate' => $this -> input -> post('alternate', TRUE), 
-						'Partner_Status' => $this -> input -> post('partner_status', TRUE), 
-						'Disclosure' => $this -> input -> post('disclosure', TRUE), 
-						'Fplan' => $family_planning, 
-						'Other_Illnesses' => $other_illness_listing, 
-						'Other_Drugs' => $other_drugs, 
-						'Adr' => $other_allergies_listing, 
-						'Smoke' => $this -> input -> post('smoke', TRUE), 
-						'Alcohol' => $this -> input -> post('alcohol', TRUE), 
-						'Tb' => $this -> input -> post('tb', TRUE), 
-						'tb_category' => $this -> input -> post('tbcategory', TRUE), 
-						'Tbphase' => $this -> input -> post('tbphase', TRUE), 
-						'Startphase' => $this -> input -> post('fromphase', TRUE), 
-						'Endphase' => $this -> input -> post('tophase', TRUE), 
-						'Date_Enrolled' => $this -> input -> post('enrolled', TRUE), 
-						'Current_Status' => $this -> input -> post('current_status', TRUE), 
-						'Status_Change_Date' => $this -> input -> post('status_started', TRUE), 
-						'Source' => $this -> input -> post('source', TRUE), 
-						'Transfer_From' => $this -> input -> post('transfer_source', TRUE), 
-						'Supported_By' => $this -> input -> post('support', TRUE), 
-						'Facility_Code' => $this -> session -> userdata('facility'), 
-						'Service' => $this -> input -> post('service', TRUE), 
-						'Start_Regimen' => $this -> input -> post('regimen', TRUE), 
-						'Start_Regimen_Date' => $this -> input -> post('service_started', TRUE), 
-						'Current_Regimen' => $this -> input -> post('current_regimen', TRUE), 
-						'Nextappointment' => $this -> input -> post('next_appointment_date', TRUE));
+			'drug_prophylaxis' => $drug_prophylaxis,
+			'isoniazid_start_date'=>$this->input->post('iso_start_date',TRUE),
+			'isoniazid_end_date'=>$this->input->post('iso_end_date',TRUE),
+			'tb_test' => $this -> input -> post('tested_tb', TRUE),
+			'who_stage' => $this -> input -> post('who_stage', TRUE),
+			'pep_reason' => $this -> input -> post('pep_reason', TRUE),
+			'Medical_Record_Number' => $this -> input -> post('medical_record_number', TRUE),
+			'Patient_Number_CCC' => $this -> input -> post('patient_number', TRUE),
+			'First_Name' => $this -> input -> post('first_name', TRUE),
+			'Last_Name' => $this -> input -> post('last_name', TRUE),
+			'Other_Name' => $this -> input -> post('other_name', TRUE),
+			'Dob' => $this -> input -> post('dob', TRUE),
+			'Pob' => $this -> input -> post('pob', TRUE),
+			'Gender' => $this -> input -> post('gender', TRUE),
+			'pregnant' => $this -> input -> post('pregnant', TRUE),
+			'Start_Weight' => $this -> input -> post('start_weight', TRUE),
+			'Start_Height' => $this -> input -> post('start_height', TRUE),
+			'Start_Bsa' => $this -> input -> post('start_bsa', TRUE),
+			'Weight' => $this -> input -> post('current_weight', TRUE),
+			'Height' => $this -> input -> post('current_height', TRUE),
+			'Sa' => $this -> input -> post('current_bsa', TRUE),
+			'Phone' => $this -> input -> post('phone', TRUE),
+			'SMS_Consent' => $this -> input -> post('sms_consent', TRUE),
+			'Physical' => $this -> input -> post('physical', TRUE),
+			'Alternate' => $this -> input -> post('alternate', TRUE),
+			'Partner_Status' => $this -> input -> post('partner_status', TRUE),
+			'Disclosure' => $this -> input -> post('disclosure', TRUE),
+			'Fplan' => $family_planning,
+			'Other_Illnesses' => $other_illness_listing,
+			'Other_Drugs' => $other_drugs,
+			'Adr' => $other_allergies_listing,
+			'Smoke' => $this -> input -> post('smoke', TRUE),
+			'Alcohol' => $this -> input -> post('alcohol', TRUE),
+			'Tb' => $this -> input -> post('tb', TRUE),
+			'tb_category' => $this -> input -> post('tbcategory', TRUE),
+			'Tbphase' => $this -> input -> post('tbphase', TRUE),
+			'Startphase' => $this -> input -> post('fromphase', TRUE),
+			'Endphase' => $this -> input -> post('tophase', TRUE),
+			'Date_Enrolled' => $this -> input -> post('enrolled', TRUE),
+			'Current_Status' => $this -> input -> post('current_status', TRUE),
+			'Status_Change_Date' => $this -> input -> post('status_started', TRUE),
+			'Source' => $this -> input -> post('source', TRUE),
+			'Transfer_From' => $this -> input -> post('transfer_source', TRUE),
+			'Supported_By' => $this -> input -> post('support', TRUE),
+			'Facility_Code' => $this -> session -> userdata('facility'),
+			'Service' => $this -> input -> post('service', TRUE),
+			'Start_Regimen' => $this -> input -> post('regimen', TRUE),
+			'Start_Regimen_Date' => $this -> input -> post('service_started', TRUE),
+			'Current_Regimen' => $this -> input -> post('current_regimen', TRUE),
+			'Nextappointment' => $this -> input -> post('next_appointment_date', TRUE));
 
 		$this -> db -> where('id', $record_id);
 		$this -> db -> update('patient', $data);
@@ -718,7 +718,7 @@ class Patient_Management extends MY_Controller {
 		$this -> db -> update('patient_visit', array("patient_id" => $patient_number));
 		//update spouses
 		$this->unmerge_spouse($original_patient_number);
-        //update dependants
+		//update dependants
 		$this->unmerge_parent($original_patient_number);
 	}
 
@@ -984,9 +984,9 @@ class Patient_Management extends MY_Controller {
 
 	public function getSixMonthsDispensing($patient_no) {
 		$dyn_table = "";
-        $facility = $this -> session -> userdata("facility");
+		$facility = $this -> session -> userdata("facility");
 
-        $sql = "SELECT
+		$sql = "SELECT
 					DATE_FORMAT(pv.dispensing_date,'%d-%b-%Y') as dispensing_date,
 					UPPER(dc.Drug) as drug,
 					pv.quantity,
@@ -1001,12 +1001,12 @@ class Patient_Management extends MY_Controller {
 			    WHERE pv.patient_id LIKE '%$patient_no%'
 			    AND pv.facility = '$facility' 
 			    ORDER BY pv.dispensing_date DESC";
-	    $query = $this -> db -> query($sql);
+		$query = $this -> db -> query($sql);
 		$results = $query -> result_array();
 
-		if ($results) 
-		{   
-			foreach ($results as $result) 
+		if ($results)
+		{
+			foreach ($results as $result)
 			{
 				$dyn_table .= "<tbody><tr>";
 				$dyn_table .= "<td>" . $result['dispensing_date'] . "</td>";
@@ -1016,8 +1016,8 @@ class Patient_Management extends MY_Controller {
 				$dyn_table .= "<td>" . $result['missed_pills'] . "</td>";
 				$dyn_table .= "<td>" . $result['pill_adh'] . "%</td>";
 				$dyn_table .= "<td>" . $result['missed_adh'] . "%</td>";
-				
-                $adherence = doubleval(str_replace(array("%","<",">","="), "", $result['adherence']));
+
+				$adherence = doubleval(str_replace(array("%","<",">","="), "", $result['adherence']));
 				$average_adherence = (( doubleval($result['pill_adh']) + doubleval($result['missed_adh']) + $adherence) / 3);
 				$dyn_table .= "<td>" . $adherence . "%</td>";
 				$dyn_table .= "<td>" . number_format($average_adherence,2) . "%</td>";
@@ -1029,24 +1029,24 @@ class Patient_Management extends MY_Controller {
 	public function old_getSixMonthsDispensing($patient_no) {
 		$facility = $this -> session -> userdata("facility");
 		$dyn_table = "";
-		 $sql ="SELECT pv.pill_count,"
-                        . "pv.missed_pills,"
-                        . "ds.frequency,"
-                        . "ds.value,"
-                        . "pv.months_of_stock,"
-                        . "pv.adherence,"
-                        . "pv.dispensing_date,"
-                        . "d.drug,"
-                        . "pv.quantity"
-                        . " from patient_visit pv"
-                        . " left join drugcode d on d.id=pv.drug_id "
-                        . "left join dose ds on ds.Name=pv.dose "
-                        . "where patient_id = '$patient_no' "
-                        . "and datediff(curdate(),dispensing_date)<=360 "
-                        . "and datediff(curdate(),dispensing_date)>=0 "
-                        . "and pv.facility='$facility'"
-                        . "and pv.active='1'"
-                        . "order by pv.dispensing_date desc";
+		$sql ="SELECT pv.pill_count,"
+			. "pv.missed_pills,"
+			. "ds.frequency,"
+			. "ds.value,"
+			. "pv.months_of_stock,"
+			. "pv.adherence,"
+			. "pv.dispensing_date,"
+			. "d.drug,"
+			. "pv.quantity"
+			. " from patient_visit pv"
+			. " left join drugcode d on d.id=pv.drug_id "
+			. "left join dose ds on ds.Name=pv.dose "
+			. "where patient_id = '$patient_no' "
+			. "and datediff(curdate(),dispensing_date)<=360 "
+			. "and datediff(curdate(),dispensing_date)>=0 "
+			. "and pv.facility='$facility'"
+			. "and pv.active='1'"
+			. "order by pv.dispensing_date desc";
 		$query = $this -> db -> query($sql);
 		$results = $query -> result_array();
 		if ($results) {
@@ -1111,15 +1111,15 @@ class Patient_Management extends MY_Controller {
 		$dyn_table = "";
 		$facility = $this -> session -> userdata("facility");
 		$sql = "select dispensing_date, r1.regimen_desc as current_regimen, r2.regimen_desc as previous_regimen, if(rc.name is null,pv.regimen_change_reason,rc.name) as reason "
-                        . "from patient_visit pv "
-                        . "left join regimen r1 on pv.regimen = r1.id"
-                        . " left join regimen r2 on pv.last_regimen = r2.id"
-                        . " left join regimen_change_purpose rc on pv.regimen_change_reason = rc.id "
-                        . "where pv.patient_id LIKE '%$patient_no%' "
-                        . "and pv.facility = '$facility' "
-                        . "and pv.regimen != pv.last_regimen "
-                        . "group by dispensing_date,pv.regimen "
-                        . "order by pv.dispensing_date desc";
+			. "from patient_visit pv "
+			. "left join regimen r1 on pv.regimen = r1.id"
+			. " left join regimen r2 on pv.last_regimen = r2.id"
+			. " left join regimen_change_purpose rc on pv.regimen_change_reason = rc.id "
+			. "where pv.patient_id LIKE '%$patient_no%' "
+			. "and pv.facility = '$facility' "
+			. "and pv.regimen != pv.last_regimen "
+			. "group by dispensing_date,pv.regimen "
+			. "order by pv.dispensing_date desc";
 		$query = $this -> db -> query($sql);
 		$results = $query -> result_array();
 		if ($results) {
@@ -1138,7 +1138,7 @@ class Patient_Management extends MY_Controller {
 					$result['reason'] = "-";
 				}
 				//if ($result['current_regimen'] == "-") {
-					$dyn_table .= "<tbody><tr><td>" . date('d-M-Y', strtotime($result['dispensing_date'])) . "</td><td>" . $result['current_regimen'] . "</td><td align='center'>" . $result['previous_regimen'] . "</td><td align='center'>" . $result['reason'] . "</td></tr></tbody>";
+				$dyn_table .= "<tbody><tr><td>" . date('d-M-Y', strtotime($result['dispensing_date'])) . "</td><td>" . $result['current_regimen'] . "</td><td align='center'>" . $result['previous_regimen'] . "</td><td align='center'>" . $result['reason'] . "</td></tr></tbody>";
 				//}
 			}
 		}
@@ -1245,14 +1245,14 @@ class Patient_Management extends MY_Controller {
 		$sql = "UPDATE patient SET pregnant = '0' $extra WHERE patient_number_ccc ='$patient_ccc'";
 		$this ->db ->query($sql);
 		$count = $this -> db -> affected_rows();
-		
+
 	}
-        public function update_tb_status() {
-                $patient_ccc = $this -> input ->post("patient_ccc");
+	public function update_tb_status() {
+		$patient_ccc = $this -> input ->post("patient_ccc");
 		$tb_sql = "UPDATE patient SET tb = '0' WHERE patient_number_ccc ='$patient_ccc'";
 		$this ->db ->query($tb_sql);
 		$count = $this -> db -> affected_rows();
-        }
+	}
 
 	public function getWhoStage(){
 		$patient_ccc = $this -> input ->post("patient_ccc");
@@ -1285,15 +1285,15 @@ class Patient_Management extends MY_Controller {
 		$where="";
 		$facility_code=$this->session->userdata("facility");
 
-        //columns
-        $aColumns = array('id',
-        	              'patient_number_ccc', 
-        	              'first_name', 
-        	              'other_name',
-        	              'last_name',
-        	              'active');
+		//columns
+		$aColumns = array('id',
+			'patient_number_ccc',
+			'first_name',
+			'other_name',
+			'last_name',
+			'active');
 
-        $count = 0;
+		$count = 0;
 
 		// Paging
 		if (isset($iDisplayStart) && $iDisplayLength != '-1') {
@@ -1321,9 +1321,9 @@ class Patient_Management extends MY_Controller {
 				// Individual column filtering
 				if (isset($bSearchable) && $bSearchable == 'true') {
 					if($column_count==0){
-						$where.="(";                   
+						$where.="(";
 					}else{
-                        $where.=" OR ";       
+						$where.=" OR ";
 					}
 					$where.=$aColumns[$i]." LIKE '%".$this -> db -> escape_like_str($sSearch)."%'";
 					$column_count++;
@@ -1333,11 +1333,11 @@ class Patient_Management extends MY_Controller {
 
 		//data
 		$this -> db -> select('SQL_CALC_FOUND_ROWS ' . str_replace(' , ', ' ', implode(', ', $aColumns)), false);
-	    $this -> db -> from("patient p");
+		$this -> db -> from("patient p");
 		$this -> db -> where("p.facility_code",$facility_code);
 		//search sql clause
 		if($where !=""){
-		    $where.=")";
+			$where.=")";
 			$this ->db -> where($where);
 		}
 		$rResult = $this -> db -> get();
@@ -1348,16 +1348,16 @@ class Patient_Management extends MY_Controller {
 
 		// Total data set length
 		$this -> db -> select("p.*");
-	    $this -> db -> from("patient p");
+		$this -> db -> from("patient p");
 		$this -> db -> where("p.facility_code",$facility_code);
 		$total = $this -> db -> get();
 		$iTotal = count($total -> result_array());
 
 		// Output
-		$output = array('sEcho' => intval($sEcho), 
-			            'iTotalRecords' => $iTotal, 
-			            'iTotalDisplayRecords' => $iFilteredTotal, 
-			            'aaData' => array());
+		$output = array('sEcho' => intval($sEcho),
+			'iTotalRecords' => $iTotal,
+			'iTotalDisplayRecords' => $iFilteredTotal,
+			'aaData' => array());
 
 		//loop through data to parse to josn array
 		foreach ($rResult->result() as $patient) {
@@ -1365,14 +1365,14 @@ class Patient_Management extends MY_Controller {
 			//options
 			$links = "<a href='#' class='btn btn-danger btn-mini unmerge_patient' id='".$patient -> id."'>unmerge</a>";
 			$checkbox = "<input type='checkbox' name='patients' class='patients' value='".$patient -> id."' disabled/>";
-            if ($patient -> active == 1) {
-          	   $links = "<a href='#' class='btn btn-success btn-mini merge_patient' id='".$patient -> id."'>Merge</a>";
-          	   $checkbox = "<input type='checkbox' name='patients' class='patients' value='".$patient -> id."'/>";
-            }
+			if ($patient -> active == 1) {
+				$links = "<a href='#' class='btn btn-success btn-mini merge_patient' id='".$patient -> id."'>Merge</a>";
+				$checkbox = "<input type='checkbox' name='patients' class='patients' value='".$patient -> id."'/>";
+			}
 			$row[] = $checkbox." ".$patient -> patient_number_ccc;
 			$patient_name=$patient -> first_name." ".$patient -> other_name." ".$patient -> last_name;
 			$row[] =str_replace("  "," ", $patient_name);
-            $row[] =$links;
+			$row[] =$links;
 			$output['aaData'][] = $row;
 		}
 		echo json_encode($output,JSON_PRETTY_PRINT);
@@ -1384,39 +1384,39 @@ class Patient_Management extends MY_Controller {
 		$patients = $this -> input -> post('patients');
 		$patients = array_diff($patients, array($target_patient_id));
 
-	    //Get Target CCC_NO
-        $sql="SELECT patient_number_ccc FROM patient WHERE id='".$target_patient_id."'";
-        $query=$this->db->query($sql);
-        $results=$query->result_array();
-        if($results){
-           $target_patient_ccc=$results[0]['patient_number_ccc'];
-        }
-        //loop through merged patients
-        foreach($patients as $patient){
-        	//Merging patients involves disabling the patients being merged.
-	        $sql="UPDATE patient SET active='0' WHERE id='".$patient."'";
-	        $this->db->query($sql);
-	        //Get CCC_NO
-	        $sql="SELECT patient_number_ccc FROM patient WHERE id='".$patient."'";
-	        $query=$this->db->query($sql);
-	        $results=$query->result_array();
-	        if($results){
-	        	$ccc_no=$results[0]['patient_number_ccc'];
-	        }
-	        //Transfer appointments to target patient
-	        $sql="UPDATE patient_appointment pa 
+		//Get Target CCC_NO
+		$sql="SELECT patient_number_ccc FROM patient WHERE id='".$target_patient_id."'";
+		$query=$this->db->query($sql);
+		$results=$query->result_array();
+		if($results){
+			$target_patient_ccc=$results[0]['patient_number_ccc'];
+		}
+		//loop through merged patients
+		foreach($patients as $patient){
+			//Merging patients involves disabling the patients being merged.
+			$sql="UPDATE patient SET active='0' WHERE id='".$patient."'";
+			$this->db->query($sql);
+			//Get CCC_NO
+			$sql="SELECT patient_number_ccc FROM patient WHERE id='".$patient."'";
+			$query=$this->db->query($sql);
+			$results=$query->result_array();
+			if($results){
+				$ccc_no=$results[0]['patient_number_ccc'];
+			}
+			//Transfer appointments to target patient
+			$sql="UPDATE patient_appointment pa 
                             SET pa.merge='".$ccc_no."',
                                 pa.patient='".$target_patient_ccc."'
                   WHERE pa.patient='".$ccc_no."'";
-            $this->db->query($sql);
-            //Transfer visits to target patient
-            $sql="UPDATE patient_visit pv 
+			$this->db->query($sql);
+			//Transfer visits to target patient
+			$sql="UPDATE patient_visit pv 
                             SET pv.migration_id='".$ccc_no."',
                                 pv.patient_id='".$target_patient_ccc."'
                   WHERE pv.patient_id='".$ccc_no."'";
-            $this->db->query($sql);
-            $patient_no[]=$ccc_no;
-        }
+			$this->db->query($sql);
+			$patient_no[]=$ccc_no;
+		}
 
 		$patients_to_remove = implode(",", $patient_no);
 
@@ -1430,28 +1430,28 @@ class Patient_Management extends MY_Controller {
 		//Handle the array with all patients that are to be unmerged
 		$target_patient_id = $this -> input -> post('target_ccc');
 
-        //Merging patients involves disabling the patients being merged.
-        $sql="UPDATE patient SET active='1' WHERE id='".$target_patient_id."'";
-        $this->db->query($sql);
-        //Get Target CCC_NO
-        $sql="SELECT patient_number_ccc FROM patient WHERE id='".$target_patient_id."'";
-        $query=$this->db->query($sql);
-        $results=$query->result_array();
-        if($results){
-           $target_patient_ccc=$results[0]['patient_number_ccc'];
-        }
-        //Transfer appointments to original patient
-        $sql="UPDATE patient_appointment pa 
+		//Merging patients involves disabling the patients being merged.
+		$sql="UPDATE patient SET active='1' WHERE id='".$target_patient_id."'";
+		$this->db->query($sql);
+		//Get Target CCC_NO
+		$sql="SELECT patient_number_ccc FROM patient WHERE id='".$target_patient_id."'";
+		$query=$this->db->query($sql);
+		$results=$query->result_array();
+		if($results){
+			$target_patient_ccc=$results[0]['patient_number_ccc'];
+		}
+		//Transfer appointments to original patient
+		$sql="UPDATE patient_appointment pa 
                         SET pa.merge='',
                             pa.patient='".$target_patient_ccc."'
               WHERE pa.merge='".$target_patient_ccc."'";
-        $this->db->query($sql);
-        //Transfer visits and visits to original patient
-        $sql="UPDATE patient_visit pv 
+		$this->db->query($sql);
+		//Transfer visits and visits to original patient
+		$sql="UPDATE patient_visit pv 
                         SET pv.migration_id='',
                             pv.patient_id='".$target_patient_ccc."',
               WHERE pv.migration_id='".$target_patient_ccc."'";
-        $this->db->query($sql);
+		$this->db->query($sql);
 
 		$this -> session -> set_userdata('message_counter', '1');
 		$this -> session -> set_userdata('msg_success','['.$target_patient_ccc . '] was unmerged!');
@@ -1461,19 +1461,19 @@ class Patient_Management extends MY_Controller {
 
 	public function load_view( $page_id = NULL ,$id = NULL)
 	{
-        $config['details'] = array(
-        						'patient_id' => $id,
-        						'content_view' => 'patients/details_v',
-        						'hide_side_menu' => '1',
-        						'patient_msg' => $this->get_patient_relations($id)
-        					 );
+		$config['details'] = array(
+			'patient_id' => $id,
+			'content_view' => 'patients/details_v',
+			'hide_side_menu' => '1',
+			'patient_msg' => $this->get_patient_relations($id)
+		);
 
-        $this -> base_params($config[$page_id]);
+		$this -> base_params($config[$page_id]);
 	}
 
 	public function get_patient_relations( $patient_id = NULL)
 	{
-		
+
 		$this->db->select("p.first_name,p.last_name,LOWER(ps.name) as status,dp.child,s.secondary_spouse");
 		$this->db->from("patient p");
 		$this->db->join("patient_status ps","ps.id=p.current_status","left");
@@ -1483,15 +1483,15 @@ class Patient_Management extends MY_Controller {
 		$query = $this->db->get();
 		$results = $query -> result_array();
 
-        $dependant_msg = "";
-		if ($results) 
+		$dependant_msg = "";
+		if ($results)
 		{
-            $status = $results[0]['status'];
-            //Check dependedants/spouse status
+			$status = $results[0]['status'];
+			//Check dependedants/spouse status
 			$child = $results[0]['child'];
 			$spouse = $results[0]['secondary_spouse'];
 			$patient_name  = strtoupper($results[0]['first_name'].' '.$results[0]['last_name']);
-			if($child!=NULL){	
+			if($child!=NULL){
 				$pat = $this ->getDependentStatus($child);
 				if($pat!=''){
 					$dependant_msg.="Patient $patient_name\'s dependant ".$pat." is lost to follow up ";
@@ -1510,8 +1510,8 @@ class Patient_Management extends MY_Controller {
 	}
 
 	public function load_form($form_id = NULL)
-	{   
-        if($form_id == "patient_details"){
+	{
+		if($form_id == "patient_details"){
 			$data['pob'] = District::getItems();
 			$data['gender'] = Gender::getItems();
 			$data['current_status'] = Patient_Status::getItems();
@@ -1525,90 +1525,90 @@ class Patient_Management extends MY_Controller {
 			$regimens = Regimen::getItems();
 			$data['start_regimen'] = $regimens;
 			$data['current_regimen'] = $regimens;
-		    $data['who_stage'] = Who_Stage::getItems();
-            
-            //Get facilities beacuse of UTF-8 encoding
-		    $this -> db-> select('facilitycode AS id, name AS Name');
-		    $query = $this ->db -> get('facilities');
-		    $facilities = $query -> result_array();
-		    foreach($facilities as $facility){
-                $facility_list[]=array('id' => $facility['id'],'Name' => utf8_encode($facility['Name']));
-		    }
-		    $data['transfer_from'] = $facility_list;
+			$data['who_stage'] = Who_Stage::getItems();
+
+			//Get facilities beacuse of UTF-8 encoding
+			$this -> db-> select('facilitycode AS id, name AS Name');
+			$query = $this ->db -> get('facilities');
+			$facilities = $query -> result_array();
+			foreach($facilities as $facility){
+				$facility_list[]=array('id' => $facility['id'],'Name' => utf8_encode($facility['Name']));
+			}
+			$data['transfer_from'] = $facility_list;
 		}
 
 		echo json_encode($data);
 	}
 
 	public function load_patient($id = NULL)
-	{  
+	{
 		$columns = array(
-					'p.Medical_Record_Number AS medical_record_number',
-					'p.Patient_Number_CCC AS patient_number_ccc',
-					'p.First_Name AS first_name',
-					'p.Last_Name AS last_name',
-					'p.Other_Name AS other_name',
-					'DATE_FORMAT(p.Dob,"%Y-%m-%d") AS dob',
-					'p.Pob AS pob',
-					'p.dependant.parent as parent',
-					'p.Gender AS gender',
-					'p.Pregnant AS pregnant',
-					'FLOOR(DATEDIFF(p.Date_Enrolled,p.Dob)/365) AS start_age',
-					'FLOOR(DATEDIFF(CURDATE(),p.Dob)/365) AS age',
-					'p.Start_Weight AS start_weight',
-					'p.Weight AS weight',
-					'p.Start_Height AS start_height',
-					'p.Height AS height',
-					'p.Start_Bsa AS start_bsa',
-					'p.Sa AS sa',
-					'p.Phone AS phone',
-					'IF(p.SMS_Consent ="1","sms_yes","sms_no") AS sms_consent',
-					'p.Physical AS physical',
-					'p.Alternate AS alternate',
-					'p.Support_Group AS support_group',
-					'p.Partner_Status AS partner_status',
-					'IF(p.Disclosure ="1","disclosure_yes","disclosure_no") AS disclosure',
-					'p.Spouse.secondary_spouse AS secondary_spouse',
-					'Fplan AS fplan',
-					'Other_Illnesses AS other_illnesses',
-					'Drug_Allergies AS drug_allergies',
-					'p.Other_Drugs AS other_drugs',
-					'p.Adr AS adr',
-					'p.Smoke AS smoke',
-					'p.Alcohol AS alcohol',
-					'p.Tb_Test AS tb_test',
-					'p.Tb AS tb',
-					'p.tb_category AS tb_category',
-					'p.Tbphase AS tbphase',
-					'p.Startphase AS startphase',
-					'p.Endphase AS endphase',
-					'p.NextAppointment AS nextappointment',
-					'DATEDIFF(p.NextAppointment,CURDATE()) AS days_to_next',
-					'p.Date_Enrolled AS date_enrolled',
-					'p.Current_Status AS current_status',
-					'p.Status_Change_Date AS status_change_date',
-					'p.Source AS source',
-					'p.Transfer_From AS transfer_from',
-					'p.Service AS service',
-					'p.Pep_Reason AS pep_reason',
-					'p.Start_Regimen AS start_regimen',
-					'p.Start_Regimen_Date AS start_regimen_date',
-					'p.Current_Regimen AS current_regimen',
-					'p.who_stage',
-					'p.drug_prophylaxis AS drug_prophylaxis',
-					'p.isoniazid_start_date',
-					'p.isoniazid_end_date');
+			'p.Medical_Record_Number AS medical_record_number',
+			'p.Patient_Number_CCC AS patient_number_ccc',
+			'p.First_Name AS first_name',
+			'p.Last_Name AS last_name',
+			'p.Other_Name AS other_name',
+			'DATE_FORMAT(p.Dob,"%Y-%m-%d") AS dob',
+			'p.Pob AS pob',
+			'p.dependant.parent as parent',
+			'p.Gender AS gender',
+			'p.Pregnant AS pregnant',
+			'FLOOR(DATEDIFF(p.Date_Enrolled,p.Dob)/365) AS start_age',
+			'FLOOR(DATEDIFF(CURDATE(),p.Dob)/365) AS age',
+			'p.Start_Weight AS start_weight',
+			'p.Weight AS weight',
+			'p.Start_Height AS start_height',
+			'p.Height AS height',
+			'p.Start_Bsa AS start_bsa',
+			'p.Sa AS sa',
+			'p.Phone AS phone',
+			'IF(p.SMS_Consent ="1","sms_yes","sms_no") AS sms_consent',
+			'p.Physical AS physical',
+			'p.Alternate AS alternate',
+			'p.Support_Group AS support_group',
+			'p.Partner_Status AS partner_status',
+			'IF(p.Disclosure ="1","disclosure_yes","disclosure_no") AS disclosure',
+			'p.Spouse.secondary_spouse AS secondary_spouse',
+			'Fplan AS fplan',
+			'Other_Illnesses AS other_illnesses',
+			'Drug_Allergies AS drug_allergies',
+			'p.Other_Drugs AS other_drugs',
+			'p.Adr AS adr',
+			'p.Smoke AS smoke',
+			'p.Alcohol AS alcohol',
+			'p.Tb_Test AS tb_test',
+			'p.Tb AS tb',
+			'p.tb_category AS tb_category',
+			'p.Tbphase AS tbphase',
+			'p.Startphase AS startphase',
+			'p.Endphase AS endphase',
+			'p.NextAppointment AS nextappointment',
+			'DATEDIFF(p.NextAppointment,CURDATE()) AS days_to_next',
+			'p.Date_Enrolled AS date_enrolled',
+			'p.Current_Status AS current_status',
+			'p.Status_Change_Date AS status_change_date',
+			'p.Source AS source',
+			'p.Transfer_From AS transfer_from',
+			'p.Service AS service',
+			'p.Pep_Reason AS pep_reason',
+			'p.Start_Regimen AS start_regimen',
+			'p.Start_Regimen_Date AS start_regimen_date',
+			'p.Current_Regimen AS current_regimen',
+			'p.who_stage',
+			'p.drug_prophylaxis AS drug_prophylaxis',
+			'p.isoniazid_start_date',
+			'p.isoniazid_end_date');
 
-        $details = Patient::get_patient( $id , implode(",", $columns) );
+		$details = Patient::get_patient( $id , implode(",", $columns) );
 
 		//Sanitize data
 		foreach($details as $index=> $detail){
 			if( $index == "other_illnesses" )
-			{   
-                $illnesses = explode(",", $detail);
-                $others = $this -> get_other_chronic($illnesses);
-                $data[$index] = $others[$index];
-                $data["other_chronic"] = $others['other_chronic'];
+			{
+				$illnesses = explode(",", $detail);
+				$others = $this -> get_other_chronic($illnesses);
+				$data[$index] = $others[$index];
+				$data["other_chronic"] = $others['other_chronic'];
 			}else{
 				$data[$index] = utf8_encode($detail);
 			}
@@ -1618,62 +1618,86 @@ class Patient_Management extends MY_Controller {
 	}
 
 	public function get_visits( $patient_id = NULL )
-	{  
+	{
 		$facility_code = $this -> session -> userdata("facility");
-        
-        $sql = "SELECT pv.dispensing_date, 
-                        v.name AS visit, 
-                        pv.dose, 
-                        pv.duration, 
-                        pv.id AS record_id, 
-                        d.drug, 
-                        pv.quantity, 
-                        pv.current_weight, 
-                        r.regimen_desc, 
-                        pv.batch_number, 
-                        pv.pill_count, 
-                        pv.adherence, 
-                        pv.user, 
-                        rcp.name AS regimen_change_reason 
+		//the intitial SQL
+		/*$sql = "SELECT pv.dispensing_date,
+                        v.name AS visit,
+                        pv.dose,
+                        pv.duration,
+                        pv.id AS record_id,
+                        d.drug,
+                        pv.quantity,
+                        pv.current_weight,
+                        r.regimen_desc,
+                        pv.batch_number,
+                        pv.pill_count,
+                        pv.adherence,
+                        pv.user,
+                        rcp.name AS regimen_change_reason
                 FROM patient_visit pv
-                LEFT JOIN patient p ON pv.patient_id = p.patient_number_ccc 
-                LEFT JOIN drugcode d ON pv.drug_id = d.id 
-                LEFT JOIN regimen r ON pv.regimen 
-                LEFT JOIN regimen r1 ON pv.last_regimen = r1.id 
-                LEFT JOIN visit_purpose v ON pv.visit_purpose = v.id 
-                LEFT JOIN regimen_change_purpose rcp ON rcp.id=pv.regimen_change_reason 
-                WHERE p.id = '$patient_id' 
-                AND pv.facility = '$facility_code' 
-                AND pv.active = 1 
+                LEFT JOIN patient p ON pv.patient_id = p.patient_number_ccc
+                LEFT JOIN drugcode d ON pv.drug_id = d.id
+                LEFT JOIN regimen r ON pv.regimen
+                LEFT JOIN regimen r1 ON pv.last_regimen = r1.id
+                LEFT JOIN visit_purpose v ON pv.visit_purpose = v.id
+                LEFT JOIN regimen_change_purpose rcp ON rcp.id=pv.regimen_change_reason
+                WHERE p.id = '$patient_id'
+                AND pv.facility = '$facility_code'
+                AND pv.active = 1
                 GROUP BY d.drug,pv.dispensing_date
-                ORDER BY pv.dispensing_date DESC";
+                ORDER BY pv.dispensing_date DESC";*/
 
-        $query = $this -> db -> query($sql);
+		//the SQL selects from v_patient_visits (View)
+		$sql = "select  v_v.dispensing_date,
+                        v_v.visit_purpose_name AS visit, 
+                        v_v.dose, 
+                        v_v.duration, 
+                        v_v.patient_visit_id AS record_id, 
+                        v_v.drug_id, 
+                        v_v.quantity, 
+                        v_v.weight, 
+                        R.regimen_desc, 
+                        v_v.batch_number, 
+                        v_v.pill_count, 
+                        v_v.adherence, 
+                        v_v.user, 
+                        v_v.regimen_change_reason AS regimen_change_reason 
+				from v_patient_visits as v_v
+				INNER JOIN regimen as R
+					on R.id = v_v.current_regimen
+				WHERE v_v.id = $patient_id
+				GROUP BY v_v.drug_id,v_v.dispensing_date
+				ORDER BY v_v.dispensing_date DESC";
+
+
+
+		$query = $this -> db -> query($sql);
 		$visits = $query ->result_array();
-        $temp = array();
+		$temp = array();
 
-        foreach($visits as $counter => $visit)
-        {  
-        	foreach ($visit as $key => $value) 
-        	{   
-                if($key == "record_id")
-                {
+		foreach($visits as $counter => $visit)
+		{
+			foreach ($visit as $key => $value)
+			{
+				if($key == "record_id")
+				{
 					$link=base_url().'dispensement_management/edit/'.$value;
 					$value = "<a href='".$link."' class='btn btn-small btn-warning'>Edit</a>";
 				}
 
 				$temp[$counter][] = $value;
-        	}
+			}
 
-        }
+		}
 
-        $data['aaData'] = $temp;
+		$data['aaData'] = $temp;
 
-        //echo "<pre>";
+		//echo "<pre>";
 
-        echo json_encode($data,JSON_PRETTY_PRINT);
+		echo json_encode($data,JSON_PRETTY_PRINT);
 
-        //echo "</pre>";
+		//echo "</pre>";
 
 	}
 
@@ -1690,21 +1714,21 @@ class Patient_Management extends MY_Controller {
 
 		//Selected columns
 		$aColumns = array(
-			            'pv.dispensing_date',
-						'v.name AS visit', 
-						'pv.dose', 
-						'pv.duration',
-						'pv.id AS record_id',
-						'd.drug', 
-						'pv.quantity', 
-						'pv.current_weight', 
-						'r1.regimen_desc', 
-						'pv.batch_number', 
-					    'pv.pill_count', 
-					    'pv.adherence', 
-					    'pv.user', 
-					    'rcp.name AS regimen_change_reason'
-					    ); 
+			'pv.dispensing_date',
+			'v.name AS visit',
+			'pv.dose',
+			'pv.duration',
+			'pv.id AS record_id',
+			'd.drug',
+			'pv.quantity',
+			'pv.current_weight',
+			'r1.regimen_desc',
+			'pv.batch_number',
+			'pv.pill_count',
+			'pv.adherence',
+			'pv.user',
+			'rcp.name AS regimen_change_reason'
+		);
 
 		// Paging
 		if (isset($iDisplayStart) && $iDisplayLength != '-1') {
@@ -1724,21 +1748,21 @@ class Patient_Management extends MY_Controller {
 			}
 		}
 
-		/* 
+		/*
 		 * Filtering
 		 * NOTE this does not match the built-in DataTables filtering which does it
 		 * word by word on any field. It's possible to do here, but concerned about efficiency
 		 * on very large tables, and MySQL's regex functionality is very limited
 		 */
 		$sWhere = "";
-		if ( isset($sSearch) && !empty($sSearch) ) 
+		if ( isset($sSearch) && !empty($sSearch) )
 		{
-			for ($i = 0; $i < count($aColumns); $i++) 
+			for ($i = 0; $i < count($aColumns); $i++)
 			{
 				$bSearchable = $this -> input -> get_post('bSearchable_' . $i, true);
 
 				// Individual column filtering
-				if (isset($bSearchable) && $bSearchable == 'true') 
+				if (isset($bSearchable) && $bSearchable == 'true')
 				{
 					//If 'AS' is found remove it
 					$col = $aColumns[$i];
@@ -1746,17 +1770,17 @@ class Patient_Management extends MY_Controller {
 
 					if( $pos !== FALSE)
 					{
-		                $col = trim( $col = substr( $col , 0, $pos) );
+						$col = trim( $col = substr( $col , 0, $pos) );
 					}
 
 					$sSearch = mysql_real_escape_string($sSearch);
-					
-					if ($i != 0) 
-					{   
+
+					if ($i != 0)
+					{
 						$sWhere .= " OR ".$col." LIKE '%".$sSearch."%'";
 					}
 					else
-					{  
+					{
 						$sWhere .= "( ".$col." LIKE '%".$sSearch."%'";
 					}
 
@@ -1813,11 +1837,11 @@ class Patient_Management extends MY_Controller {
 
 		// Output
 		$output = array(
-			        'sEcho' => intval($sEcho), 
-			        'iTotalRecords' => $iTotal, 
-			        'iTotalDisplayRecords' => $iFilteredTotal, 
-			        'aaData' => array()
-			        );
+			'sEcho' => intval($sEcho),
+			'iTotalRecords' => $iTotal,
+			'iTotalDisplayRecords' => $iFilteredTotal,
+			'aaData' => array()
+		);
 
 		foreach ($rResult->result_array() as $count => $aRow) {
 			$data = array();
@@ -1839,33 +1863,33 @@ class Patient_Management extends MY_Controller {
 		$illness_list = array('other_illnesses'=>'','other_chronic' => '');
 		$other_chronic = array();
 		$chronic = array();
-        if($illnesses)
-        {    
-        	$indicators = Other_Illnesses::getIndicators();
-        	foreach($illnesses as $illness)
-        	{   
-        		if(in_array($illness, $indicators))
-        		{
+		if($illnesses)
+		{
+			$indicators = Other_Illnesses::getIndicators();
+			foreach($illnesses as $illness)
+			{
+				if(in_array($illness, $indicators))
+				{
 					$chronic[] = $illness;
-        		}else{
-                    $other_chronic[] = $illness;
-        		}
-        	}
+				}else{
+					$other_chronic[] = $illness;
+				}
+			}
 
-        	$illness_list['other_illnesses'] = implode(",", $chronic);
-        	$illness_list['other_chronic'] = implode(",", $other_chronic);
-        }
-        return $illness_list;
+			$illness_list['other_illnesses'] = implode(",", $chronic);
+			$illness_list['other_chronic'] = implode(",", $other_chronic);
+		}
+		return $illness_list;
 	}
 
 	public function load_summary( $patient_id = NULL )
 	{
 		//procedure
-		
+
 	}
 
 	public function get_patients($status=null)
-	{   
+	{
 		$filter = "";
 		if ($status != NULL){
 			if($status=='inactive'){
@@ -1894,52 +1918,52 @@ class Patient_Management extends MY_Controller {
 		        AND p.patient_number_ccc != '' $filter ";
 		$query = $this -> db -> query($sql);
 		$patients = $query ->result_array();
-        $temp = array();
+		$temp = array();
 
-        foreach($patients as $counter => $patient)
-        {  
-        	foreach ($patient as $key => $value) {
-        		if ($key == "active") 
-        		{   
-        			$id = $patient['id'];
-        			$link = "";
-                    //Active Patient
-	        		if($access_level == "facility_administrator")
-	        		{   
-	        			if ($value==1) 
-	        			{
-                                $link = '| <a href="' . base_url() . 'patient_management/disable/' . $id . '" class="red actual">Disable</a>';
-                            }else
-                            {
-                              $link = '| <a href="' . base_url() . 'patient_management/enable/' . $id . '" class="green actual">Enable</a>';  
-                            }            
-                        }
-                         if ($value==1) 
-                           {
-                             $link = '<a href="' . base_url() . 'dispensement_management/dispense/' . $id . '">Dispense</a>|<a href="' . base_url() . 'patient_management/load_view/details/' . $id . '">Detail</a> | <a href="' . base_url() . 'patient_management/edit/' . $id . '">Edit</a> ' . $link;
-                           }else{
-                               $link = str_replace("|", "", $link);
-                               $link .= '| <a href="' . base_url() . 'patient_management/delete/' . $id . '" class="red actual">Delete</a>';
-                           }                                        
-	
-					$value = $link; 
-					unset($patient['id']);      		
-        		}
-        		$temp [$counter][] = $value;
-        	}
-           
-        }
+		foreach($patients as $counter => $patient)
+		{
+			foreach ($patient as $key => $value) {
+				if ($key == "active")
+				{
+					$id = $patient['id'];
+					$link = "";
+					//Active Patient
+					if($access_level == "facility_administrator")
+					{
+						if ($value==1)
+						{
+							$link = '| <a href="' . base_url() . 'patient_management/disable/' . $id . '" class="red actual">Disable</a>';
+						}else
+						{
+							$link = '| <a href="' . base_url() . 'patient_management/enable/' . $id . '" class="green actual">Enable</a>';
+						}
+					}
+					if ($value==1)
+					{
+						$link = '<a href="' . base_url() . 'dispensement_management/dispense/' . $id . '">Dispense</a>|<a href="' . base_url() . 'patient_management/load_view/details/' . $id . '">Detail</a> | <a href="' . base_url() . 'patient_management/edit/' . $id . '">Edit</a> ' . $link;
+					}else{
+						$link = str_replace("|", "", $link);
+						$link .= '| <a href="' . base_url() . 'patient_management/delete/' . $id . '" class="red actual">Delete</a>';
+					}
 
-        $data['aaData'] = $temp;
+					$value = $link;
+					unset($patient['id']);
+				}
+				$temp [$counter][] = $value;
+			}
 
-        echo json_encode($data,JSON_PRETTY_PRINT);
+		}
+
+		$data['aaData'] = $temp;
+
+		echo json_encode($data,JSON_PRETTY_PRINT);
 	}
 
-public function get_patient_details(){
-	$patient_id = $this ->input ->post('patient_id');
-	$query = patient::get_patient_details($patient_id);
-	echo json_encode($query);
-}
+	public function get_patient_details(){
+		$patient_id = $this ->input ->post('patient_id');
+		$query = patient::get_patient_details($patient_id);
+		echo json_encode($query);
+	}
 
 }
 ob_get_clean();
