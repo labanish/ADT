@@ -887,48 +887,48 @@ class Order extends MY_Controller {
 
 		if ($type == "maps") {
 
-			$save = $this -> input -> post("save_maps");
+			$save = $this->input->post("save_maps");
 			if ($save) {
 				
-				$code = $this -> input -> post("report_type");
+				$code = $this->input->post("report_type");
 				$code = $this -> getActualCode($code, $type);
-				$reporting_period = $this -> input -> post('reporting_period');
+				$reporting_period = $this->input->post('reporting_period');
 				$reporting_period = date('Y-m', strtotime($reporting_period));
-				$period_begin = $this -> input -> post("start_date");
-				$period_end = $this -> input -> post("end_date");
+				$period_begin = $this->input->post("start_date");
+				$period_end = $this->input->post("end_date");
 				$period_begin = $reporting_period . '-' . $period_begin;
 				$period_end = $reporting_period . '-' . $period_end;
-				$reports_expected = $this -> input -> post("reports_expected");
-				$reports_actual = $this -> input -> post("reports_actual");
-				$services = $this -> input -> post("services");
-				$sponsors = $this -> input -> post("sponsor");
-				$art_adult = $this -> input -> post("art_adult");
-				$art_child = $this -> input -> post("art_child");
-				$new_male = $this -> input -> post("new_male");
-				$new_female = $this -> input -> post("new_female");
-				$revisit_male = $this -> input -> post("revisit_male");
-				$revisit_female = $this -> input -> post("revisit_female");
-				$new_pmtct = $this -> input -> post("new_pmtct");
-				$revisit_pmtct = $this -> input -> post("revisit_pmtct");
-				$total_infant = $this -> input -> post("total_infant");
-				$pep_adult = $this -> input -> post("pep_adult");
-				$pep_child = $this -> input -> post("pep_child");
-				$total_adult = $this -> input -> post("tot_cotr_adult");
-				$total_child = $this -> input -> post("tot_cotr_child");
-				$diflucan_adult = $this -> input -> post("diflucan_adult");
-				$diflucan_child = $this -> input -> post("diflucan_child");
-				$new_cm = $this -> input -> post("new_cm");
-				$revisit_cm = $this -> input -> post("revisit_cm");
-				$new_oc = $this -> input -> post("new_oc");
-				$revisit_oc = $this -> input -> post("revisit_oc");
-				$comments = $this -> input -> post("other_regimen");
+				$reports_expected = $this->input->post("reports_expected");
+				$reports_actual = $this->input->post("reports_actual");
+				$services = $this->input->post("services");
+				$sponsors = $this->input->post("sponsor");
+				$art_adult = $this->input->post("art_adult");
+				$art_child = $this->input->post("art_child");
+				$new_male = $this->input->post("new_male");
+				$new_female = $this->input->post("new_female");
+				$revisit_male = $this->input->post("revisit_male");
+				$revisit_female = $this->input->post("revisit_female");
+				$new_pmtct = $this->input->post("new_pmtct");
+				$revisit_pmtct = $this->input->post("revisit_pmtct");
+				$total_infant = $this->input->post("total_infant");
+				$pep_adult = $this->input->post("pep_adult");
+				$pep_child = $this->input->post("pep_child");
+				$total_adult = $this->input->post("tot_cotr_adult");
+				$total_child = $this->input->post("tot_cotr_child");
+				$diflucan_adult = $this->input->post("diflucan_adult");
+				$diflucan_child = $this->input->post("diflucan_child");
+				$new_cm = $this->input->post("new_cm");
+				$revisit_cm = $this->input->post("revisit_cm");
+				$new_oc = $this->input->post("new_oc");
+				$revisit_oc = $this->input->post("revisit_oc");
+				$comments = $this->input->post("other_regimen");
 				//trim comments tabs
 				$comments = preg_replace('/[ ]{2,}|[\t]/', ' ', trim($comments));
 
-				$report_id = $this -> input -> post("report_id");
-				$facility_id = $this -> input -> post("facility_id");
-				$regimens = $this -> input -> post('patient_regimens');
-				$patient_numbers = $this -> input -> post('patient_numbers');
+				$report_id = $this->input->post("report_id");
+				$facility_id = $this->input->post("facility_id");
+				$regimens = $this->input->post('patient_regimens');
+				$patient_numbers = $this->input->post('patient_numbers');
 				//insert map
 				$main_array['id'] = $id;
 				$main_array['status'] = $status;
@@ -3093,8 +3093,8 @@ class Order extends MY_Controller {
 
 
 // End of the new aggregations from the KEMSA template
-
-			echo json_encode($data);
+			echo "<pre>";print_r($data); die;
+			echo json_encode($data); die("done");
 		}
 	}
 
@@ -3794,6 +3794,7 @@ class Order extends MY_Controller {
 
 
 		$row['beginning_balance']=$this->getBeginningBalance($param);
+		$row['pack_size']=$pack_size;
         //$row['positive_adjustment']=$this->getBeginningBalance($param);
         //$row['positive_adjustment']=Cdrr_Item::getPositiveAdjustment($param['period_begin'], $param['drug_id'], $param['facility_id']);
 	    $row=$this->getOtherTransactions($param,$row);

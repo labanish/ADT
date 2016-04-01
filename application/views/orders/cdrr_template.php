@@ -392,11 +392,13 @@ o		<a href='<?php echo site_url("order/download_order/cdrr/".$cdrr_id);?>'><?php
 						}else{ 
 						?>
 <!-- showing the input of the column unit pack size -->
+
+<!-- Devide the displayed output by the number of packsize -->
 						<td class="number calc_count"><input type="text"  class="pack_size" name="pack_size[]" id="pack_size_<?php echo $commodity -> id;?>" value="<?php echo $commodity ->Pack_Size;?>" style="color: blue; font-weight: bold; text-align:center;"/></td>
 						<?php	
 						}
 						?>
-						<td> <input name="opening_balance[]" id="opening_balance_<?php echo $commodity -> id;?>" type="text" class="opening_balance" style="width:100%; text-align:center;"/></td>
+						<td> <input name="opening_balance[]" id="opening_balance_<?php echo $commodity->id;?>" type="text" class="opening_balance" style="width:100%; text-align:center;"/></td>
 						<td> <input name="quantity_received[]" id="received_in_period_<?php echo $commodity -> id;?>" type="text" class="quantity_received" style="width:100%; text-align:center;"/></td>
 						<td> <input name="quantity_dispensed[]" id="dispensed_in_period_<?php echo $commodity -> id;?>" type="text" class="quantity_dispensed" style="width:100%; text-align:center;"/></td>
 						<?php

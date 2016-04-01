@@ -3,7 +3,7 @@
 /**
  * The user name of the git hub user who owns the repo
  */
-$config['github_user'] = 'KevinMarete';
+$config['github_user'] = 'OmondiKevin';
 
 /**
  * The repo on GitHub we will be updating from

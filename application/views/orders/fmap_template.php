@@ -281,8 +281,8 @@ ob_get_clean();
 								<td style="border-right:2px solid #DDD;"><?php echo @$regimen['code'];?></td>
 								<td regimen_id="<?php echo $regimen['reg_id'];?>" class="regimen_desc col_drug"><?php echo @$regimen ['description'];?></td>
 								<td regimen_id="<?php echo $regimen['reg_id'];?>" class="regimen_numbers">
-								<input type="text" class="f_right patient_number" data-cat="<?php echo $cat; ?>" name="patient_numbers[]" id="patient_numbers_<?php echo $regimen['reg_id'];?>" value="<?php echo $regimen['total'];?>" >
-								<input name="patient_regimens[]"class="regimen_list" value="<?php echo $regimen['reg_id'];?>" type="hidden">
+								<input type="text" class="f_right patient_number" data-cat="<?php echo $cat; ?>" name="patient_numbers[]" id="patient_numbers_<?php echo $regimen['reg_id'];?>" style="text-align: center;" value="<?php echo $regimen['total'];?>" >
+								<input name="patient_regimens[]"class="regimen_list" style="text-align: center; color: blue; font-weight: bold;" value="<?php echo $regimen['reg_id'];?>" type="hidden">
 								<input type="hidden" name="item_id[]" class="item_id"/>
 								</td>
 							</tr>
@@ -295,8 +295,8 @@ ob_get_clean();
 								<td style="border-right:2px solid #DDD;"><?php echo $regimen['code'];?></td>
 								<td regimen_id="<?php echo $regimen['reg_id'];?>" class="regimen_desc col_drug"><?php echo $regimen['description'];?></td>
 								<td regimen_id="<?php echo $regimen['reg_id'];?>" class="regimen_numbers">
-								<input type="text" class="f_right patient_number" name="patient_numbers[]" id="patient_numbers_<?php echo $regimen['reg_id'];?>" value="<?php echo $regimen['total'];?>" >
-								<input name="patient_regimens[]"class="regimen_list" value="<?php echo $regimen['reg_id'];?>" type="hidden">
+								<input type="text" class="f_right patient_number" name="patient_numbers[]" id="patient_numbers_<?php echo $regimen['reg_id'];?>" style="text-align: center; color: blue; font-weight: bold;" value="<?php echo $regimen['total'];?>" >
+								<input name="patient_regimens[]"class="regimen_list" style="text-align: center; color: blue; font-weight: bold;" value="<?php echo $regimen['reg_id'];?>" type="hidden">
 								<input type="hidden" name="item_id[]" class="item_id"/>
 								</td>
 							</tr>
@@ -322,7 +322,7 @@ ob_get_clean();
 								<td regimen_id="<?php echo $regimen -> id;?>" class="regimen_desc col_drug"><?php echo $regimen -> name;?></td>
 								<td regimen_id="<?php echo $regimen -> id;?>" class="regimen_numbers">
 								<input type="text" class="f_right patient_number" data-cat="<?php echo $cat; ?>" name="patient_numbers[]" id="patient_numbers_<?php echo $regimen -> id;?>" >
-								<input name="patient_regimens[]"class="regimen_list" value="<?php echo $regimen -> id;?>" type="hidden">
+								<input name="patient_regimens[]"class="regimen_list" style="text-align: center; color: blue; font-weight: bold;" value="<?php echo $regimen -> id;?>" type="hidden">
 								<input type="hidden" name="item_id[]" class="item_id"/>
 								</td>
 							</tr>
@@ -337,9 +337,9 @@ ob_get_clean();
 								</td>
 								<td regimen_id="<?php echo $regimen -> id;?>" class="regimen_desc col_drug"><?php echo $regimen -> name;?></td>
 								<td regimen_id="<?php echo $regimen -> id;?>" class="regimen_numbers">
-								<input type="text" class="f_right patient_number" data-cat="<?php echo $cat; ?>" name="patient_numbers[]" id="patient_numbers_<?php echo $regimen -> id;?>" >
-								<input name="patient_regimens[]"class="regimen_list" value="<?php echo $regimen -> id;?>" type="hidden">
-								<input type="hidden" name="item_id[]" class="item_id"/>
+								<input type="text" style="text-align: center; color: blue; font-weight: bold;" class="f_right patient_number" data-cat="<?php echo $cat; ?>" name="patient_numbers[]" id="patient_numbers_<?php echo $regimen -> id;?>" value="0">
+								<input name="patient_regimens[]" style="text-align: center; color: blue; font-weight: bold;" class="regimen_list" value="<?php echo $regimen -> id;?>" type="hidden">
+								<input type="hidden" style="text-align: center; color: blue; font-weight: bold;" name="item_id[]" class="item_id"/>
 								
 								</td>
 							</tr>
@@ -613,6 +613,7 @@ ob_get_clean();
 				type : 'POST',
 				dataType : 'json',
 				success : function(data) {
+					console.log(data);
 					var x=0;
 					if('new_patient' in data){
 						var l_new_patient=data.new_patient.length;
