@@ -2498,8 +2498,64 @@ class report_management extends MY_Controller {
 		$to = date('Y-m-d', strtotime($to));
 
 		//Get all patients who have apppointments on the selected date range
+
+
+
+
+//completed 
+//male adult
+		/*$sql9 = "SELECT COUNT(*) FROM patient WHERE (isoniazid_end_date < '$to')
+		AND (isoniazid_end_date > '$from')
+		AND gender=1 
+		AND FLOOR(DATEDIFF('$from',dob)/365) > 15";*/
+		$sql9 = "SELECT * FROM patient WHERE (isoniazid_start_date < '$to' AND isoniazid_start_date > '$from') AND gender=1 AND FLOOR(DATEDIFF('$from',dob)/365)>15 ";
+		$query9 = $this -> db -> query($sql9);
+		$result9 = $query9 ->num_rows();
+		//$count=$result['COUNT(*)'];
+		//female adult
+		$sql10 = "SELECT * FROM patient WHERE (isoniazid_start_date < '$to' AND isoniazid_start_date > '$from') AND gender=2 AND FLOOR(DATEDIFF('$from',dob)/365)>15 ";
 		
-		//male adult
+		$query10 = $this -> db -> query($sql10);
+		$result10= $query10 -> num_rows();
+//male child
+		$sql11 = "SELECT * FROM patient WHERE (isoniazid_start_date < '$to' AND isoniazid_start_date > '$from') AND gender=1 AND FLOOR(DATEDIFF('$from',dob)/365)<15 ";
+		
+		$query11 = $this -> db -> query($sql11);
+		$result11 = $query11 -> num_rows();
+		//female adult  
+		$sql12 = "SELECT * FROM patient WHERE (isoniazid_start_date < '$to' AND isoniazid_start_date > '$from') AND gender=2 AND FLOOR(DATEDIFF('$from',dob)/365)<15 ";
+		
+		$query12 = $this -> db -> query($sql12);
+		$result12 = $query12 -> num_rows();
+
+//started on isoniazid
+
+
+
+		$sql5 = "SELECT * FROM patient WHERE (isoniazid_end_date < '$to' AND isoniazid_end_date > '$from') AND gender=1 AND FLOOR(DATEDIFF('$from',dob)/365)>15  ";
+		
+		$query5 = $this -> db -> query($sql5);
+		$result5 = $query5 ->num_rows();
+		//$count=$result['COUNT(*)'];
+		//female adult
+		$sql6 = "SELECT * FROM patient WHERE (isoniazid_end_date < '$to' AND isoniazid_end_date > '$from') AND gender=2 AND FLOOR(DATEDIFF('$from',dob)/365)>15 ";
+		
+		$query6 = $this -> db -> query($sql6);
+		$result6= $query6 -> num_rows();
+//male child
+		$sql7 = "SELECT * FROM patient WHERE (isoniazid_end_date < '$to' AND isoniazid_end_date > '$from') AND gender=1 AND FLOOR(DATEDIFF('$from',dob)/365)<15 ";
+		
+		$query7 = $this -> db -> query($sql7);
+		$result7 = $query7 -> num_rows();
+		//female adult
+		$sql8 = "SELECT * FROM patient WHERE (isoniazid_end_date < '$to' AND isoniazid_end_date > '$from') AND gender=2 AND FLOOR(DATEDIFF('$from',dob)/365)<15";
+		
+		$query8 = $this -> db -> query($sql8);
+		$result8 = $query8 -> num_rows();
+
+//on routine isoniazid
+
+
 		$sql1 = "SELECT * FROM patient WHERE (isoniazid_end_date > '$to') AND gender=1 AND FLOOR(DATEDIFF('$from',dob)/365)>15 ";
 		
 		$query1 = $this -> db -> query($sql1);
@@ -2520,58 +2576,6 @@ class report_management extends MY_Controller {
 		
 		$query4 = $this -> db -> query($sql4);
 		$result4 = $query4 -> num_rows();
-
-
-
-
-				//male adult
-		$sql5 = "SELECT * FROM patient WHERE (isoniazid_start_date > '$to') AND gender=1 AND FLOOR(DATEDIFF('$from',dob)/365)>15 ";
-		
-		$query5 = $this -> db -> query($sql5);
-		$result5 = $query5 ->num_rows();
-		//$count=$result['COUNT(*)'];
-		//female adult
-		$sql6 = "SELECT * FROM patient WHERE (isoniazid_start_date > '$to') AND gender=2 AND FLOOR(DATEDIFF('$from',dob)/365)>15";
-		
-		$query6 = $this -> db -> query($sql6);
-		$result6= $query6 -> num_rows();
-//male child
-		$sql7 = "SELECT * FROM patient WHERE (isoniazid_start_date > '$to') AND gender=1 AND FLOOR(DATEDIFF('$from',dob)/365)<15 ";
-		
-		$query7 = $this -> db -> query($sql7);
-		$result7 = $query7 -> num_rows();
-		//female adult
-		$sql8 = "SELECT * FROM patient WHERE (isoniazid_start_date > '$to') AND gender=2 AND FLOOR(DATEDIFF('$from',dob)/365)<15";
-		
-		$query8 = $this -> db -> query($sql8);
-		$result8 = $query8 -> num_rows();
-
-
-
-
-//male adult
-		$sql9 = "SELECT * FROM patient WHERE (isoniazid_start_date > '$to') AND gender=1 AND FLOOR(DATEDIFF('$from',dob)/365)>15 ";
-		
-		$query9 = $this -> db -> query($sql9);
-		$result9 = $query9 ->num_rows();
-		//$count=$result['COUNT(*)'];
-		//female adult
-		$sql10 = "SELECT * FROM patient WHERE (isoniazid_start_date > '$to') AND gender=2 AND FLOOR(DATEDIFF('$from',dob)/365)>15";
-		
-		$query10 = $this -> db -> query($sql10);
-		$result10= $query10 -> num_rows();
-//male child
-		$sql11 = "SELECT * FROM patient WHERE (isoniazid_start_date > '$to') AND gender=1 AND FLOOR(DATEDIFF('$from',dob)/365)<15 ";
-		
-		$query11 = $this -> db -> query($sql11);
-		$result11 = $query11 -> num_rows();
-		//female adult
-		$sql12 = "SELECT * FROM patient WHERE (isoniazid_start_date > '$to') AND gender=2 AND FLOOR(DATEDIFF('$from',dob)/365)<15";
-		
-		$query12 = $this -> db -> query($sql12);
-		$result12 = $query12 -> num_rows();
-
-
 				$row_string = "
 			<table border='1' class='dataTables'>
 				<thead >
@@ -2585,20 +2589,7 @@ class report_management extends MY_Controller {
 						
 
 					</tr></thead><tbody>
-					<tr>
-			<td>No of patients on Routine isoniazid </td>
-			<td>".$result."</td>
-			<td>".$result1."</td>
-			<td>".$result3 ."</td>
-			<td>".$result4."</td>
-			</tr>
-			<tr>
-			<td>No of patients started on  isoniazid </td>
-		<td>".$result5."</td>
-			<td>".$result6."</td>
-			<td>".$result7 ."</td>
-			<td>".$result8."</td>
-			</tr>
+					
 			<tr>
 			<td>No of patients completed  isoniazid </td>
 		<td>".$result9."</td>
@@ -2606,8 +2597,21 @@ class report_management extends MY_Controller {
 			<td>".$result11 ."</td>
 			<td>".$result12."</td>
 		</tr>
+		<tr>
+			<td>No of patients started on isoniazid </td>
+			<td>".$result5."</td>
+			<td>".$result6."</td>
+			<td>".$result7 ."</td>
+			<td>".$result8."</td>
+			</tr>
 
-
+<tr>
+			<td>No of patients on Routine isoniazid </td>
+			<td>".$result."</td>
+			<td>".$result1."</td>
+			<td>".$result3 ."</td>
+			<td>".$result4."</td>
+			</tr>
 				
 				";
 	
