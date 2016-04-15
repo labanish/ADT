@@ -3093,8 +3093,8 @@ class Order extends MY_Controller {
 
 
 // End of the new aggregations from the KEMSA template
-			echo "<pre>";print_r($data); die;
-			echo json_encode($data); die("done");
+			// echo "<pre>";print_r($data); die;
+			echo json_encode($data);
 		}
 	}
 

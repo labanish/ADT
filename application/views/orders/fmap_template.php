@@ -87,7 +87,7 @@ ob_get_clean();
 		var start_date = reporting_period + "-" + $("#period_start_date").attr("value");
 		var end_date = reporting_period + "-" + $("#period_end_date").attr("value");			
 		<?php }?>
-        //getPeriodRegimenPatients(start_date, end_date);
+        // getPeriodRegimenPatients(start_date, end_date);
 	});
 	function LastDayOfMonth(Year, Month) {
 		return (new Date((new Date(Year, Month, 1)) - 1)).getDate();
@@ -613,7 +613,7 @@ ob_get_clean();
 				type : 'POST',
 				dataType : 'json',
 				success : function(data) {
-					console.log(data);
+					//console.log(data);
 					var x=0;
 					if('new_patient' in data){
 						var l_new_patient=data.new_patient.length;
