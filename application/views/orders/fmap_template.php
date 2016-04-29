@@ -602,7 +602,9 @@ ob_get_clean();
 		});
 		
 	}
-		
+		//Get the values to Display
+
+		 
 	function getCentralData(period_start,period_end,data_type){
 		
 		var base_url = getbaseurl();

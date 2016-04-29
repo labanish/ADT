@@ -2909,10 +2909,9 @@ class Order extends MY_Controller {
 				AND p.facility_code='$facility_code'
 				GROUP BY $regimen_column 
 				ORDER BY r.regimen_code ASC";
-		$query = $this ->db->query($sql);
-		$results = $query->result_array();
-		echo json_encode($results);
-// echo "<pre>"; print_r($results); die();
+				$query = $this ->db->query($sql);
+				$results = $query->result_array();
+				echo json_encode($results);
 	}
 
 	
