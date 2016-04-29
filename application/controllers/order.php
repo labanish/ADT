@@ -707,6 +707,7 @@ class Order extends MY_Controller {
 			$facilities = Sync_Facility::getId($facility_code, $order_type);
 			$data['facility_id'] = $facilities['id'];
 			$data['content_view'] = "orders/fmap_template";
+			$data['oipatients'] = $this->getoiPatients();
 			$data['report_type'] = $order_type;
 			$data['facility_object'] = Facilities::getCodeFacility($facility_code);
 			$this -> base_params($data);
@@ -2888,7 +2889,25 @@ class Order extends MY_Controller {
 		$data['maps_items_array'] = $maps_items_array;
 		echo json_encode($data);
 	}
+/******oi*/
+public function getoiPatients() {
+		$facility_code = $this -> session -> userdata("facility");
+		
 
+
+		$sql = "SELECT FLOOR(DATEDIFF(CURRENT_DATE,dob)/365) AS dobs
+		,drug_prophylaxis
+		        FROM patient 
+		        WHERE
+				(drug_prophylaxis=1 OR drug_prophylaxis=2 OR drug_prophylaxis=3 OR drug_prophylaxis=4)";
+		$query = $this ->db->query($sql);
+		$results = $query->result_array();
+		return $results;
+		// echo "<pre>"; print_r($results);
+		// die();
+		//echo json_encode($results);
+
+	}
 	public function getPeriodRegimenPatients($from, $to) {
 		$facility_code = $this -> session -> userdata("facility");
 		$supplier = $this -> get_supplier($facility_code);

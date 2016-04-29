@@ -213,6 +213,56 @@ ob_get_clean();
 							</td> 
 							<td colspan="2"></td>
 						</tr>
+						<?php
+						$x=0;
+						$y=0;
+						$z=0;
+						$s=0;
+						$t=0;
+						$u=0;
+						foreach($oipatients as $oipatient)
+						{
+						$age=$oipatient['dobs'];
+						$drugprophilaxis=$oipatient['drug_prophylaxis'];
+
+						//cotrimoxazole
+						if($drugprophilaxis==1 AND $age > 15){
+						$a=$x++;
+							
+						}
+						if($drugprophilaxis==1 AND $age < 15){
+						$b=$y++;
+							
+						}
+
+						//Dapsone
+						if($drugprophilaxis==2 AND $age > 15){
+						$c=$z++;
+							
+						}
+						if($drugprophilaxis==2 AND $age < 15){
+						$d=$s++;
+							
+						}
+						//Isoniazid 
+						if($drugprophilaxis==3 AND $age > 15){
+						$e=$t++;
+							
+						}
+						if($drugprophilaxis==3 AND $age < 15){
+						$f=$u++;
+							
+						}
+
+/*echo "<tr>
+<td>".$age."</td>
+<td>".$drugprophilaxis."</td>
+</tr>";*/
+						}
+						echo $a;echo "<br/>";echo $b;echo "<br/>";echo $c;echo "<br/>";
+						echo $d;echo "<br/>";echo $e;echo "<br/>";echo $f;echo "<br/>";
+						
+						?>
 								<!-- <tr> -->
 									<!-- <th colspan="2">Total Number of Patients on ART ONLY:</th> -->
 									<!-- <td><span>Adults (&gt;15yrs)</span><input type="text"  class="validate[requied] tbl_header_input f_right"  name="art_adult" id="art_adult" readonly="readonly" value="<?php echo @$fmaps_array[0]['art_adult'];?>"/></td> -->
@@ -225,6 +275,7 @@ ob_get_clean();
 									<!-- <th>New <input type="text"  class="validate[requied] tbl_header_input f_right" name="new_female" id="new_female" value="<?php echo @$fmaps_array[0]['revisit_male'];?>" /></th> -->
 									<!-- <th>Revisit <input type="text"  class="validate[requied] tbl_header_input f_right" name="revisit_female" id="revisit_female" value="<?php echo @$fmaps_array[0]['revisit_female'];?>"/></th>				 -->
 								</tr>
+
 					</tbody>
 				</table>
 
@@ -526,6 +577,8 @@ ob_get_clean();
 		  	$('#new_oc').val(0);
 		  	$('#revisit_oc').val(0);
             getPeriodRegimenPatients(period_start, period_end);
+        //added
+            getoiPatients(period_start, period_end);
             getNonMappedRegimen(period_start, period_end);
             getCentralData(period_start, period_end,data_type);
             
@@ -730,7 +783,7 @@ ob_get_clean();
 								$('#diflucan_adult').val(data.diflucan[1].total);
 								$('#diflucan_child').val(data.diflucan[0].total);
 							}
-							
+					
 						}
 						getCentralData(period_start,period_end,'new_cm_oc');//Recursive function for the next data to be appended
 						
