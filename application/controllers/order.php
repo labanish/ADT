@@ -2893,20 +2893,58 @@ class Order extends MY_Controller {
 public function getoiPatients() {
 		$facility_code = $this -> session -> userdata("facility");
 		
-
-
-		$sql = "SELECT FLOOR(DATEDIFF(CURRENT_DATE,dob)/365) AS dobs
+		$sql = "SELECT FLOOR(DATEDIFF(CURRENT_DATE,dob)/365) AS age
 		,drug_prophylaxis
 		        FROM patient 
 		        WHERE
 				(drug_prophylaxis=1 OR drug_prophylaxis=2 OR drug_prophylaxis=3 OR drug_prophylaxis=4)";
 		$query = $this ->db->query($sql);
 		$results = $query->result_array();
-		return $results;
-		// echo "<pre>"; print_r($results);
-		// die();
-		//echo json_encode($results);
+		$x=0;
+		$y=0;
+		$z=0;
+		$s=0;
+		$t=0;
+		$u=0;
+		foreach($results as $oipatient)
+			{
+			$age=$oipatient['age'];
+			$drugprophilaxis=$oipatient['drug_prophylaxis'];
 
+			//cotrimoxazole
+			if($drugprophilaxis==1 AND $age >= 15){
+			$a=$x++;
+				
+			}
+			if($drugprophilaxis==1 AND $age < 15){
+			$b=$y++;
+				
+			}
+
+			//Dapsone
+			if($drugprophilaxis==2 AND $age >= 15){
+			$c=$z++;
+				
+			}
+			if($drugprophilaxis==2 AND $age < 15){
+			$d=$s++;
+				
+			}
+			//Isoniazid 
+			if($drugprophilaxis==3 AND $age >= 15){
+			$e=$t++;
+				
+			}
+			if($drugprophilaxis==3 AND $age < 15){
+			$f=$u++;
+				
+			}
+		}
+
+		//get the data and convert it to an array that corresponds to the regimens
+
+		$oi_patients[] = array('OI1A'=>$a,'OI1C'=>$b,'OI2A'=>$c,'OI2C'=>$d,'OI4A'=>$e,'OI4C'=>$f);
+		echo json_encode($oi_patients);		
 	}
 	public function getPeriodRegimenPatients($from, $to) {
 		$facility_code = $this -> session -> userdata("facility");

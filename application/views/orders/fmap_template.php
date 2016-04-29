@@ -213,56 +213,7 @@ ob_get_clean();
 							</td> 
 							<td colspan="2"></td>
 						</tr>
-						<?php
-						$x=0;
-						$y=0;
-						$z=0;
-						$s=0;
-						$t=0;
-						$u=0;
-						foreach($oipatients as $oipatient)
-						{
-						$age=$oipatient['dobs'];
-						$drugprophilaxis=$oipatient['drug_prophylaxis'];
-
-						//cotrimoxazole
-						if($drugprophilaxis==1 AND $age > 15){
-						$a=$x++;
-							
-						}
-						if($drugprophilaxis==1 AND $age < 15){
-						$b=$y++;
-							
-						}
-
-						//Dapsone
-						if($drugprophilaxis==2 AND $age > 15){
-						$c=$z++;
-							
-						}
-						if($drugprophilaxis==2 AND $age < 15){
-						$d=$s++;
-							
-						}
-						//Isoniazid 
-						if($drugprophilaxis==3 AND $age > 15){
-						$e=$t++;
-							
-						}
-						if($drugprophilaxis==3 AND $age < 15){
-						$f=$u++;
-							
-						}
-
-/*echo "<tr>
-<td>".$age."</td>
-<td>".$drugprophilaxis."</td>
-</tr>";*/
-						}
-						echo $a;echo "<br/>";echo $b;echo "<br/>";echo $c;echo "<br/>";
-						echo $d;echo "<br/>";echo $e;echo "<br/>";echo $f;echo "<br/>";
 						
-						?>
 								<!-- <tr> -->
 									<!-- <th colspan="2">Total Number of Patients on ART ONLY:</th> -->
 									<!-- <td><span>Adults (&gt;15yrs)</span><input type="text"  class="validate[requied] tbl_header_input f_right"  name="art_adult" id="art_adult" readonly="readonly" value="<?php echo @$fmaps_array[0]['art_adult'];?>"/></td> -->
@@ -381,6 +332,25 @@ ob_get_clean();
 							}
 						}else{
 							foreach($regimens as $regimen){
+
+								//Checking if the regimens are OI and assigning them the corresponding classes (that is the class that the input field is in, to enable easier calling from js - GT)
+								$regimen_io_code = $regimen['code'];								
+								if($regimen_io_code=='OI1A'||$regimen_io_code=='OI1C'||$regimen_io_code=='OI2A'||$regimen_io_code=='OI2C'||$regimen_io_code=='OI4A'||$regimen_io_code=='OI4C'){?>
+						   		<tr>
+								<td style="border-right:2px solid #DDD;"><?php echo $regimen -> code;?>
+									<!--<input type="hidden" name="item_id[]" class="item_id" id="item_id_<?php echo $regimen -> id;?>" value=""/>-->
+								</td>
+								<td regimen_id="<?php echo $regimen -> id;?>" class="regimen_desc col_drug"><?php echo $regimen -> name;?></td>
+								<td regimen_id="<?php echo $regimen -> id;?>" class="regimen_numbers">
+
+								<!--  Adding the clas to the input field. The class name is called by the php variable $regimen_io_code  -->
+								<input type="text" style="text-align: center; color: blue; font-weight: bold;" class="f_right patient_number <?php echo $regimen_io_code;?>" data-cat="<?php echo $cat; ?>" name="patient_numbers[]" id="patient_numbers_<?php echo $regimen -> id;?>" value="0">
+								<input name="patient_regimens[]" style="text-align: center; color: blue; font-weight: bold;" class="regimen_list" value="<?php echo $regimen -> id;?>" type="hidden">
+								<input type="hidden" style="text-align: center; color: blue; font-weight: bold;" name="item_id[]" class="item_id"/>
+								
+								</td>
+							</tr>
+						   	<?php }else{
 								?>
 							<tr>
 								<td style="border-right:2px solid #DDD;"><?php echo $regimen -> code;?>
@@ -395,7 +365,7 @@ ob_get_clean();
 								</td>
 							</tr>
 						<?php
-						   }
+						   }}
 					   }
 						?>
 					</tbody>
@@ -578,7 +548,9 @@ ob_get_clean();
 		  	$('#revisit_oc').val(0);
             getPeriodRegimenPatients(period_start, period_end);
         //added
-            getoiPatients(period_start, period_end);
+
+        	//call the function to get the IO patients 
+            getoiPatients();
             getNonMappedRegimen(period_start, period_end);
             getCentralData(period_start, period_end,data_type);
             
@@ -657,7 +629,33 @@ ob_get_clean();
 	}
 		//Get the values to Display
 
-		 
+	//Generate the function to get the OI patients
+	function getoiPatients(){
+		var base_url = getbaseurl();
+		//Get the data from the controller
+		var link = base_url + 'order/getoiPatients/';
+		$.ajax({
+			url : link,
+			type : 'POST',
+			dataType : 'json',
+			success : function(data) {
+				//receive the data and set it to the values received for the corresponding regimens					
+				var a = data[0]['OI1A'];
+				var b = data[0]['OI1C'];
+				var c = data[0]['OI2A'];
+				var d = data[0]['OI2C'];
+				var e = data[0]['OI4A'];
+				var f = data[0]['OI4C'];
+				$('.OI1A').val(a);
+				$('.OI1C').val(b);
+				$('.OI2A').val(c);
+				$('.OI2C').val(d);
+				$('.OI4A').val(e);
+				$('.OI4C').val(f);								
+			}
+		});
+		
+	}
 	function getCentralData(period_start,period_end,data_type){
 		
 		var base_url = getbaseurl();
