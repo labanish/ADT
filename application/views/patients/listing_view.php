@@ -37,9 +37,9 @@
 
     Filter Patients Based on Status: 
     	<select id="filter">
-    		<option value="0">Active</option>
-    		<option value="1">Inactive</option>
-    		<option value="2">All</option>
+    		<option value="0"><strong>Active</strong></option>
+    		<option value="1"><strong>Inactive</strong></option>
+    		<option value="2"><strong>All</strong></option>
     	</select>
 
  <!--    	<button id="btn_filter">Filter</button> -->

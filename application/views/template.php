@@ -455,33 +455,14 @@ if (isset($styles)) {
 			$("div.dataTables_length select").css("width", "13%");
 		})
 	</script>   
-<!-- Script for reading the system version -->
-<!-- 	<?php
-	$filename = base_url()."version.txt";
-	?> -->
 		<div class="row-fluid">
 			<footer id="bottom_ribbon">
 				<div class="container-fluid">
 					<div class="row-fluid">
 						<div id="footer_text2" class="span12" style="text-align:center">
 							Government of Kenya &copy; <?php echo date('Y');?>.
-							All Rights Reserved . <strong>Web-ADT version 3.0.1</strong>
-
-<!-- 							<?php
-								$fp = fopen($filename, "r") or die("Unable to open file!");
-								$content = fread($fp, filesize($filename));
-								$lines = explode("\n", $content);
-								fclose($fp);
-								print_r($lines);
-							?>  -->
-							
-							<!-- <p class="text-right"> 
-							    <sub>
-							        <strong>time:</strong> {elapsed_time} seconds 
-							        <strong>memory used:</strong> {memory_usage} 
-							    </sub>
-							</p> -->
-										
+							All Rights Reserved . <strong>Web-ADT version 3.0.2</strong>
+					
 						</div>	
 					</div>
 				</div>

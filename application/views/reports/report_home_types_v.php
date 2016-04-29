@@ -105,7 +105,7 @@ $ccc_stores = $this ->session ->userdata("ccc_store");
 				<option class="date_range_report" value="patients_disclosure">Patients Status &amp; Disclosure</option>	
 				<option class="single_date_report" value="getBMI">Patient BMI Summary</option>
 				<!-- New section for patients Isoniazid -->
-				<option class="date_range_report" value="getisoniazidPatients">Patients on Isoniazid</option>
+				<option class="date_range_report" value="getisoniazidPatients">Patients on Drug Prophylaxis </option>
 			</select></td>
 		</tr>
 		<!-- Visiting patients reports -->
