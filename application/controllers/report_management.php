@@ -2501,138 +2501,138 @@ class report_management extends MY_Controller {
 		
 		//Routine Isoniazid
 		//male adult
-		$sql1 = "SELECT * FROM patient WHERE (isoniazid_end_date > '$to') AND gender=1 AND FLOOR(DATEDIFF('$from',dob)/365)>15 ";
+		$sql1 = "SELECT * FROM patient WHERE (isoniazid_end_date > '$to') AND gender=1 AND FLOOR(DATEDIFF('$from',dob)/365)>15 AND current_status=1";
 		
 		$query1 = $this -> db -> query($sql1);
 		$result = $query1 ->num_rows();
 		//$count=$result['COUNT(*)'];
 		//female adult
-		$sql2 = "SELECT * FROM patient WHERE (isoniazid_end_date > '$to') AND gender=2 AND FLOOR(DATEDIFF('$from',dob)/365)>15";
+		$sql2 = "SELECT * FROM patient WHERE (isoniazid_end_date > '$to') AND gender=2 AND FLOOR(DATEDIFF('$from',dob)/365)>15 AND current_status=1";
 		
 		$query2 = $this -> db -> query($sql2);
 		$result1 = $query2 -> num_rows();
 		//male child
-		$sql3 = "SELECT * FROM patient WHERE (isoniazid_end_date > '$to') AND gender=1 AND FLOOR(DATEDIFF('$from',dob)/365)<15 ";
+		$sql3 = "SELECT * FROM patient WHERE (isoniazid_end_date > '$to') AND gender=1 AND FLOOR(DATEDIFF('$from',dob)/365)<15 AND current_status=1";
 		
 		$query3 = $this -> db -> query($sql3);
 		$result3 = $query3 -> num_rows();
 		//female adult
-		$sql4 = "SELECT * FROM patient WHERE (isoniazid_end_date > '$to') AND gender=2 AND FLOOR(DATEDIFF('$from',dob)/365)<15 ";
+		$sql4 = "SELECT * FROM patient WHERE (isoniazid_end_date > '$to') AND gender=2 AND FLOOR(DATEDIFF('$from',dob)/365)<15 AND current_status=1 ";
 		
 		$query4 = $this -> db -> query($sql4);
 		$result4 = $query4 -> num_rows();
 
 		//started on isoniazid
 		//male adult
-		$sql5 = "SELECT * FROM patient WHERE (isoniazid_start_date > '$from') AND gender=1 AND FLOOR(DATEDIFF('$from',dob)/365)>15 ";
+		$sql5 = "SELECT * FROM patient WHERE (isoniazid_start_date > '$from') AND gender=1 AND FLOOR(DATEDIFF('$from',dob)/365)>15 AND current_status=1 ";
 		
 		$query5 = $this -> db -> query($sql5);
 		$result5 = $query5 ->num_rows();
 		//$count=$result['COUNT(*)'];
 		//female adult
-		$sql6 = "SELECT * FROM patient WHERE (isoniazid_start_date > '$from') AND gender=2 AND FLOOR(DATEDIFF('$from',dob)/365)>15";
+		$sql6 = "SELECT * FROM patient WHERE (isoniazid_start_date > '$from') AND gender=2 AND FLOOR(DATEDIFF('$from',dob)/365)>15 AND current_status=1";
 		
 		$query6 = $this -> db -> query($sql6);
 		$result6= $query6 -> num_rows();
 //male child
-		$sql7 = "SELECT * FROM patient WHERE (isoniazid_start_date > '$from') AND gender=1 AND FLOOR(DATEDIFF('$from',dob)/365)<15 ";
+		$sql7 = "SELECT * FROM patient WHERE (isoniazid_start_date > '$from') AND gender=1 AND FLOOR(DATEDIFF('$from',dob)/365)<15 AND current_status=1";
 		
 		$query7 = $this -> db -> query($sql7);
 		$result7 = $query7 -> num_rows();
 		//female adult
-		$sql8 = "SELECT * FROM patient WHERE (isoniazid_start_date > '$from') AND gender=2 AND FLOOR(DATEDIFF('$from',dob)/365)<15";
+		$sql8 = "SELECT * FROM patient WHERE (isoniazid_start_date > '$from') AND gender=2 AND FLOOR(DATEDIFF('$from',dob)/365)<15 AND current_status=1";
 		
 		$query8 = $this -> db -> query($sql8);
 		$result8 = $query8 -> num_rows();
 
 		//completed on isoniazid
 		//male adult
-		$sql9 = "SELECT * FROM patient WHERE (isoniazid_end_date > '$from') AND (isoniazid_end_date < '$to') AND gender=1 AND FLOOR(DATEDIFF('$from',dob)/365)>15 ";
+		$sql9 = "SELECT * FROM patient WHERE (isoniazid_end_date > '$from') AND (isoniazid_end_date < '$to') AND gender=1 AND FLOOR(DATEDIFF('$from',dob)/365)>15 AND current_status=1 ";
 		
 		$query9 = $this -> db -> query($sql9);
 		$result9 = $query9 ->num_rows();
 		//$count=$result['COUNT(*)'];
 		//female adult
-		$sql10 = "SELECT * FROM patient WHERE (isoniazid_end_date > '$from') AND (isoniazid_end_date < '$to') AND gender=2 AND FLOOR(DATEDIFF('$from',dob)/365)>15";
+		$sql10 = "SELECT * FROM patient WHERE (isoniazid_end_date > '$from') AND (isoniazid_end_date < '$to') AND gender=2 AND FLOOR(DATEDIFF('$from',dob)/365)>15 AND current_status=1";
 		
 		$query10 = $this -> db -> query($sql10);
 		$result10= $query10 -> num_rows();
 		//male child
-		$sql11 = "SELECT * FROM patient WHERE (isoniazid_end_date > '$from') AND (isoniazid_end_date < '$to') AND gender=1 AND FLOOR(DATEDIFF('$from',dob)/365)<15 ";
+		$sql11 = "SELECT * FROM patient WHERE (isoniazid_end_date > '$from') AND (isoniazid_end_date < '$to') AND gender=1 AND FLOOR(DATEDIFF('$from',dob)/365)<15 AND current_status=1";
 		
 		$query11 = $this -> db -> query($sql11);
 		$result11 = $query11 -> num_rows();
 		//female adult
-		$sql12 = "SELECT * FROM patient WHERE (isoniazid_end_date > '$from') AND (isoniazid_end_date < '$to') AND gender=2 AND FLOOR(DATEDIFF('$from',dob)/365)<15";
+		$sql12 = "SELECT * FROM patient WHERE (isoniazid_end_date > '$from') AND (isoniazid_end_date < '$to') AND gender=2 AND FLOOR(DATEDIFF('$from',dob)/365)<15 AND current_status=1";
 		
 		$query12 = $this -> db -> query($sql12);
 		$result12 = $query12 -> num_rows();
 		
 		//cotrimoxazole
 		//male adult
-		$sql13 = "SELECT * FROM patient WHERE drug_prophylaxis=1 AND gender=1 AND FLOOR(DATEDIFF('$from',dob)/365)>15 ";
+		$sql13 = "SELECT * FROM patient WHERE drug_prophylaxis=1 AND gender=1 AND FLOOR(DATEDIFF('$from',dob)/365)>15 AND current_status=1";
 		
 		$query13 = $this -> db -> query($sql13);
 		$result13 = $query13 ->num_rows();
 		//$count=$result['COUNT(*)'];
 		//female adult
-		$sql14 = "SELECT * FROM patient WHERE drug_prophylaxis=1 AND gender=2 AND FLOOR(DATEDIFF('$from',dob)/365)>15";
+		$sql14 = "SELECT * FROM patient WHERE drug_prophylaxis=1 AND gender=2 AND FLOOR(DATEDIFF('$from',dob)/365)>15 AND current_status=1";
 		
 		$query14 = $this -> db -> query($sql14);
 		$result14= $query14 -> num_rows();
 		//male child
-		$sql15 = "SELECT * FROM patient WHERE drug_prophylaxis=1 AND gender=1 AND FLOOR(DATEDIFF('$from',dob)/365)<15 ";
+		$sql15 = "SELECT * FROM patient WHERE drug_prophylaxis=1 AND gender=1 AND FLOOR(DATEDIFF('$from',dob)/365)<15 AND current_status=1";
 		
 		$query15 = $this -> db -> query($sql15);
 		$result15 = $query15 -> num_rows();
 		//female adult
-		$sql16 = "SELECT * FROM patient WHERE drug_prophylaxis=1 AND gender=2 AND FLOOR(DATEDIFF('$from',dob)/365)<15";
+		$sql16 = "SELECT * FROM patient WHERE drug_prophylaxis=1 AND gender=2 AND FLOOR(DATEDIFF('$from',dob)/365)<15 AND current_status=1";
 		
 		$query16 = $this -> db -> query($sql16);
 		$result16 = $query16 -> num_rows();
 		
 		//dapsone
 		//male adult
-		$sql17 = "SELECT * FROM patient WHERE drug_prophylaxis=2 AND gender=1 AND FLOOR(DATEDIFF('$from',dob)/365)>15 ";
+		$sql17 = "SELECT * FROM patient WHERE drug_prophylaxis=2 AND gender=1 AND FLOOR(DATEDIFF('$from',dob)/365)>15 AND current_status=1 ";
 		
 		$query17 = $this -> db -> query($sql17);
 		$result17 = $query17 ->num_rows();
 		//$count=$result['COUNT(*)'];
 		//female adult
-		$sql18 = "SELECT * FROM patient WHERE drug_prophylaxis=2 AND gender=2 AND FLOOR(DATEDIFF('$from',dob)/365)>15";
+		$sql18 = "SELECT * FROM patient WHERE drug_prophylaxis=2 AND gender=2 AND FLOOR(DATEDIFF('$from',dob)/365)>15 AND current_status=1";
 		
 		$query18 = $this -> db -> query($sql18);
 		$result18= $query18 -> num_rows();
 		//male child
-		$sql19 = "SELECT * FROM patient WHERE drug_prophylaxis=2 AND gender=1 AND FLOOR(DATEDIFF('$from',dob)/365)<15 ";
+		$sql19 = "SELECT * FROM patient WHERE drug_prophylaxis=2 AND gender=1 AND FLOOR(DATEDIFF('$from',dob)/365)<15 AND current_status=1 ";
 		
 		$query19 = $this -> db -> query($sql19);
 		$result19 = $query19 -> num_rows();
 		//female adult
-		$sql20 = "SELECT * FROM patient WHERE drug_prophylaxis=2 AND gender=2 AND FLOOR(DATEDIFF('$from',dob)/365)<15";
+		$sql20 = "SELECT * FROM patient WHERE drug_prophylaxis=2 AND gender=2 AND FLOOR(DATEDIFF('$from',dob)/365)<15 AND current_status=1";
 		
 		$query20 = $this -> db -> query($sql20);
 		$result20 = $query20 -> num_rows();
 		
 		//Fluconazole
 		//male adult
-		$sql21 = "SELECT * FROM patient WHERE drug_prophylaxis=4 AND gender=1 AND FLOOR(DATEDIFF('$from',dob)/365)>15 ";
+		$sql21 = "SELECT * FROM patient WHERE drug_prophylaxis=4 AND gender=1 AND FLOOR(DATEDIFF('$from',dob)/365)>15 AND current_status=1";
 		
 		$query21 = $this -> db -> query($sql21);
 		$result21 = $query21->num_rows();
 		//$count=$result['COUNT(*)'];
 		//female adult
-		$sql22 = "SELECT * FROM patient WHERE drug_prophylaxis=4 AND gender=2 AND FLOOR(DATEDIFF('$from',dob)/365)>15";
+		$sql22 = "SELECT * FROM patient WHERE drug_prophylaxis=4 AND gender=2 AND FLOOR(DATEDIFF('$from',dob)/365)>15 AND current_status=1";
 		
 		$query22 = $this -> db -> query($sql22);
 		$result22= $query22 -> num_rows();
 		//male child
-		$sql23 = "SELECT * FROM patient WHERE drug_prophylaxis=4 AND gender=1 AND FLOOR(DATEDIFF('$from',dob)/365)<15 ";
+		$sql23 = "SELECT * FROM patient WHERE drug_prophylaxis=4 AND gender=1 AND FLOOR(DATEDIFF('$from',dob)/365)<15 AND current_status=1";
 		
 		$query23 = $this -> db -> query($sql23);
 		$result23 = $query23 -> num_rows();
 		//female adult
-		$sql24 = "SELECT * FROM patient WHERE drug_prophylaxis=4 AND gender=2 AND FLOOR(DATEDIFF('$from',dob)/365)<15";
+		$sql24 = "SELECT * FROM patient WHERE drug_prophylaxis=4 AND gender=2 AND FLOOR(DATEDIFF('$from',dob)/365)<15 AND current_status=1";
 		
 		$query24 = $this -> db -> query($sql24);
 		$result24 = $query24 -> num_rows();
