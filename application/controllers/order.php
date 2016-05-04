@@ -2896,7 +2896,7 @@ public function getoiPatients() {
 		$sql = "SELECT FLOOR(DATEDIFF(CURRENT_DATE,dob)/365) AS age
 		,drug_prophylaxis
 		        FROM patient 
-		        WHERE
+		        WHERE  current_status=1 AND
 				(drug_prophylaxis=1 OR drug_prophylaxis=2 OR drug_prophylaxis=3 OR drug_prophylaxis=4)";
 		$query = $this ->db->query($sql);
 		$results = $query->result_array();
