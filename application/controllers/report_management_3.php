@@ -1,4 +1,6 @@
 <?php
+error_reporting(0);
+ini_set('display_errors', 0);
 class report_management extends MY_Controller {
 
 	var $counter = 0;
@@ -1057,7 +1059,7 @@ class report_management extends MY_Controller {
 				AND ps.Name LIKE '%active%'
 				GROUP BY p.patient_number_ccc";
 		$query = $this -> db -> query($sql);
-		$results = $query->result_array();
+		$results = $query -> result_array();
 		if ($results) {
 			foreach ($results as $result) {
 				if (strtolower($result['gender']) == "female") {
@@ -2227,8 +2229,6 @@ class report_management extends MY_Controller {
 						<th> Last Regimen </th>
 						<th> Appointment Date </th>
 						<th> Visit Status</th>
-						<th> Source</th>
-
 					</tr>
 				</thead>
 				<tbody>";
@@ -2260,7 +2260,7 @@ class report_management extends MY_Controller {
 						$status = "<span style='color:red;'>Not Visited</span>";
 					}
 				}
-				$sql = "select patient_number_ccc as art_no,UPPER(first_name)as first_name,pss.name as source,UPPER(other_name)as other_name,UPPER(last_name)as last_name, IF(gender=1,'Male','Female')as gender,UPPER(physical) as physical,phone,alternate,FLOOR(DATEDIFF('$today',dob)/365) as age,r.regimen_desc as last_regimen from patient LEFT JOIN patient_source pss on pss.id=patient.source,regimen r where patient_number_ccc='$patient' and current_regimen=r.id and facility_code='$facility_code'";
+				$sql = "select patient_number_ccc as art_no,UPPER(first_name)as first_name,UPPER(other_name)as other_name,UPPER(last_name)as last_name, IF(gender=1,'Male','Female')as gender,UPPER(physical) as physical,phone,alternate,FLOOR(DATEDIFF('$today',dob)/365) as age,r.regimen_desc as last_regimen from patient,regimen r where patient_number_ccc='$patient' and current_regimen=r.id and facility_code='$facility_code'";
 				$query = $this -> db -> query($sql);
 				$results = $query -> result_array();
 				if ($results) {
@@ -2278,9 +2278,8 @@ class report_management extends MY_Controller {
 						$age = $result['age'];
 						$last_regimen = $result['last_regimen'];
 						$appointment = date('d-M-Y', strtotime($appointment));
-						$source=$result['source'];
 					}
-					$row_string .= "<tr><td>$patient_id</td><td width='300' style='text-align:left;'>$first_name $other_name $last_name</td><td>$phone</td><td>$address</td><td>$gender</td><td>$age</td><td style='white-space:nowrap;'>$last_regimen</td><td>$appointment</td><td width='200px'>$status</td><td>$source</td></tr>";
+					$row_string .= "<tr><td>$patient_id</td><td width='300' style='text-align:left;'>$first_name $other_name $last_name</td><td>$phone</td><td>$address</td><td>$gender</td><td>$age</td><td style='white-space:nowrap;'>$last_regimen</td><td>$appointment</td><td width='200px'>$status</td></tr>";
 					$overall_total++;
 				}
 			}
@@ -2339,7 +2338,6 @@ class report_management extends MY_Controller {
 					<th> Contacts/Address </th>
 					<th> Appointment Date </th>
 					<th> Late by (days)</th>
-					<th> Source</th>
 				</tr>
 			</thead>";
 		if ($results) {
@@ -2359,14 +2357,12 @@ class report_management extends MY_Controller {
 					               UPPER(first_name)as first_name,
 					               UPPER(other_name)as other_name,
 					               UPPER(last_name)as last_name,
-					               pss.name as source,
                                                        FLOOR(DATEDIFF('$today',dob)/365) as age,
 					               IF(gender=1,'Male','Female')as gender,
 					               UPPER(physical) as physical,
 					               DATEDIFF('$today',nextappointment) as days_late, 
                                                        rst.name AS service_type
 					        FROM patient 
-					       		   LEFT JOIN patient_source pss on pss.id=patient.source
 	                               LEFT JOIN regimen_service_type rst 
 	                               ON rst.id=patient.service
 					        WHERE patient_number_ccc='$patient' 
@@ -2385,8 +2381,7 @@ class report_management extends MY_Controller {
 							$address = $result['physical'];
 							$appointment = date('d-M-Y', strtotime($appointment));
 							$days_late_by = $result['days_late'];
-							$source=$result['source'];
-							$row_string .= "<tr><td>$patient_no</td><td>$patient_name</td><td>$service_type</td><td>$gender</td><td>$age</td><td>$address</td><td>$appointment</td><td>$days_late_by</td><td>$source</td></tr>";
+							$row_string .= "<tr><td>$patient_no</td><td>$patient_name</td><td>$service_type</td><td>$gender</td><td>$age</td><td>$address</td><td>$appointment</td><td>$days_late_by</td></tr>";
 						}
 					}
 					$overall_total++;
@@ -2422,9 +2417,8 @@ class report_management extends MY_Controller {
 		$from = date('Y-m-d', strtotime($from));
 		$to = date('Y-m-d', strtotime($to));
 
-		$sql = "SELECT p.patient_number_ccc as art_no,UPPER(p.first_name) as first_name,pss.name as source, UPPER(p.last_name) as last_name,UPPER(p.other_name)as other_name,FLOOR(DATEDIFF('$today',p.dob)/365) as age, p.dob, IF(p.gender=1,'Male','Female') as gender, p.weight, r.regimen_desc,r.regimen_code,p.start_regimen_date, t.name AS service_type, s.name AS supported_by 
+		$sql = "SELECT p.patient_number_ccc as art_no,UPPER(p.first_name) as first_name,UPPER(p.last_name) as last_name,UPPER(p.other_name)as other_name,FLOOR(DATEDIFF('$today',p.dob)/365) as age, p.dob, IF(p.gender=1,'Male','Female') as gender, p.weight, r.regimen_desc,r.regimen_code,p.start_regimen_date, t.name AS service_type, s.name AS supported_by 
 				from patient p 
-				LEFT JOIN patient_source pss on pss.id=p.source
 				LEFT JOIN regimen r ON p.start_regimen =r.id
 				LEFT JOIN regimen_service_type t ON t.id = p.service
 				LEFT JOIN supporter s ON s.id = p.supported_by
@@ -2445,7 +2439,6 @@ class report_management extends MY_Controller {
 					<th> Start Regimen Date </th>
 					<th> Regimen </th>
 					<th> Current Weight (Kg)</th>
-					<th> Source</th>
 				</tr>
 				</thead>
 				<tbody>";
@@ -2460,8 +2453,7 @@ class report_management extends MY_Controller {
 				$start_regimen_date = date('d-M-Y', strtotime($result['start_regimen_date']));
 				$regimen_desc = "<b>" . $result['regimen_code'] . "</b>|" . $result['regimen_desc'];
 				$weight = number_format($result['weight'], 2);
-				$source = $result['source'];
-				$row_string .= "<tr><td>$patient_no</td><td>$service_type</td><td>$supported_by</td><td>$patient_name</td><td>$gender</td><td>$age</td><td>$start_regimen_date</td><td>$regimen_desc</td><td>$weight</td><td>$source</td></tr>";
+				$row_string .= "<tr><td>$patient_no</td><td>$service_type</td><td>$supported_by</td><td>$patient_name</td><td>$gender</td><td>$age</td><td>$start_regimen_date</td><td>$regimen_desc</td><td>$weight</td></tr>";
 				$overall_total++;
 			}
 
@@ -2484,6 +2476,14 @@ class report_management extends MY_Controller {
 		$this -> load -> view('template', $data);
 
 	}
+
+	public function getPatientsforRefill($from = "", $to = "") {
+		//Variables
+		$overall_total = 0;
+		$today = date('Y-m-d');
+		$facility_code = $this -> session -> userdata("facility");
+		$from = date('Y-m-d', strtotime($from));
+		$to = date('Y-m-d', strtotime($to));
 //************************************************************added patients on isoniazid*****************************************************************8
 	  public function getisoniazidPatients($from = "", $to = "") {
 		//Variables
@@ -2712,14 +2712,7 @@ class report_management extends MY_Controller {
 		$this -> load -> view('template', $data);
 	}
 
-	public function getPatientsforRefill($from = "", $to = "") {
-		//Variables
-		$overall_total = 0;
-		$today = date('Y-m-d');
-		$facility_code = $this -> session -> userdata("facility");
-		$from = date('Y-m-d', strtotime($from));
-		$to = date('Y-m-d', strtotime($to));
-
+// End of the isoniazid section
 
         $sql = "SELECT 
 				pv.patient_id as art_no,
@@ -2729,7 +2722,6 @@ class report_management extends MY_Controller {
 				UPPER(p.first_name) as first_name ,
 				UPPER(p.other_name) as other_name ,
 				UPPER(p.last_name)as last_name,
-				pss.name as source,
 				FLOOR(DATEDIFF('$today',p.dob)/365) as age,
 				pv.current_weight as weight, 
 				IF(p.gender=1,'Male','Female')as gender,
@@ -2742,7 +2734,6 @@ class report_management extends MY_Controller {
 				LEFT JOIN supporter s ON s.id=p.supported_by
 				LEFT JOIN regimen r ON r.id=p.current_regimen
 				LEFT JOIN regimen_service_type t ON t.id=p.service
-				LEFT JOIN patient_source pss on pss.id=p.source
 				LEFT JOIN patient_status ps ON ps.id=p.current_status
 				WHERE pv.dispensing_date 
 				BETWEEN '$from' 
@@ -2767,7 +2758,6 @@ class report_management extends MY_Controller {
 				<th> Visit Date</th>
 				<th> Current Weight (Kg) </th>
 				<th> Average Adherence </th>
-				<th> Source </th>
 			</tr>
 			</thead>
 			<tbody>";
@@ -2782,9 +2772,8 @@ class report_management extends MY_Controller {
 				$dispensing_date = date('d-M-Y', strtotime($result['dispensing_date']));
 				$regimen_desc = "<b>" . $result['regimen_code'] . "</b>|" . $result['regimen_desc'];
 				$weight = $result['weight'];
-				$source = $result['source'];
 				$avg_adherence = number_format($result['avg_adherence'], 2);
-				$row_string .= "<tr><td>$patient_no</td><td>$service_type</td><td>$supported_by</td><td>$patient_name</td><td>$age</td><td>$gender</td><td>$regimen_desc</td><td>$dispensing_date</td><td>$weight</td><td>$avg_adherence</td><td>$source</td></tr>";
+				$row_string .= "<tr><td>$patient_no</td><td>$service_type</td><td>$supported_by</td><td>$patient_name</td><td>$age</td><td>$gender</td><td>$regimen_desc</td><td>$dispensing_date</td><td>$weight</td><td>$avg_adherence</td></tr>";
 				$overall_total++;
 			}
 
