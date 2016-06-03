@@ -22,7 +22,7 @@ class report_management extends MY_Controller {
 		$this -> listing();
 	}
 
-	public function getMOHForm($type = "711", $period_start = "", $period_end) {
+	public function getMOHForm($type = "", $period_start = "", $period_end) {
 		$this -> load -> library('PHPExcel');
 		$dir = "Export";
 		if ($type == "711") {
