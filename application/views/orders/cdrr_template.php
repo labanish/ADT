@@ -410,9 +410,9 @@ o		<a href='<?php echo site_url("order/download_order/cdrr/".$cdrr_id);?>'><?php
 	                    ?>
 						<td> <input name="losses[]" id="losses_in_period_<?php echo $commodity->id;?>" type="text" class="losses" style="width:100%; text-align:center;"/></td>
 						<!-- added column to the new cdrr templates ... Positive Adjustments -->
-						<td> <input name="positive[]" id="positive_adjustment_<?php echo $commodity->id;?>" type="text" class="positive_adjustment_" style="width:100%; text-align:center;"/></td>
-						<!-- end of added column to the new cdrr templates ... Positive Adjustments -->
-						<td> <input name="adjustments[]" id="adjustments_in_period_<?php echo $commodity->id;?>" type="text" class="adjustments" style="width:100%; text-align:center;"/></td>
+						<td> <input name="adjustments[]" id="positive_adjustment_<?php echo $commodity->id;?>" type="text" class="adjustments" style="width:100%; text-align:center;"/></td>
+						<!-- end of added column to the new cdrr templates ... Negative Adjustments -->
+						<td> <input name="adjustments_neg[]" id="adjustments_in_period_<?php echo $commodity->id;?>" type="text" class="adjustments_neg" style="width:100%; text-align:center;"/></td>
 						<td> <input tabindex="-1" name="physical_count[]" id="physical_in_period_<?php echo $commodity->id;?>" type="text" class="physical_count" style="width:100%; text-align:center;"/></td>
 						<?php
 	                    if($hide_generate==2){
@@ -580,13 +580,13 @@ o		<a href='<?php echo site_url("order/download_order/cdrr/".$cdrr_id);?>'><?php
 				calculatePacks($(this));
 			}
 		});
-        $(".positive").live('change',function() {
+        $(".adjustments").live('change',function() {
             calculateResupply($(this));
         });
 		$(".losses").live('change',function() {
 			calculateResupply($(this));
 		});
-		$(".adjustments").live('change',function() {
+		$(".adjustments_neg").live('change',function() {
 			calculateResupply($(this));
 		});
 		$(".physical_count").live('change',function() {
@@ -634,9 +634,9 @@ o		<a href='<?php echo site_url("order/download_order/cdrr/".$cdrr_id);?>'><?php
 		<?php	
 		}
 		?>
-          $("#positive_adjustment_<?php echo $cdrr['drug_id']; ?>").val("<?php echo $cdrr['positive']; ?>");
+          $("#positive_adjustment_<?php echo $cdrr['drug_id']; ?>").val("<?php echo $cdrr['adjustments']; ?>");
 		  $("#losses_in_period_<?php echo $cdrr['drug_id']; ?>").val("<?php echo $cdrr['losses']; ?>");
-		  $("#adjustments_in_period_<?php echo $cdrr['drug_id']; ?>").val("<?php echo $cdrr['adjustments']; ?>");
+		  $("#adjustments_in_period_<?php echo $cdrr['drug_id']; ?>").val("<?php echo $cdrr['adjustments_neg']; ?>");
 		  $("#physical_in_period_<?php echo $cdrr['drug_id']; ?>").val("<?php echo $cdrr['count']; ?>");
 		  <?php
 		  if($cdrr_array[0]['code']=='D-CDRR'){
@@ -721,6 +721,7 @@ o		<a href='<?php echo site_url("order/download_order/cdrr/".$cdrr_id);?>'><?php
 		?>
 		var losses = parseInt(row_element.find(".losses").attr("value"));
 		var adjustments = parseInt(row_element.find(".adjustments").attr("value"));
+		var adjustments_neg = parseInt(row_element.find(".adjustments_neg").attr("value"));
 		var physical_count = parseInt(row_element.find(".physical_count").attr("value"));
 		var resupply = 0;
 		if(!(opening_balance + 0)) {
@@ -739,10 +740,15 @@ o		<a href='<?php echo site_url("order/download_order/cdrr/".$cdrr_id);?>'><?php
 		if(!(adjustments + 0)) {
 			adjustments = 0;
 		}
+
+		if(!(adjustments_neg + 0)) {
+			adjustments_neg = 0;
+		}
+
 		if(!(physical_count + 0)) {
 			physical_count = 0;
 		}
-		calculated_physical = (opening_balance + quantity_received - quantity_dispensed - losses + adjustments);
+		calculated_physical = (opening_balance + quantity_received - quantity_dispensed - losses + adjustments - adjustments_neg);
 		if(element.attr("class") == "physical_count") {
 		 resupply = 0 - physical_count;
 		 } else {

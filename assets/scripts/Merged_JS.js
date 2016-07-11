@@ -310,13 +310,13 @@ function getPeriodDrugBalance(count,start_date, facility_id, code,total,drugs,st
 			var up_losses = Math.ceil(parseInt (losse));
 			$("#losses_in_period_" + drug).attr("value", up_losses);
 
-			var positive_adjustments = data.positive_adjustment;
+			var positive_adjustments = data.adjustments;
 			var pack_size = data.pack_size;
 			var positive_adjustment = positive_adjustments/pack_size;
 			var up_positive_adjustments = Math.ceil(parseInt (positive_adjustment));
 			$("#positive_adjustment_" + drug).attr("value", up_positive_adjustments);
 
-			var adjustments = data.adjustments;
+			var adjustments = data.adjustments_neg;
 			var adjustment = adjustments/pack_size;
 			var up_adjustments = Math.ceil(parseInt (adjustment));
 			$("#adjustments_in_period_" + drug).attr("value", up_adjustments);

@@ -772,6 +772,7 @@ class Order extends MY_Controller {
 				}
 				$losses = $this -> input -> post('losses');
 				$adjustments = $this -> input -> post('adjustments');
+				$adjustments_neg = $this -> input -> post('adjustments_neg');
 				$physical_count = $this -> input -> post('physical_count');
 				$expiry_quantity = $this -> input -> post('expire_qty');
 				$expiry_date = $this -> input -> post('expire_period');
@@ -832,6 +833,7 @@ class Order extends MY_Controller {
 						}
 						$cdrr_array[$commodity_counter]['losses'] = $losses[$commodity_counter];
 						$cdrr_array[$commodity_counter]['adjustments'] = $adjustments[$commodity_counter];
+						$cdrr_array[$commodity_counter]['adjustments_neg'] = $adjustments_neg[$commodity_counter];
 						$cdrr_array[$commodity_counter]['count'] = $physical_count[$commodity_counter];
 						$cdrr_array[$commodity_counter]['expiry_quant'] = $expiry_quantity[$commodity_counter];
 						if ($expiry_date[$commodity_counter] != "-" && $expiry_date[$commodity_counter] != "" && $expiry_date[$commodity_counter] !=null && $expiry_date[$commodity_counter] != "NULL" && $expiry_date[$commodity_counter] != "1970-01-01" && $expiry_date[$commodity_counter] != "0000-00-00") {
@@ -1019,7 +1021,6 @@ class Order extends MY_Controller {
         if ($status == "prepared") {
             //format to json
 			$json_data = json_encode($main_array, JSON_PRETTY_PRINT);
-			
 			//get supplier
 			$facility_code = $this -> session -> userdata("facility");
 			$supplier = $this -> get_supplier($facility_code);
@@ -3799,38 +3800,29 @@ public function getoiPatients() {
 	}
 
     public function getItems() {
-		$row=array(
-			    'beginning_balance'=>0,
-			    'received_from'=>0,
-			    'dispensed_to_patients'=>0,
-			    'losses'=>0,
-// adding a new variable, adjustments
-			    'positive_adjustment' =>0,
-			    'adjustments'=>0,
-			    'physical_stock'=>0,
-			    'expiry_qty'=>0,
-			    'expiry_month'=>"--",
-			    'stock_out'=>0,
-			    'resupply'=>0
-			    );
-         // echo 'me';
-		 //die();
-        //set parameters
-        $param=array(
-	             "drug_id"=>$this->input->post("drug_id"),
-			     "period_begin"=>$this->input->post("period_begin"),
-			     "facility_id"=>$this->input->post("facility_id"),
-			     "code"=>$this->input->post("code"),
-			     "stores"=>$this->input->post("stores")
-		        );
+    	//Default row values
+		$row = array(
+		    'beginning_balance' => 0,
+		    'received_from' => 0,
+		    'dispensed_to_patients' => 0,
+		    'losses' => 0,
+		    'adjustments' => 0,
+		    'adjustments_neg' => 0,
+		    'physical_stock' => 0,
+		    'expiry_qty' => 0,
+		    'expiry_month' => "--",
+		    'stock_out' => 0,
+		    'resupply' => 0
+	    );
 
-       // print_r($param);
-        //$me=$this->getBeginningBalance($param);
-        //$balance=Cdrr_Item::getLastPhysicalStock($param['period_begin'], $param['drug_id'], $param['facility_id']);
-        //$balance=Cdrr_Item::getLastPhysicalStock2();
-        //echo '<br>';
-        //print_r($balance);
-        //die();
+        //Set parameters
+        $param=array(
+			"drug_id" => $this->input->post("drug_id"),
+			"period_begin" => $this->input->post("period_begin"),
+			"facility_id" => $this->input->post("facility_id"),
+			"code" => $this->input->post("code"),
+			"stores" => $this->input->post("stores")
+		);
 
         $code=$param['code'];
         $facility_id=$param['facility_id'];
@@ -3852,14 +3844,9 @@ public function getoiPatients() {
 
 		$row['beginning_balance']=$this->getBeginningBalance($param);
 		$row['pack_size']=$pack_size;
-        //$row['positive_adjustment']=$this->getBeginningBalance($param);
-        //$row['positive_adjustment']=Cdrr_Item::getPositiveAdjustment($param['period_begin'], $param['drug_id'], $param['facility_id']);
-	    $row=$this->getOtherTransactions($param,$row);
-        //unset($row['adjustment_plus']);
 
-		//print_r($row['beginning_balance']);
-		//die();
-		//$row['']=0;
+	    $row=$this->getOtherTransactions($param,$row);
+
 	    
 	    if($row['stock_out']==null){
 			$row['stock_out']=0;
@@ -3929,8 +3916,6 @@ public function getoiPatients() {
                     	$row['dispensed_to_patients']=$results[0]['total'];
                     }
 				}
-				//Multiply By Packsize
-				//$row['dispensed_to_patients'] = round(@$row['dispensed_to_patients']/@$pack_size);
 			} 
 		}
 
@@ -4035,14 +4020,12 @@ public function getoiPatients() {
 				$row[$trans_name] = $total;
 			}
 		}
-		//losses
+		
 		$row['losses'] = @$row['losses_'];
-        $row['positive_adjustment'] = @$row['adjustment_plus'];
-		unset($row['losses_']);
-		//adjustments
-		//$row['adjustments'] = @$row['adjustment_plus'] - @$row['adjustment__'];
-		$row['adjustments'] = @$row['adjustment__'];
+        $row['adjustments'] = @$row['adjustment_plus'];
+        $row['adjustments_neg'] = @$row['adjustment__'];
 
+		unset($row['losses_']);
 		unset($row['adjustment_plus']);
 		unset($row['adjustment__']);
 
