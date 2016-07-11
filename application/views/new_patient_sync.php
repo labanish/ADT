@@ -62,7 +62,8 @@
 
 
 <form action="<?php  echo base_url().'new_patients/insert_into_db' ?>" method="post">
-<input type="submit" name="submit" value="Approve"  class="btn btn-success"/>
+<input type="submit" name="approve" value="Approve"  class="btn btn-success"/>
+<input type="submit" name="disapprove" value="Disapprove"  class="btn btn-danger"/>
 <!--<input type="submit" name="submit" value="Disapprove"  class="btn btn-danger"/>-->
 
 <table id="example" class="display table table-bordered table-condensed table-hover" cellspacing="0" cellpadding="0" width="100%">
