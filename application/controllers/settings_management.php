@@ -118,6 +118,39 @@ class Settings_Management extends MY_Controller {
 			if($result_check_1){
 				$this->db->query("ALTER TABLE `cdrr_item` ADD `adjustments_neg` INT(11) NULL DEFAULT NULL AFTER `adjustments`");
 
+				$sql = "create table`mirth_sync` (
+	`id` int (10)  primary key,
+	`patient_number_ccc` varchar (300) not null,
+	`first_name` varchar (150) not null,
+	`last_name` varchar (150) not null,
+	`other_name` varchar (150) not null,
+	`dob` varchar (96) not null,
+	`pob` varchar (300) not null,
+	`gender` varchar (6) not null,
+	`weight` varchar (60) not null,
+	`height` varchar (60) not null,
+	`sa` varchar (60) not null,
+	`physical` text not null,
+	`other_drugs` text not null,
+	`date_enrolled` varchar (96) not null,
+	`source` varchar (150) not null,
+	`supported_by` varchar (30) not null,
+	`timestamp` varchar (96) not null ,
+	`facility_code` varchar (30) not null,
+	`service` varchar (150) not null,
+	`start_regimen` varchar (150) not null,
+	`start_regimen_date` varchar (45) not null,
+	`current_regimen` varchar (765) not null,
+	`start_height` varchar (60) not null,
+	`start_weight` varchar (60) not null,
+	`start_bsa` varchar (60) not null,
+	`active` int (11) not null DEFAULT 1,
+	`who_stage` int (11) not null,
+	`inserted` int (11) not null DEFAULT 0
+)
+"; //LOL!! Dont Jugde!
+				// echo "$sql_insert<br/>";
+				$this->db->query($sql);
 				++$counter_2;
 			}
 
