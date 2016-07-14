@@ -3918,11 +3918,12 @@ public function getoiPatients() {
 				}
 			} 
 		}
-
+		// Changes made on DCDRR
 		if ($code == "D-CDRR") 
 		{
 			foreach ($row as $i => $v) {
-				if ($i != "expiry_month" && $i !="beginning_balance") {
+				$exempted_columns = array('expiry_month','beginning_balance','reported_consumed','reported_physical_stock');
+				if (!in_array($i,$exempted_columns)) {
 					$row[$i] = round(@$v / @$pack_size);
 				}
 			}
