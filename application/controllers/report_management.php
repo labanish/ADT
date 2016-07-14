@@ -2723,6 +2723,8 @@ class report_management extends MY_Controller {
 
         $sql = "SELECT 
 				pv.patient_id as art_no,
+				pv.pill_count,
+				pv.missed_pills,
 				pv.dispensing_date, 
 				t.name AS service_type,
 				s.name AS supported_by,
@@ -2735,6 +2737,7 @@ class report_management extends MY_Controller {
 				IF(p.gender=1,'Male','Female')as gender,
 				r.regimen_desc,
 				r.regimen_code,
+				DATEDIFF(pv.dispensing_date,pa.appointment) as no_of_days,
 				AVG(pv.adherence) as avg_adherence 
 				FROM patient_visit pv 
 				LEFT JOIN patient p ON p.patient_number_ccc=pv.patient_id
@@ -2744,12 +2747,14 @@ class report_management extends MY_Controller {
 				LEFT JOIN regimen_service_type t ON t.id=p.service
 				LEFT JOIN patient_source pss on pss.id=p.source
 				LEFT JOIN patient_status ps ON ps.id=p.current_status
-				WHERE pv.dispensing_date 
+				LEFT JOIN patient_appointment pa ON p.patient_number_ccc=pa.patient
+				WHERE (pv.dispensing_date 
 				BETWEEN '$from' 
-				AND '$to' 
+				AND '$to') 
 				AND v.name like '%routine%' 
 				AND ps.name LIKE '%active%' 
 				AND pv.facility = '$facility_code' 
+				AND (pa.appointment BETWEEN '$from' AND '$to')
 				GROUP BY pv.patient_id,pv.dispensing_date";
 
 		$query = $this -> db -> query($sql);
@@ -2766,6 +2771,9 @@ class report_management extends MY_Controller {
 				<th> Regimen </th>
 				<th> Visit Date</th>
 				<th> Current Weight (Kg) </th>
+				<th> Missed Pills </th>
+				<th> Pill Count </th>
+				<th> Appointment </th>
 				<th> Average Adherence </th>
 				<th> Source </th>
 			</tr>
@@ -2779,12 +2787,33 @@ class report_management extends MY_Controller {
 				$patient_name = $result['first_name'] . " " . $result['other_name'] . " " . $result['last_name'];
 				$age = $result['age'];
 				$gender = $result['gender'];
+				$appointments = $result['no_of_days'];
+				if($appointments >= 90){
+					$appointment="Lost Followup";
+
+				}
+				else if($appointments >= 15 && $appointments <= 90){
+					$appointment="Defaulter";
+					
+				}
+				else if($appointments >= 3 && $appointments <= 14){
+		              
+		               $appointment = "Missed";
+		        }
+		        else if($appointments <= 2) {
+		        	 $appointment = "On time";
+		        }
+
 				$dispensing_date = date('d-M-Y', strtotime($result['dispensing_date']));
 				$regimen_desc = "<b>" . $result['regimen_code'] . "</b>|" . $result['regimen_desc'];
 				$weight = $result['weight'];
 				$source = $result['source'];
+				$pill_count = $result['pill_count'];
+				$missed_pills = $result['missed_pills'];
 				$avg_adherence = number_format($result['avg_adherence'], 2);
-				$row_string .= "<tr><td>$patient_no</td><td>$service_type</td><td>$supported_by</td><td>$patient_name</td><td>$age</td><td>$gender</td><td>$regimen_desc</td><td>$dispensing_date</td><td>$weight</td><td>$avg_adherence</td><td>$source</td></tr>";
+				$row_string .= "<tr><td>$patient_no</td><td>$service_type</td><td>$supported_by</td><td>$patient_name</td><td>$age</td><td>$gender</td><td>$regimen_desc</td><td>$dispensing_date</td><td>$weight</td>
+				<td>$missed_pills</td><td>$pill_count</td><td>$appointment</td><td>$avg_adherence</td><td>$source</td></tr>";
+
 				$overall_total++;
 			}
 
@@ -2968,7 +2997,7 @@ class report_management extends MY_Controller {
 							$total_adult_male_art = number_format($total_adult_male);
 							$total_adult_male_art_percentage = number_format(($total_adult_male / $source_total) * 100, 1);
 						} else if ($service_name == "PEP") {
-							$overall_adult_male_pep += $total_adult_male;
+							$oaverall_adult_male_pep += $total_adult_male;
 							$total_adult_male_pep = number_format($total_adult_male);
 							$total_adult_male_pep_percentage = number_format(($total_adult_male_pep / $source_total) * 100, 1);
 						} else if ($service_name == "OI Only") {
