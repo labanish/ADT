@@ -32,6 +32,7 @@ class notification_management extends MY_Controller {
 		} else {
 			$temp = "<li><a href='#user_change_pass' data-toggle='modal'><i class='icon-th'></i>Password expiry <div class='badge badge-important'>" . $days_before_pwdchange . " Days </div></a><li>";
 		}
+
 		echo $temp;
 	}
 
@@ -335,7 +336,21 @@ class notification_management extends MY_Controller {
 				$temp = "<li><a href='" . $temp_link . "'><i class='icon-th'></i>Errors <div class='badge badge-important'>" . $overall_total . "</div></a><li>";
 			}
 			echo $temp;
-		}													
+
+
+
+		}	
+	$statement="select * from mirth_sync where inserted=0";
+	$query=$this->db->query($statement);
+		$row = $query->num_rows();
+
+		$temp_link = $order_link = site_url('new_patients');
+		$temp = "<li><a href='" . $temp_link . "'><i class='icon-th'></i>Patients From IQCARE<div class='badge badge-important'>" . $row . "</div></a><li>";
+
+		echo $temp;												
+	}
+	public function load_from_iq(){
+		echo "one";
 	}
 
 	public function load_error_view() {

@@ -494,8 +494,8 @@ foreach($results as $result){
 				var tbphase=$(".tbphase").val();
 			    if (category==1) {
 					if(tbphase==1){
-					  	//Intensive
-					  	var numberOfDaysToAdd=90;
+					  	//Intensive tb phase change the number of days from 90 to 56 for Category one
+					  	var numberOfDaysToAdd=56;
 					}else if(tbphase==2){
 					  	//Continuation
 					  	var numberOfDaysToAdd=112;
@@ -503,7 +503,7 @@ foreach($results as $result){
 			    }else if (category==2) {
 	                 if(tbphase==1){
 					  	//Intensive
-					  	var numberOfDaysToAdd=90;
+					  	var numberOfDaysToAdd=56;
 					}else if(tbphase==2){
 					  	//Continuation
 					  	var numberOfDaysToAdd=150;
