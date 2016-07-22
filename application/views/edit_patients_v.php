@@ -502,11 +502,11 @@ foreach($results as $result){
 					} 
 			    }else if (category==2) {
 	                 if(tbphase==1){
-					  	//Intensive
-					  	var numberOfDaysToAdd=56;
+					  	//Intensive tb phase change the number of days from 90 to 84 for Category two
+					  	var numberOfDaysToAdd=84;
 					}else if(tbphase==2){
-					  	//Continuation
-					  	var numberOfDaysToAdd=150;
+					  	//Continuation changed from 150 to 140 days
+					  	var numberOfDaysToAdd=140;
 					}
 			    }
                 var start_date = new Date(new_date.getFullYear(), new_date.getMonth(), new_date.getDate());
