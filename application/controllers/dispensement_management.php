@@ -184,34 +184,6 @@ class Dispensement_Management extends MY_Controller {
 		echo json_encode($data);
 	}
 
-// 	public function getPreviouslyDispensedDrugs(){
-//       $patient_ccc = $this ->input ->post("patient_ccc");
-// 		//$patient_ccc=0887679;
-// 		$sql1="SELECT dispensing_date FROM patient_visit WHERE patient_id =  '$patient_ccc' AND active=1 ORDER BY dispensing_date DESC LIMIT 1";
-// 		$query = $this -> db -> query($sql1);
-// 		$results1 = $query -> result_array();
-		
-		
-// $dated=$results1[];
-// 		echo $dated;
-// 	die();
-
-// 		$sql = "SELECT d.id as drug_id,d.drug,d.dose,d.duration, pv.quantity,pv.dispensing_date,pv.pill_count,r.id as regimen_id,r.regimen_desc,r.regimen_code,pv.months_of_stock as mos,ds.value,ds.frequency
-// 					FROM patient_visit pv
-// 					LEFT JOIN drugcode d ON d.id = pv.drug_id
-// 					LEFT JOIN dose ds ON ds.Name=d.dose
-// 					LEFT JOIN regimen r ON r.id = pv.regimen
-// 					WHERE pv.patient_id =  '$patient_ccc'
-// 					AND pv.active=1
-// 					AND pv.dispensing_date = '$dated'
-// 				ORDER BY dispensing_date DESC";	
-
-// 		$query = $this -> db -> query($sql);
-// 		$results = $query -> result_array();
-// 		echo json_encode($results);
-// 		die();
-// 	} 
-
 	public function getPreviouslyDispensedDrugs(){
 		$patient_ccc = $this ->input ->post("patient_ccc");
 		//$patient_ccc=1088816;

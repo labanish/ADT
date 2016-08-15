@@ -1617,90 +1617,6 @@ class Patient_Management extends MY_Controller {
         echo json_encode($data,JSON_PRETTY_PRINT);
     }
 
-    // public function get_visits( $patient_id = NULL )
-    // {
-    //     $facility_code = $this -> session -> userdata("facility");
-    //     //the intitial SQL
-    //     /*$sql = "SELECT pv.dispensing_date,
-    //                     v.name AS visit,
-    //                     pv.dose,
-    //                     pv.duration,
-    //                     pv.id AS record_id,
-    //                     d.drug,
-    //                     pv.quantity,
-    //                     pv.current_weight,
-    //                     r.regimen_desc,
-    //                     pv.batch_number,
-    //                     pv.pill_count,
-    //                     pv.adherence,
-    //                     pv.user,
-    //                     rcp.name AS regimen_change_reason
-    //             FROM patient_visit pv
-    //             LEFT JOIN patient p ON pv.patient_id = p.patient_number_ccc
-    //             LEFT JOIN drugcode d ON pv.drug_id = d.id
-    //             LEFT JOIN regimen r ON pv.regimen
-    //             LEFT JOIN regimen r1 ON pv.last_regimen = r1.id
-    //             LEFT JOIN visit_purpose v ON pv.visit_purpose = v.id
-    //             LEFT JOIN regimen_change_purpose rcp ON rcp.id=pv.regimen_change_reason
-    //             WHERE p.id = '$patient_id'
-    //             AND pv.facility = '$facility_code'
-    //             AND pv.active = 1
-    //             GROUP BY d.drug,pv.dispensing_date
-    //             ORDER BY pv.dispensing_date DESC";*/
-
-    //     //the SQL selects from v_patient_visits (View)
-    //     $sql = "select  v_v.dispensing_date,
-    //                     v_v.visit_purpose_name AS visit, 
-    //                     v_v.dose, 
-    //                     v_v.duration, 
-    //                     v_v.patient_visit_id AS record_id, 
-    //                     v_v.drug_id, 
-    //                     v_v.quantity, 
-    //                     v_v.weight, 
-    //                     R.regimen_desc, 
-    //                     v_v.batch_number, 
-    //                     v_v.pill_count, 
-    //                     v_v.adherence, 
-    //                     v_v.user, 
-    //                     v_v.regimen_change_reason AS regimen_change_reason 
-				// from v_patient_visits as v_v
-				// INNER JOIN regimen as R
-				// 	on R.id = v_v.current_regimen
-				// WHERE v_v.id = $patient_id
-				// GROUP BY v_v.drug_id,v_v.dispensing_date
-				// ORDER BY v_v.dispensing_date DESC";
-
-
-
-    //     $query = $this -> db -> query($sql);
-    //     $visits = $query ->result_array();
-    //     $temp = array();
-
-    //     foreach($visits as $counter => $visit)
-    //     {
-    //         foreach ($visit as $key => $value)
-    //         {
-    //             if($key == "record_id")
-    //             {
-    //                 $link=base_url().'dispensement_management/edit/'.$value;
-    //                 $value = "<a href='".$link."' class='btn btn-small btn-warning'>Edit</a>";
-    //             }
-
-    //             $temp[$counter][] = $value;
-    //         }
-
-    //     }
-
-    //     $data['aaData'] = $temp;
-
-    //     //echo "<pre>";
-
-    //     echo json_encode($data,JSON_PRETTY_PRINT);
-
-    //     //echo "</pre>";
-
-    // }
-
         public function get_visits( $patient_id = NULL )
     {
         $facility_code = $this -> session -> userdata("facility");
@@ -1723,6 +1639,7 @@ class Patient_Management extends MY_Controller {
                 INNER JOIN regimen as R ON R.id = v_v.current_regimen
                 INNER JOIN drugcode as D ON D.id = v_v.drug_id
                 WHERE v_v.id = $patient_id
+                AND v_v.pv_active = 1
                 GROUP BY v_v.drug_id,v_v.dispensing_date
                 ORDER BY v_v.dispensing_date DESC";
 
