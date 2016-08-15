@@ -1994,8 +1994,12 @@ class Patient_Management extends MY_Controller {
                         }
                     }
                     if ($value==1)
-                    {
-                        $link = '<a href="' . base_url() . 'dispensement_management/dispense/' . $id . '">Dispense</a>|<a href="' . base_url() . 'patient_management/load_view/details/' . $id . '">Detail</a> | <a href="' . base_url() . 'patient_management/edit/' . $id . '">Edit</a> ' . $link;
+                    {   
+                        if(strtolower($patient['status']) != 'active'){
+                            $link = '<a href="' . base_url() . 'patient_management/load_view/details/' . $id . '">Detail</a> | <a href="' . base_url() . 'patient_management/edit/' . $id . '">Edit</a> ' . $link;
+                        }else{
+                            $link = '<a href="' . base_url() . 'dispensement_management/dispense/' . $id . '">Dispense</a>|<a href="' . base_url() . 'patient_management/load_view/details/' . $id . '">Detail</a> | <a href="' . base_url() . 'patient_management/edit/' . $id . '">Edit</a> ' . $link;
+                        }
                     }else{
                         $link = str_replace("|", "", $link);
                         $link .= '| <a href="' . base_url() . 'patient_management/delete/' . $id . '" class="red actual">Delete</a>';
