@@ -14,7 +14,7 @@ class auto_management extends MY_Controller {
 	    $dir = realpath($_SERVER['DOCUMENT_ROOT']);
 	    $link = $dir . "\\ADT\\assets\\nascop.txt";
 		$this -> nascop_url = trim(file_get_contents($link));
-		$this -> eid_url="http://nascop.org/eid/";
+		$this -> eid_url="http://viralload.nascop.org/";
         $this->ftp_url='192.168.133.10';
 
         // off Campus access {should be active at facility level}
