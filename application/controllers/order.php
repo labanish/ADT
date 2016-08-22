@@ -23,30 +23,24 @@ class Order extends MY_Controller {
 		//get supplier
 		$facility = Facilities::getSupplier($facility_code);
 		$supplier = $facility -> supplier -> name;
-		if (!$this -> session -> userdata('api_id')) {
-			$data['content_view'] = "orders/login_v";
-			$data['login_type'] = 0;
-			if (strtoupper($supplier) == "KENYA PHARMA") {
-				$data['login_type'] = 1;
-			}
-		} else {
-			$data['cdrr_buttons'] = $this -> get_buttons("cdrr");
-			$data['cdrr_filter'] = $this -> get_filter("cdrr");
-			$data['fmap_buttons'] = $this -> get_buttons("maps");
-			$data['maps_filter'] = $this -> get_filter("maps");
-			$data['cdrr_table'] = $this -> get_orders("cdrr");
-			$data['map_table'] = $this -> get_orders("maps");
-			$data['aggregate_table'] = $this -> get_orders("aggregate");
-			$data['facilities'] = Facilities::getSatellites($facility_code);
-			$data['content_view'] = "orders/order_v";
+		
+		$data['cdrr_buttons'] = $this -> get_buttons("cdrr");
+		$data['cdrr_filter'] = $this -> get_filter("cdrr");
+		$data['fmap_buttons'] = $this -> get_buttons("maps");
+		$data['maps_filter'] = $this -> get_filter("maps");
+		$data['cdrr_table'] = $this -> get_orders("cdrr");
+		$data['map_table'] = $this -> get_orders("maps");
+		$data['aggregate_table'] = $this -> get_orders("aggregate");
+		$data['facilities'] = Facilities::getSatellites($facility_code);
+		$data['content_view'] = "orders/order_v";
 
-		}
 		$data['supplier_name']=strtolower($supplier);
 		$data['page_title'] = "my Orders";
 		$data['banner_text'] = "Facility Orders";
 		$this -> base_params($data);
 	}
-
+// 
+// Logging into the Order Module
 	public function authenticate_user($login_type = 0) {
 		$curl = new Curl();
 		if ($login_type == 1) {
@@ -135,7 +129,8 @@ class Order extends MY_Controller {
 		}
 		redirect("order");
 	}
-
+// 
+// End of logging into the order Module
 	public function api_sync() {
 		/*Get Drugs,facilities and Regimens from NASCOP or eSCM
 		 *Update Drugs,facilities and Regimens into weADT
@@ -361,13 +356,21 @@ class Order extends MY_Controller {
 		$columns = array('#', '#ID', 'Period Beginning', 'Status', 'Facility Name', 'Options');
 		$facility_code = $this -> session -> userdata('facility');
 		$supplier = $this -> get_supplier($facility_code);
-		$facility_table = "sync_facility";
+		
+		//$facility_table = "sync_facility";
+		$facility_table = 'facilities';
 		$facility_name = "f.name";
 		$conditions = "";
 
-		$user_facilities = User_Facilities::getHydratedFacilityList($this -> session -> userdata("api_id"));
+		//Get user_facilities
+		$user_facilities =  Facilities::get_user_facilities_id($facility_code);
+		$facilities = array();
+		foreach ($user_facilities as $facility_data) {
+			$facilities[] = $facility_data['id'];
+		}
 
-		$facilities = json_decode($user_facilities['facility'], TRUE);
+		//$user_facilities = User_Facilities::getHydratedFacilityList($this -> session -> userdata("api_id"));
+		//$facilities = json_decode($user_facilities['facility'], TRUE);
 		$facilities = implode(",", $facilities);
 
 		if ($period_begin != "" && $type == "cdrr") {
@@ -405,11 +408,17 @@ class Order extends MY_Controller {
 			$columns = array('#', 'Facility Name', 'Period Beginning', 'Options');
 
 			if ($facility_type > 1  && $supplier == "KEMSA") {
-				 $sql = "SELECT c.period_begin as id,sf.name as facility_name,c.period_begin,c.id as cdrr_id,m.id as maps_id,c.facility_id as facility_id,f.facilitycode as facility_code
+				 $sql = "SELECT 
+				 			c.period_begin as id,
+				 			f.name as facility_name,
+				 			c.period_begin,
+				 			c.id as cdrr_id,
+				 			m.id as maps_id,
+				 			c.facility_id as facility_id,
+				 			f.facilitycode as facility_code
 						FROM cdrr c 
-						LEFT JOIN maps m ON (c.facility_id=m.facility_id) AND (c.period_begin=m.period_begin) AND (c.period_end=m.period_end)
-						LEFT JOIN sync_facility sf ON sf.id=c.facility_id 
-						LEFT JOIN facilities f ON f.facilitycode=sf.code
+						INNER JOIN maps m ON c.facility_id=m.facility_id AND c.period_begin=m.period_begin
+						INNER JOIN $facility_table f ON f.id=c.facility_id 
 						WHERE c.code = 'D-CDRR' 
 						AND m.code='D-MAPS'
 						AND LCASE(c.status) NOT IN('prepared','review','deleted')
