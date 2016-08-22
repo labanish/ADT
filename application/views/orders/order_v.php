@@ -56,6 +56,11 @@
 			<li id="maps_btn">
 				<a  href="#maps">my MAPs</a>
 			</li>
+			<!-- new section added for the offline modules -->
+			<!-- <li id="download_templates">
+				<a  href="">CDRRs and MAPs TEMPLATES</a>
+			</li> -->
+			<a href="#download_templates" role="button" id="updates_messagesbtn" class="btn btn-info" data-toggle="modal"> Download Templates</a>
             <!--ensure it shows when its a central site-->
             <?php 
                $facility_type = Facilities::getType($this -> session -> userdata("facility"));
@@ -70,6 +75,41 @@
 		  </ul>
 		</div>
 	</div>
+
+<!-- modal that has the links to the cdrrs and the maps -->
+	<div id="download_templates" class="modal hide fade" tabindex="-1" role="dialog" aria-lebelledby"download_templates" aria-hidden="true">
+		<div class="modal-header">
+		    <button type="button" class="close" data-dismiss="modal" aria-hidden="false"><font color="black">close</font></button>
+		    <h4 id="download_templates">Download Templates</h4>
+		</div>	
+
+		<div class="modal-body">
+			<span id="test">
+				<div class="span12" style="margin-top:1em;">
+				<h4>CDRR Templates  <i><img class="img-rounded" style="height:30px;" src="<?php echo base_url().'assets/images/excel.jpg';?>"/> </i></h4>
+				<div class="accordion-inner">
+					<a href="<?php echo base_url().'downloads/modern-templates/F-CDRR for Satellite Sites.xlsx';?>"> <i class="icon-download-alt"></i> F-CDRR for Satellite Sites.xlsx</a>
+				<div>
+				</div class="accordion-inner">	
+					<a href="<?php echo base_url().'downloads/modern-templates/D-CDRR for Central Sites.xlsx';?>"> <i class="icon-download-alt"></i> D-CDRR for Central Sites.xlsx</a>
+				</div>
+				<h4>MAPS Templates <i><img class="img-rounded" style="height:30px;" src="<?php echo base_url() . 'assets/images/excel.jpg';?>"/> </i></h4>
+				<div class="accordion-inner">
+					<a href="<?php echo base_url().'downloads/modern-templates/F-MAPS for Satellite Sites.xlsx';?>"><i class="icon-download-alt"></i> F-MAPS for Satellite Sites.xlsx</a>
+				<div>
+				</div class="accordion-inner">	
+					<a href="<?php echo base_url().'downloads/modern-templates/D-MAPS for Central Sites.xlsx';?>"><i class="icon-download-alt"></i> D-MAPS for Central Sites.xlsx</a>
+				</div>
+			</div>
+			</span>			
+		</div>
+		<div class="modal-footer">
+		   <button class="btn" data-dismiss="modal" aria-hidden="true">Okay</button>
+		</div>
+
+	
+	</div>
+<!-- end of the modal -->
 	<!--row for table and buttons-->
     <div class="row-fluid">
 	<div class="span12">
@@ -341,7 +381,7 @@
 	  /*
 	   * Delete order report end
 	   */
-		
+
 		$("#cdrr_btn").click(function() {
 			$("#maps_btn").removeClass();
 			$("#aggregate_btn").removeClass();
