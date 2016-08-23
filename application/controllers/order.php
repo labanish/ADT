@@ -131,172 +131,172 @@ class Order extends MY_Controller {
 	}
 // 
 // End of logging into the order Module
-	public function api_sync() {
-		/*Get Drugs,facilities and Regimens from NASCOP or eSCM
-		 *Update Drugs,facilities and Regimens into weADT
-		 */
-		$facility_code = $this -> session -> userdata('facility');
-		$facility = Facilities::getSupplier($facility_code);
-		$supplier = $facility -> supplier -> name;
-		$links = array();
-		$success_log = "";
-		$error_log = "";
-		$curl = new Curl();
-		if (strtoupper($supplier) == "KENYA PHARMA") {
-			$url = $this -> esm_url;
-			$links['sync_drug'] = "drugs";
-			$links['sync_facility'] = "facilities";
-			$links['sync_regimen'] = "regimen";
-			$username = $this -> session -> userdata('api_user');
-			$password = $this -> session -> userdata('api_pass');
-			$curl -> setBasicAuthentication($username, $password);
-			$curl -> setOpt(CURLOPT_RETURNTRANSFER, TRUE);
-		} else {
-			$url = $this -> nascop_url;
-			$links['sync_drug'] = "sync/drugs";
-			$links['sync_facility'] = "sync/facilities";
-			$links['sync_regimen'] = "sync/regimen";
-		}
+						// public function api_sync() {
+						// 	/*Get Drugs,facilities and Regimens from NASCOP or eSCM
+						// 	 *Update Drugs,facilities and Regimens into weADT
+						// 	 */
+						// 	$facility_code = $this -> session -> userdata('facility');
+						// 	$facility = Facilities::getSupplier($facility_code);
+						// 	$supplier = $facility -> supplier -> name;
+						// 	$links = array();
+						// 	$success_log = "";
+						// 	$error_log = "";
+						// 	$curl = new Curl();
+						// 	if (strtoupper($supplier) == "KENYA PHARMA") {
+						// 		$url = $this -> esm_url;
+						// 		$links['sync_drug'] = "drugs";
+						// 		$links['sync_facility'] = "facilities";
+						// 		$links['sync_regimen'] = "regimen";
+						// 		$username = $this -> session -> userdata('api_user');
+						// 		$password = $this -> session -> userdata('api_pass');
+						// 		$curl -> setBasicAuthentication($username, $password);
+						// 		$curl -> setOpt(CURLOPT_RETURNTRANSFER, TRUE);
+						// 	} else {
+						// 		$url = $this -> nascop_url;
+						// 		$links['sync_drug'] = "sync/drugs";
+						// 		$links['sync_facility'] = "sync/facilities";
+						// 		$links['sync_regimen'] = "sync/regimen";
+						// 	}
 
-		foreach ($links as $table => $link) {
-			$target_url = trim($url.$link);
-			//print_r($target_url);
-			$curl -> get($target_url);
-			if ($curl -> error) {
-				$curl -> error_code;
-				$error_log .= "Error: " . $curl -> error_code . "<br/>";
-			} else {
-				$main_array = json_decode($curl -> response, TRUE);
+						// 	foreach ($links as $table => $link) {
+						// 		$target_url = trim($url.$link);
+						// 		//print_r($target_url);
+						// 		$curl -> get($target_url);
+						// 		if ($curl -> error) {
+						// 			$curl -> error_code;
+						// 			$error_log .= "Error: " . $curl -> error_code . "<br/>";
+						// 		} else {
+						// 			$main_array = json_decode($curl -> response, TRUE);
 
-				foreach ($main_array as $key => $value) {
-					unset($main_array[$key]['lmis_id']);
-					# code...
-				}
+						// 			foreach ($main_array as $key => $value) {
+						// 				unset($main_array[$key]['lmis_id']);
+						// 				# code...
+						// 			}
 
-				$this -> db -> query("TRUNCATE $table");
+						// 			$this -> db -> query("TRUNCATE $table");
 
-				$this -> db -> insert_batch($table, $main_array);
-				$success_log .= "Success: " . $table . " Synched <br/>";
-			
-				//$this -> map_process();
-			}
-		}
-		$this -> session -> set_flashdata('order_message', $success_log);
-	}
+						// 			$this -> db -> insert_batch($table, $main_array);
+						// 			$success_log .= "Success: " . $table . " Synched <br/>";
+								
+						// 			//$this -> map_process();
+						// 		}
+						// 	}
+						// 	$this -> session -> set_flashdata('order_message', $success_log);
+						// }
 
-	public function get_updates($type = 0) {
+						// public function get_updates($type = 0) {
 
-		if ($type != 0) {
-			if ($this -> session -> userdata("update_timer") != "") {
-				$to_time = strtotime(date('Y-m-d H:i:s'));
-				$from_time = strtotime($this -> session -> userdata("update_timer"));
+						// 	if ($type != 0) {
+						// 		if ($this -> session -> userdata("update_timer") != "") {
+						// 			$to_time = strtotime(date('Y-m-d H:i:s'));
+						// 			$from_time = strtotime($this -> session -> userdata("update_timer"));
 
-				if (round(abs($to_time - $from_time) / 60, 2) <= 10) {
-					$this -> session -> set_userdata("update_test", false);
-					echo 2;
-					die();
-				}
-			}
-			$this -> session -> set_userdata("update_timer", date('Y-m-d H:i:s'));
-		}
-		ini_set("max_execution_time", "1000000");
+						// 			if (round(abs($to_time - $from_time) / 60, 2) <= 10) {
+						// 				$this -> session -> set_userdata("update_test", false);
+						// 				echo 2;
+						// 				die();
+						// 			}
+						// 		}
+						// 		$this -> session -> set_userdata("update_timer", date('Y-m-d H:i:s'));
+						// 	}
+						// 	ini_set("max_execution_time", "1000000");
 
-		$current_month_start = date('Y-m-01');
-		$one_current_month_start = date('Y-m-d', strtotime($current_month_start . "-1 month"));
-		$two_current_month_start = date('Y-m-d', strtotime($current_month_start . "-2 months"));
-		$three_current_month_start = date('Y-m-d', strtotime($current_month_start . "-3 months"));
+						// 	$current_month_start = date('Y-m-01');
+						// 	$one_current_month_start = date('Y-m-d', strtotime($current_month_start . "-1 month"));
+						// 	$two_current_month_start = date('Y-m-d', strtotime($current_month_start . "-2 months"));
+						// 	$three_current_month_start = date('Y-m-d', strtotime($current_month_start . "-3 months"));
 
-		$facility_code = $this -> session -> userdata('facility');
-		$api_userID = $this -> session -> userdata('api_id');
-		$facility_list = User_Facilities::getHydratedFacilityList($api_userID);
-		$lists = json_decode($facility_list['facility'], TRUE);
-		$facility = Facilities::getSupplier($facility_code);
-		$supplier = $facility -> supplier -> name;
-		$links = array();
-		$curl = new Curl();
-		if (strtoupper($supplier) == "KENYA PHARMA") {
-			$url = $this -> esm_url;
-			foreach ($lists as $facility_id) {
-				if ($type == 0) {
-					$links[] = "facility/" . $facility_id . "/cdrr";
-					$links[] = "facility/" . $facility_id . "/maps";
-				} else {
-					$links[] = "facility/" . $facility_id . "/cdrr/" . $current_month_start;
-					$links[] = "facility/" . $facility_id . "/maps/" . $current_month_start;
-					$links[] = "facility/" . $facility_id . "/cdrr/" . $one_current_month_start;
-					$links[] = "facility/" . $facility_id . "/maps/" . $one_current_month_start;
-					$links[] = "facility/" . $facility_id . "/cdrr/" . $two_current_month_start;
-					$links[] = "facility/" . $facility_id . "/maps/" . $two_current_month_start;
-				}
-			}
-			$username = $this -> session -> userdata('api_user');
-			$password = $this -> session -> userdata('api_pass');
-			$curl -> setBasicAuthentication($username, $password);
-			$curl -> setOpt(CURLOPT_RETURNTRANSFER, TRUE);
-		} else {
-			$url = $this -> nascop_url;
-			if(!empty($lists))
-			{
-				$lists = explode(",", $lists[0]);
-				foreach ($lists as $facility_id) {
-					if ($type == 0) {
-						$links[] = "sync/facility/" . $facility_id . "/cdrr";
-						$links[] = "sync/facility/" . $facility_id . "/maps";
-					} else {
-						$links[] = "sync/facility/" . $facility_id . "/cdrr/" . $current_month_start;
-						$links[] = "sync/facility/" . $facility_id . "/maps/" . $current_month_start;
-						$links[] = "sync/facility/" . $facility_id . "/cdrr/" . $one_current_month_start;
-						$links[] = "sync/facility/" . $facility_id . "/maps/" . $one_current_month_start;
-						$links[] = "sync/facility/" . $facility_id . "/cdrr/" . $two_current_month_start;
-						$links[] = "sync/facility/" . $facility_id . "/maps/" . $two_current_month_start;
-					}
-			    }
-			}
-		}
+						// 	$facility_code = $this -> session -> userdata('facility');
+						// 	$api_userID = $this -> session -> userdata('api_id');
+						// 	$facility_list = User_Facilities::getHydratedFacilityList($api_userID);
+						// 	$lists = json_decode($facility_list['facility'], TRUE);
+						// 	$facility = Facilities::getSupplier($facility_code);
+						// 	$supplier = $facility -> supplier -> name;
+						// 	$links = array();
+						// 	$curl = new Curl();
+						// 	if (strtoupper($supplier) == "KENYA PHARMA") {
+						// 		$url = $this -> esm_url;
+						// 		foreach ($lists as $facility_id) {
+						// 			if ($type == 0) {
+						// 				$links[] = "facility/" . $facility_id . "/cdrr";
+						// 				$links[] = "facility/" . $facility_id . "/maps";
+						// 			} else {
+						// 				$links[] = "facility/" . $facility_id . "/cdrr/" . $current_month_start;
+						// 				$links[] = "facility/" . $facility_id . "/maps/" . $current_month_start;
+						// 				$links[] = "facility/" . $facility_id . "/cdrr/" . $one_current_month_start;
+						// 				$links[] = "facility/" . $facility_id . "/maps/" . $one_current_month_start;
+						// 				$links[] = "facility/" . $facility_id . "/cdrr/" . $two_current_month_start;
+						// 				$links[] = "facility/" . $facility_id . "/maps/" . $two_current_month_start;
+						// 			}
+						// 		}
+						// 		$username = $this -> session -> userdata('api_user');
+						// 		$password = $this -> session -> userdata('api_pass');
+						// 		$curl -> setBasicAuthentication($username, $password);
+						// 		$curl -> setOpt(CURLOPT_RETURNTRANSFER, TRUE);
+						// 	} else {
+						// 		$url = $this -> nascop_url;
+						// 		if(!empty($lists))
+						// 		{
+						// 			$lists = explode(",", $lists[0]);
+						// 			foreach ($lists as $facility_id) {
+						// 				if ($type == 0) {
+						// 					$links[] = "sync/facility/" . $facility_id . "/cdrr";
+						// 					$links[] = "sync/facility/" . $facility_id . "/maps";
+						// 				} else {
+						// 					$links[] = "sync/facility/" . $facility_id . "/cdrr/" . $current_month_start;
+						// 					$links[] = "sync/facility/" . $facility_id . "/maps/" . $current_month_start;
+						// 					$links[] = "sync/facility/" . $facility_id . "/cdrr/" . $one_current_month_start;
+						// 					$links[] = "sync/facility/" . $facility_id . "/maps/" . $one_current_month_start;
+						// 					$links[] = "sync/facility/" . $facility_id . "/cdrr/" . $two_current_month_start;
+						// 					$links[] = "sync/facility/" . $facility_id . "/maps/" . $two_current_month_start;
+						// 				}
+						// 		    }
+						// 		}
+						// 	}
 
-		//clear orders if its a full sync
-		if ($type == 0) {
-		   $this->clear_orders();
-		}
+						// 	//clear orders if its a full sync
+						// 	if ($type == 0) {
+						// 	   $this->clear_orders();
+						// 	}
 
-		foreach ($links as $link) {
-			$target_url = $url . $link;
-			$curl -> get($target_url);
-			if ($curl -> error) {
-				$curl -> error_code;
-				echo "Error: " . $curl -> error_code . "<br/>";
-			} else {
-				$main_array = json_decode($curl -> response, TRUE);
-				$clean_data = array();
+						// 	foreach ($links as $link) {
+						// 		$target_url = $url . $link;
+						// 		$curl -> get($target_url);
+						// 		if ($curl -> error) {
+						// 			$curl -> error_code;
+						// 			echo "Error: " . $curl -> error_code . "<br/>";
+						// 		} else {
+						// 			$main_array = json_decode($curl -> response, TRUE);
+						// 			$clean_data = array();
 
-				foreach ($main_array as $main) {
-					if ($main['code'] == "D-CDRR" || $main['code'] == "F-CDRR_units" || $main['code'] == "F-CDRR_packs") {
-						$type = "cdrr";
-					} else {
-						$type = "maps";
-					}
-					if ($type == 0) {
-						if (is_array($main)) {
-							if (!empty($main)) {
-								$id = $this -> extract_order($type, array($main), $main['id']);
-							}
-						}
-					} else {
-						if ($main['period_begin'] == $current_month_start || $main['period_begin'] == $one_current_month_start || $main['period_begin'] == $two_current_month_start) {
-							if (is_array($main)) {
-								if (!empty($main)) {
-									$id = $this -> extract_order($type, array($main), $main['id']);
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-		$this -> session -> set_flashdata('order_message', "Sync Complete");
+						// 			foreach ($main_array as $main) {
+						// 				if ($main['code'] == "D-CDRR" || $main['code'] == "F-CDRR_units" || $main['code'] == "F-CDRR_packs") {
+						// 					$type = "cdrr";
+						// 				} else {
+						// 					$type = "maps";
+						// 				}
+						// 				if ($type == 0) {
+						// 					if (is_array($main)) {
+						// 						if (!empty($main)) {
+						// 							$id = $this -> extract_order($type, array($main), $main['id']);
+						// 						}
+						// 					}
+						// 				} else {
+						// 					if ($main['period_begin'] == $current_month_start || $main['period_begin'] == $one_current_month_start || $main['period_begin'] == $two_current_month_start) {
+						// 						if (is_array($main)) {
+						// 							if (!empty($main)) {
+						// 								$id = $this -> extract_order($type, array($main), $main['id']);
+						// 							}
+						// 						}
+						// 					}
+						// 				}
+						// 			}
+						// 		}
+						// 	}
+						// 	$this -> session -> set_flashdata('order_message', "Sync Complete");
 
-		echo 1;
-	}
+						// 	echo 1;
+						// }
 
 	public function get_filter($type = "cdrr") {
 		$filter = "<span><b>Filter Period:</b></span><select class='" . $type . "_filter'>";
