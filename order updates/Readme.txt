@@ -5,3 +5,13 @@
 - Sync function disabled (funtion name ->sync_api)
 
 - Get updates funtion disabled (funtion name ->get_updates)
+
+
+
+
+
+
+
+NB> 
+
+average adherence: make sure that the appointment remains the way it is
