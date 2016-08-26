@@ -2720,6 +2720,85 @@ class report_management extends MY_Controller {
 		$from = date('Y-m-d', strtotime($from));
 		$to = date('Y-m-d', strtotime($to));
 
+		$sql = "SELECT pv.*
+				FROM vw_routine_refill_visit pv
+				WHERE pv.visit_date 
+				BETWEEN '$from' 
+				AND '$to'";
+
+		$query = $this -> db -> query($sql);
+		$results = $query -> result_array();
+		$row_string = "<table border='1'   class='dataTables'>
+			<thead>
+			<tr>
+				<th> Patient No </th>
+				<th> Type of Service </th>
+				<th> Client Support </th>
+				<th> Patient Name </th>
+				<th> Current Age </th>
+				<th> Sex</th>
+				<th> Regimen </th>
+				<th> Visit Date</th>
+				<th> Current Weight (Kg) </th>
+				<th> Missed Pills Adherence (%)</th>
+				<th> Pill Count Adherence (%)</th>
+				<th> Appointment Adherence (%)</th>
+				<th> Average Adherence (%)</th>
+				<th> Source </th>
+			</tr>
+			</thead>
+			<tbody>";
+		if ($results) {
+			foreach ($results as $result) {
+				$patient_no = $result['patient_number'];
+				$service_type = $result['type_of_service'];
+				$supported_by = $result['client_support'];
+				$patient_name = $result['patient_name'];
+				$age = $result['current_age'];
+				$gender = $result['sex'];
+				$appointments = $result['appointment_adherence'];
+				$dispensing_date = date('d-M-Y', strtotime($result['visit_date']));
+				$regimen_desc = "<b>" . $result['regimen'] . "</b>";
+				$weight = $result['current_weight'];
+				$source = $result['source'];
+				$pill_count = $result['pill_count_adherence'];
+				$missed_pills = $result['missed_pill_adherence'];
+				$adherence_array = array($missed_pills, $pill_count, $appointments );
+				$avg_adherence = number_format(array_sum($adherence_array) / count($adherence_array), 2);
+				$row_string .= "<tr><td>$patient_no</td><td>$service_type</td><td>$supported_by</td><td>$patient_name</td><td>$age</td><td>$gender</td><td>$regimen_desc</td><td>$dispensing_date</td><td>$weight</td>
+				<td>$missed_pills</td><td>$pill_count</td><td>$appointment</td><td>$avg_adherence</td><td>$source</td></tr>";
+
+				$overall_total++;
+			}
+
+		} else {
+			//$row_string .= "<tr><td colspan='6'>No Data Available</td></tr>";
+		}
+		$row_string .= "</tbody></table>";
+		$data['from'] = date('d-M-Y', strtotime($from));
+		$data['to'] = date('d-M-Y', strtotime($to));
+		$data['dyn_table'] = $row_string;
+		$data['all_count'] = $overall_total;
+		$data['title'] = "webADT | Reports";
+		$data['hide_side_menu'] = 1;
+		$data['banner_text'] = "Facility Reports";
+		$data['selected_report_type_link'] = "visiting_patient_report_row";
+		$data['selected_report_type'] = "Visiting Patients";
+		$data['report_title'] = "List of Patients Visited For Refill";
+		$data['facility_name'] = $this -> session -> userdata('facility_name');
+		$data['content_view'] = 'reports/patients_for_refill_v';
+		$this -> load -> view('template', $data);
+	}
+
+
+	public function getPatientsforRefill1($from = "", $to = "") {
+		//Variables
+		$overall_total = 0;
+		$today = date('Y-m-d');
+		$facility_code = $this -> session -> userdata("facility");
+		$from = date('Y-m-d', strtotime($from));
+		$to = date('Y-m-d', strtotime($to));
+
 
         $sql = "SELECT 
 				pv.patient_id as art_no,

@@ -459,7 +459,8 @@ class auto_management extends MY_Controller {
 					   FROM patient p
 					   LEFT JOIN patient_status ps ON ps.id=p.current_status
 					   WHERE ps.Name LIKE '%$active%'
-					   AND (DATEDIFF(CURDATE(),nextappointment )) >=$days_to_lost_followup) as p1
+					   AND (DATEDIFF(CURDATE(),nextappointment )) >=$days_to_lost_followup
+					   AND p.status_change_date != CURDATE()) as p1
 					   SET p.current_status = '$state[$lost]'";
 			}
 			
@@ -822,6 +823,46 @@ class auto_management extends MY_Controller {
                                                   PRIMARY KEY (`id`)
                                                 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;";
                             $tables['vw_patient_list']="CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vw_patient_list` AS select `p`.`patient_number_ccc` AS `ccc_number`,`p`.`first_name` AS `first_name`,`p`.`other_name` AS `other_name`,`p`.`last_name` AS `last_name`,`p`.`dob` AS `date_of_birth`,round(((to_days(curdate()) - to_days(`p`.`dob`)) / 360),0) AS `age`,if((round(((to_days(curdate()) - to_days(`p`.`dob`)) / 360),0) >= 14),'Adult','Paediatric') AS `maturity`,`p`.`pob` AS `pob`,if((`p`.`gender` = 1),'MALE','FEMALE') AS `gender`,if((`p`.`pregnant` = 1),'YES','NO') AS `pregnant`,`p`.`weight` AS `current_weight`,`p`.`height` AS `current_height`,`p`.`sa` AS `current_bsa`,`p`.`phone` AS `phone_number`,`p`.`physical` AS `physical_address`,`p`.`alternate` AS `alternate_address`,`p`.`other_illnesses` AS `other_illnesses`,`p`.`other_drugs` AS `other_drugs`,`p`.`adr` AS `drug_allergies`,if((`p`.`tb` = 1),'YES','NO') AS `tb`,if((`p`.`smoke` = 1),'YES','NO') AS `smoke`,if((`p`.`alcohol` = 1),'YES','NO') AS `alcohol`,`p`.`date_enrolled` AS `date_enrolled`,`ps`.`name` AS `patient_source`,`s`.`Name` AS `supported_by`,`rst`.`name` AS `service`,`r1`.`regimen_desc` AS `start_regimen`,`p`.`start_regimen_date` AS `start_regimen_date`,`pst`.`Name` AS `current_status`,if((`p`.`sms_consent` = 1),'YES','NO') AS `sms_consent`,`p`.`fplan` AS `family_planning`,`p`.`tbphase` AS `tbphase`,`p`.`startphase` AS `startphase`,`p`.`endphase` AS `endphase`,if((`p`.`partner_status` = 1),'Concordant',if((`p`.`partner_status` = 2),'Discordant','')) AS `partner_status`,`p`.`status_change_date` AS `status_change_date`,if((`p`.`partner_type` = 1),'YES','NO') AS `disclosure`,`p`.`support_group` AS `support_group`,`r`.`regimen_desc` AS `current_regimen`,`p`.`nextappointment` AS `nextappointment`,(to_days(`p`.`nextappointment`) - to_days(curdate())) AS `days_to_nextappointment`,`p`.`start_height` AS `start_height`,`p`.`start_weight` AS `start_weight`,`p`.`start_bsa` AS `start_bsa`,if((`p`.`transfer_from` <> ''),`f`.`name`,'N/A') AS `transfer_from`,`dp`.`name` AS `prophylaxis` from ((((((((`patient` `p` left join `regimen` `r` on((`r`.`id` = `p`.`current_regimen`))) left join `regimen` `r1` on((`r1`.`id` = `p`.`start_regimen`))) left join `patient_source` `ps` on((`ps`.`id` = `p`.`source`))) left join `supporter` `s` on((`s`.`id` = `p`.`supported_by`))) left join `regimen_service_type` `rst` on((`rst`.`id` = `p`.`service`))) left join `patient_status` `pst` on((`pst`.`id` = `p`.`current_status`))) left join `facilities` `f` on((`f`.`facilitycode` = `p`.`transfer_from`))) left join `drug_prophylaxis` `dp` on((`dp`.`id` = `p`.`drug_prophylaxis`))) where (`p`.`active` = '1');";
+
+                $tables['vw_routine_refill_visit'] = "CREATE OR REPLACE VIEW vw_routine_refill_visit AS
+							    SELECT 
+							    	p.patient_number_ccc AS patient_number,
+							    	rst.name AS type_of_service,
+							    	s.Name AS client_support,
+							    	CONCAT_WS(' ', p.first_name, p.other_name, p.last_name) AS patient_name,
+							    	FLOOR(DATEDIFF(CURDATE(),p.dob)/365) as current_age,
+							    	g.name AS sex,
+							    	CONCAT_WS(' | ', r.regimen_code, r.regimen_desc) AS regimen,
+							    	pv.dispensing_date AS visit_date,
+							    	pv.current_weight AS current_weight,
+							        CASE 
+							        WHEN pv.pill_count > 0 AND (pv.missed_pills - pv.pill_count) >= pv.pill_count THEN 0
+							        WHEN pv.pill_count > 0 AND (pv.missed_pills - pv.pill_count) > 0 THEN ROUND(((pv.missed_pills - pv.pill_count)/pv.pill_count)*100,2)
+							        WHEN pv.missed_pills NOT REGEXP '[0-9]+' OR pv.missed_pills IS NULL THEN '-'
+							        ELSE 100 END AS missed_pill_adherence,
+							        CASE 
+							        WHEN pv.pill_count > 0 AND (pv.months_of_stock - pv.pill_count) >= pv.pill_count THEN 0
+							        WHEN pv.pill_count > 0 AND (pv.months_of_stock - pv.pill_count) > 0 THEN ROUND(((pv.months_of_stock - pv.pill_count)/pv.pill_count)*100,2)
+							        WHEN pv.months_of_stock NOT REGEXP '[0-9]+' OR pv.months_of_stock IS NULL THEN '-'
+							        ELSE 100 END AS pill_count_adherence,
+							        CASE 
+							        WHEN REPLACE(pv.adherence, '%', '') > 100 THEN 100
+							        WHEN REPLACE(pv.adherence, '%', '') < 0 THEN 0
+							        WHEN REPLACE(pv.adherence, '%', '') = 'Infinity' THEN ''
+							        ELSE REPLACE(pv.adherence, '%', '')
+							        END AS appointment_adherence,
+							    	ps.name AS source
+							    FROM patient_visit pv
+							    LEFT JOIN patient p ON p.patient_number_ccc = pv.patient_id
+							    LEFT JOIN regimen_service_type rst ON rst.id = p.service
+							    LEFT JOIN supporter s ON s.id = p.supported_by
+							    LEFT JOIN gender g ON g.id = p.gender
+							    LEFT JOIN regimen r ON r.id = pv.regimen
+							    LEFT JOIN patient_source ps on ps.id = p.source
+							    LEFT JOIN visit_purpose v ON v.id = pv.visit_purpose
+							    WHERE pv.active = 1
+							    AND v.name LIKE '%routine%';";
+
             foreach($tables as $table=>$statements){
             if (!$this->db->table_exists($table)){
             	$statements=explode(";",$statements);
