@@ -382,6 +382,7 @@
 		$("#cdrr_btn").click(function() {
 			$("#maps_btn").removeClass();
 			$("#aggregate_btn").removeClass();
+			$("#templates_btn").removeClass();
 			$(this).addClass("active");
 			$("#cdrrs").show();
 			$("#maps").hide();
@@ -391,6 +392,7 @@
 		$("#maps_btn").click(function() {
 			$("#cdrr_btn").removeClass();
 			$("#aggregate_btn").removeClass();
+			$("#templates_btn").removeClass();
 			$(this).addClass("active");
 			$("#maps").show();
 			$("#cdrrs").hide();
@@ -401,6 +403,7 @@
 		$("#aggregate_btn").click(function() {
 			$("#cdrr_btn").removeClass();
 			$("#maps_btn").removeClass();
+			$("#templates_btn").removeClass();
 			$(this).addClass("active");
 			$("#aggregate").show();
 			$("#maps").hide();
@@ -410,11 +413,12 @@
 		$("#templates_btn").click(function() {
 			$("#cdrr_btn").removeClass();
 			$("#maps_btn").removeClass();
+			$("#aggregate_btn").removeClass();
 			$(this).addClass("active");
 			$("#templates").show();
-			$("#aggregate").hide();
 			$("#maps").hide();
 			$("#cdrrs").hide();
+			$("#aggregate").hide();
 		});
 		
 		$('.btn_satellite').click(function(){//check which button was clicked

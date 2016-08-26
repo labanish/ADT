@@ -81,7 +81,7 @@ class Order extends MY_Controller {
 							$user_array[$ind] = $my;
 						}
 						if ($ind == "id") {
-							$this -> session -> set_userdata('api_id', $my);
+							$this -> session -> set_userdata('user_id', $my);
 						} else if ($ind == "ownUser_facility") {
 							foreach ($my as $facility) {
 								$facility_array[] = $facility['facility_id'];
@@ -95,10 +95,10 @@ class Order extends MY_Controller {
 				$this -> session -> set_userdata('api_pass', $password);
 			} else {
 				//Set User Sessions
-				$this -> session -> set_userdata('api_id', $main_array['id']);
+				$this -> session -> set_userdata('user_id', $main_array['id']);
 				$this -> session -> set_userdata('api_user', $main_array['name']);
 
-				$id = $this -> session -> userdata('api_id');
+				$id = $this -> session -> userdata('user_id');
 
                 //Set User Facilities
 				$facility_array = json_decode($main_array['ownUser_facility'], TRUE);
@@ -122,8 +122,8 @@ class Order extends MY_Controller {
 
 			$this -> db -> insert("sync_user", $user_array);
 			$user_id = $this -> session -> userdata("user_id");
-			$api_id = $this -> session -> userdata("api_id");
-			$new_array = array('map' => $api_id);
+			$user_id = $this -> session -> userdata("user_id");
+			$new_array = array('map' => $user_id);
 			$this -> db -> where('id', $user_id);
 			$this -> db -> update('users', $new_array);
 		}
@@ -207,7 +207,7 @@ class Order extends MY_Controller {
 						// 	$three_current_month_start = date('Y-m-d', strtotime($current_month_start . "-3 months"));
 
 						// 	$facility_code = $this -> session -> userdata('facility');
-						// 	$api_userID = $this -> session -> userdata('api_id');
+						// 	$api_userID = $this -> session -> userdata('user_id');
 						// 	$facility_list = User_Facilities::getHydratedFacilityList($api_userID);
 						// 	$lists = json_decode($facility_list['facility'], TRUE);
 						// 	$facility = Facilities::getSupplier($facility_code);
@@ -355,22 +355,15 @@ class Order extends MY_Controller {
 	public function get_orders($type = "cdrr", $period_begin = "") {
 		$columns = array('#', '#ID', 'Period Beginning', 'Status', 'Facility Name', 'Options');
 		$facility_code = $this -> session -> userdata('facility');
-		$supplier = $this -> get_supplier($facility_code);
+		$supplier = $this -> get_supplier($facility_code); // not important
 		
 		//$facility_table = "sync_facility";
-		$facility_table = 'facilities';
+		$facility_table = 'sync_facility';
 		$facility_name = "f.name";
 		$conditions = "";
 
-		//Get user_facilities
-		$user_facilities =  Facilities::get_user_facilities_id($facility_code);
-		$facilities = array();
-		foreach ($user_facilities as $facility_data) {
-			$facilities[] = $facility_data['id'];
-		}
-
-		//$user_facilities = User_Facilities::getHydratedFacilityList($this -> session -> userdata("api_id"));
-		//$facilities = json_decode($user_facilities['facility'], TRUE);
+		$user_facilities = User_Facilities::getHydratedFacilityList($this -> session -> userdata("user_id"));
+		$facilities = json_decode($user_facilities['facility'], TRUE);
 		$facilities = implode(",", $facilities);
 
 		if ($period_begin != "" && $type == "cdrr") {
@@ -415,7 +408,7 @@ class Order extends MY_Controller {
 				 			c.id as cdrr_id,
 				 			m.id as maps_id,
 				 			c.facility_id as facility_id,
-				 			f.facilitycode as facility_code
+				 			f.code as facility_code
 						FROM cdrr c 
 						INNER JOIN maps m ON c.facility_id=m.facility_id AND c.period_begin=m.period_begin
 						INNER JOIN $facility_table f ON f.id=c.facility_id 
@@ -879,7 +872,7 @@ class Order extends MY_Controller {
 					$log_array['id'] = "";
 					$log_array['description'] = $status;
 					$log_array['created'] = date('Y-m-d H:i:s');
-					$log_array['user_id'] = $this -> session -> userdata("api_id");
+					$log_array['user_id'] = $this -> session -> userdata("user_id"); //changed from api
 					$log_array['cdrr_id'] = $id;
 
 					$logs[]=$log_array;
@@ -889,7 +882,7 @@ class Order extends MY_Controller {
 					$log_array['id'] = "";
 					$log_array['description'] = $status;
 					$log_array['created'] = date('Y-m-d H:i:s');
-					$log_array['user_id'] = $this -> session -> userdata("api_id");
+					$log_array['user_id'] = $this -> session -> userdata("user_id");
 					$log_array['cdrr_id'] = $id;
 					$main_array['ownCdrr_log'] = array($log_array);
 				}
@@ -1010,7 +1003,7 @@ class Order extends MY_Controller {
 					$log_array['id'] = "";
 					$log_array['description'] = $status;
 					$log_array['created'] = date('Y-m-d H:i:s');
-					$log_array['user_id'] = $this -> session -> userdata("api_id");
+					$log_array['user_id'] = $this -> session -> userdata("user_id");
 					$log_array['maps_id'] = $id;
 
 					$logs[]=$log_array;
@@ -1020,7 +1013,7 @@ class Order extends MY_Controller {
 					$log_array['id'] = "";
 					$log_array['description'] = $status;
 					$log_array['created'] = date('Y-m-d H:i:s');
-					$log_array['user_id'] = $this -> session -> userdata("api_id");
+					$log_array['user_id'] = $this -> session -> userdata("user_id");
 					$log_array['maps_id'] = $id;
 					$main_array['ownMaps_log'] = array($log_array);
 				}
@@ -1519,7 +1512,7 @@ class Order extends MY_Controller {
 			$log_array['id'] = "";
 			$log_array['description'] = $status;
 			$log_array['created'] = date('Y-m-d H:i:s');
-			$log_array['user_id'] = $this -> session -> userdata("api_id");
+			$log_array['user_id'] = $this -> session -> userdata("user_id");
 			$log_array['cdrr_id'] = $id;
 			
 			$logs[]=$log_array;
@@ -1536,7 +1529,7 @@ class Order extends MY_Controller {
 			$log_array['id'] = "";
 			$log_array['description'] = $status;
 			$log_array['created'] = date('Y-m-d H:i:s');
-			$log_array['user_id'] = $this -> session -> userdata("api_id");
+			$log_array['user_id'] = $this -> session -> userdata("user_id");
 			$log_array['maps_id'] = $id;
 
 			$logs[]=$log_array;
@@ -1772,7 +1765,7 @@ class Order extends MY_Controller {
 						$log_array['id'] = "";
 						$log_array['description'] = $status;
 						$log_array['created'] = date('Y-m-d H:i:s');
-						$log_array['user_id'] = $this -> session -> userdata("api_id");
+						$log_array['user_id'] = $this -> session -> userdata("user_id");
 						$log_array['cdrr_id'] = "";
 
 						$main_array['ownCdrr_log'] = array($log_array);
@@ -1960,7 +1953,7 @@ class Order extends MY_Controller {
 						$log_array['id'] = "";
 						$log_array['description'] = $status;
 						$log_array['created'] = $created;
-						$log_array['user_id'] = $this -> session -> userdata("api_id");
+						$log_array['user_id'] = $this -> session -> userdata("user_id");
 						$log_array['maps_id'] = "";
 
 						$main_array['ownMaps_log'] = array($log_array);
@@ -3360,7 +3353,7 @@ public function getoiPatients() {
 	}
 
 	public function logout() {
-		$this -> session -> unset_userdata("api_id");
+		$this -> session -> unset_userdata("user_id");
 		$this -> session -> unset_userdata("api_user");
 		$this -> session -> unset_userdata("api_pass");
 		redirect("order");

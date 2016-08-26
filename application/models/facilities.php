@@ -181,10 +181,5 @@ class Facilities extends Doctrine_Record {
 		return $facility;
 	}
 
-	public static function get_user_facilities_id($parent_code) {
-		$query = Doctrine_Query::create() -> select("id") -> from("Facilities") -> where("parent = '$parent_code'");
-		$facility = $query -> execute(array(), Doctrine::HYDRATE_ARRAY);
-		return $facility;
-	}
 
 }
