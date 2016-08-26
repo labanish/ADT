@@ -492,17 +492,23 @@
 	            }
 	     }
 
-//function to check if pregnant if female and above 14(vicky)
-	     function showDiv(elem){
-	     	var dob=document.getElementById('dob').value;
-			dob = new Date(dob);
+		//function to check if pregnant if female and above 14(vicky)
+		function showDiv(elem){
+			var gender = $("#gender option:selected").text().toLowerCase();
+			var dob = new Date(document.getElementById('dob').value);
 			var today = new Date();
 			var age_in_years = Math.floor((today - dob) / (365.25 * 24 * 60 * 60 * 1000));
+			var pregnantDiv = document.getElementById('pregnant_view');
+			var pregnant = $("#pregnant");
 
-					
-   if(age_in_years>=14)
-      document.getElementById('pregnant_view').style.display = "block";
-}
+			//Ensure is 'female' and age >= 14
+			if(age_in_years >= 14 && gender == 'female'){
+				pregnantDiv.style.display = "inline-block";
+			}else{
+				pregnantDiv.style.display = "none";
+				pregnant.val(0);
+			}
+		}
 		</script>
 
 	</head>
@@ -584,17 +590,15 @@
 						</div>
 						<div class="max-row">
 							<div class="mid-row">
-								<label><span class='astericks'>*</span>Gender</label>
-																
+								<label><span class='astericks'>*</span>Gender</label>				
 								<select name="gender" id="gender" onchange="showDiv(this)">
 								<option value="">--Select--</option>
-		<?php
+								<?php
 									foreach($genders as $gender){
 										echo "<option value='".$gender['id']."'>".$gender['name']."</option>";
 									}
 									?>
 								</select>
-								
 							</div>
 							<div id="pregnant_view" class="mid-row" style="display:none;">
 								<label id="pregnant_container"> Pregnant?</label>

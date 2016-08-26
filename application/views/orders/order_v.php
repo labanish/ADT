@@ -412,6 +412,7 @@
 			$("#maps_btn").removeClass();
 			$(this).addClass("active");
 			$("#templates").show();
+			$("#aggregate").hide();
 			$("#maps").hide();
 			$("#cdrrs").hide();
 		});
