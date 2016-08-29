@@ -243,7 +243,6 @@ $ccc_stores = $this ->session ->userdata("ccc_store");
 					<td class="adherence_report_type_title"><select name="adherence_type_report" id="adherence_type_report">
 							<option value="appointment">Appointment</option>
 							<option value="pill_count">Pill Count</option>
-							<option value="missed_pill">Missed Pill</option>
 						</select></td>
 					<td>
 					<td><label >From: </label></td>
