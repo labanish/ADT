@@ -153,7 +153,7 @@ foreach($actions as $action){
 			<label>
 				<strong class="label">Regimen change reason</strong>
 				<input type="hidden" name="regimenchange_id" id="regimenchange_id" class="input" >
-				<input type="text" name="regimenchange_name" id="regimenchange_name" class="input-xlarge span12" >
+				<input type="text" name="regimenchange_name" id="regimenchange_name" class="input-xlarge span12" required="required">
 			</label>
 		</div>
 		<div class="modal-footer">
@@ -178,7 +178,7 @@ foreach($actions as $action){
 			<label>
 				<strong class="label">Regimen change reason</strong>
 				<input type="hidden" name="regimenchange_id" id="edit_regimenchange_id" class="input" >
-				<input type="text" name="regimenchange_name" id="edit_regimenchange_name" class="input-xlarge span12" >
+				<input type="text" name="regimenchange_name" id="edit_regimenchange_name" class="input-xlarge span12" required="required">
 			</label>
 		</div>	
 		<div class="modal-footer">

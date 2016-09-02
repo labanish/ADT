@@ -349,6 +349,7 @@ class Facilitydashboard_Management extends MY_Controller {
         $query = "SELECT * FROM vw_patient_list";
         $results = $this->db->query($query);
         $data = $this->dbutil->csv_from_result($results, $delimiter, $newline);
+        ob_clean();//Removes spaces
         force_download($filename, $data);
 	}
 

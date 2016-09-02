@@ -116,7 +116,7 @@
 				</tr>
 				<tr><td><strong class="label">Brand Name</strong></td>
 					<td>
-						<input type="text" name="brandname" id="brandname" class="input-xlarge">
+						<input type="text" name="brandname" id="brandname" class="input-xlarge" required="">
 					</td>
 				</tr>
 			</table>

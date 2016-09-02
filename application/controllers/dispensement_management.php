@@ -208,7 +208,7 @@ class Dispensement_Management extends MY_Controller {
 			$stock_type = $this -> input -> post('stock_type');
 			$and_stocktype = "AND dsb.stock_type = '$stock_type' ";
 		}  
-		$sql = "SELECT DISTINCT(d.id),UPPER(d.drug) as drug
+		$sql = "SELECT DISTINCT(d.id),UPPER(d.drug) as drug,IF(none_arv = 1, FALSE, TRUE) as is_arv
 		        FROM regimen_drug rd
 		        LEFT JOIN regimen r ON r.id = rd.regimen 
 		        LEFT JOIN drugcode d ON d.id=rd.drugcode 

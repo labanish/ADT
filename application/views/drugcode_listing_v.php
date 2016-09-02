@@ -476,15 +476,15 @@
 			
 			<table style="margin-top:54px">
 				<tr><td>
-					<strong class="label">Drug ID</strong></td><td><input type="text" class="input-xlarge" style="width:320px;font-size:13px" id="add_drugname" name="drugname"/></td></tr>
+					<strong class="label">Drug ID</strong></td><td><input type="text" class="input-xlarge" style="width:320px;font-size:13px" id="add_drugname" name="drugname" required=""/></td></tr>
 				<tr><td><strong class="label">Unit</strong></td>
 					<td>
-						<select id="add_drugunit" class="input-small" name="drugunit">
+						<select id="add_drugunit" class="input-small" name="drugunit" required="">
 							
 						</select>		
 					</td>
 				</tr>
-				<tr><td><strong class="label">Packsize</strong></td><td><input type="text" class="input-small" id="add_packsize" name="packsize" /></td></tr>
+				<tr><td><strong class="label">Packsize</strong></td><td><input type="text" class="input-small" id="add_packsize" name="packsize" required=""/></td></tr>
 				<!--<tr><td><strong class="label">Safety Quantity</strong></td><td><input type="text" class="input-small" id="add_safety_quantity" name="safety_quantity" /></td></tr>-->
 				<input type="hidden" class="input-small" id="add_safety_quantity" name="safety_quantity" />
 				<tr><td><strong class="label">Generic Name</strong></td>
@@ -621,15 +621,15 @@
 				<tr><td>
 					<input type="hidden" name="drugcode_id" id="drugcode_id" class="input">
 					<strong class="label">Drug ID</strong></td>
-					<td><input type="text" class="input-xlarge" style="width:320px;font-size:13px" id="drugname" name="drugname"/></td></tr>
+					<td><input type="text" class="input-xlarge" style="width:320px;font-size:13px" id="drugname" name="drugname" required=""/></td></tr>
 				<tr><td><strong class="label">Unit</strong></td>
 					<td>
-						<select id="drugunit" class="input-small" name="drugunit">
+						<select id="drugunit" class="input-small" name="drugunit" required="">
 							
 						</select>		
 					</td>
 				</tr>
-				<tr><td><strong class="label">Packsize</strong></td><td><input type="text" class="input-small" id="packsize" name="packsize" /><input type="hidden" class="input-small" id="safety_quantity" name="safety_quantity" /></td></tr>
+				<tr><td><strong class="label">Packsize</strong></td><td><input type="text" class="input-small" id="packsize" name="packsize" required=""/><input type="hidden" class="input-small" id="safety_quantity" name="safety_quantity" /></td></tr>
 				<!--<tr><td><strong class="label">Safety Quantity</strong></td><td><input type="text" class="input-small" id="safety_quantity" name="safety_quantity" /></td></tr>-->
 				<tr><td><strong class="label">Generic Name</strong></td>
 					<td>

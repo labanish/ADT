@@ -335,8 +335,25 @@
 						var expiry_selector = "#" + expiry_id;
 						$(expiry_selector).datepicker({
 							defaultDate : new Date(),
+							dateFormat : $.datepicker.ATOM,
+							minDate : 0,
 							changeYear : true,
-							changeMonth : true
+							changeMonth : true,
+				            onSelect : function(){
+		                        var date= new Date($(this).datepicker('getDate')); 
+		                        var c_date=new Date(today_year,today_month,today_date);
+		                        var diff = date.getTime() - c_date.getTime();
+		                        var months = Math.ceil(diff/(1000 * 60 * 60 * 24*30));
+		                        if(date<c_date){
+		                            bootbox.alert("<h4>Expiry Notice</h4>\n\<hr/><center>An expired date being updated! </center>" );
+		                            $("#btn_submit").attr("disabled","disabled");
+		                        }else if(months<=6){
+		                           bootbox.alert("<h4>Expiry Notice</h4>\n\<hr/><center>The expiry date updated is within 6 months! </center>" );
+		                            $("#btn_submit").removeAttr('disabled');
+		                        }else{
+		                           $("#btn_submit").removeAttr('disabled');
+		                        }
+				            }
 						});
 						
 						//Validity check
@@ -459,7 +476,7 @@
 		$("#expiry_date").datepicker({
 			defaultDate : new Date(),
 			dateFormat : $.datepicker.ATOM,
-			minDate : "0D",
+			minDate : 0,
 			changeYear : true,
 			changeMonth : true,
                         
@@ -566,8 +583,25 @@
 		
 				$(expiry_selector).datepicker({
 					defaultDate : new Date(),
+					dateFormat : $.datepicker.ATOM,
+					minDate : 0,
 					changeYear : true,
-					changeMonth : true
+					changeMonth : true,
+		            onSelect : function(){
+                        var date= new Date($(this).datepicker('getDate')); 
+                        var c_date=new Date(today_year,today_month,today_date);
+                        var diff = date.getTime() - c_date.getTime();
+                        var months = Math.ceil(diff/(1000 * 60 * 60 * 24*30));
+                        if(date<c_date){
+                            bootbox.alert("<h4>Expiry Notice</h4>\n\<hr/><center>An expired date being updated! </center>" );
+                            $("#btn_submit").attr("disabled","disabled");
+                        }else if(months<=6){
+                           bootbox.alert("<h4>Expiry Notice</h4>\n\<hr/><center>The expiry date updated is within 6 months! </center>" );
+                            $("#btn_submit").removeAttr('disabled');
+                        }else{
+                           $("#btn_submit").removeAttr('disabled');
+                        }
+		            }
 				});
 				cloned_object.insertAfter('#drugs_table tr:last');
 				refreshDatePickers();
@@ -1259,8 +1293,24 @@
 			$(this).not('.hasDatePicker').datepicker({
 				defaultDate : new Date(),
 				dateFormat : $.datepicker.ATOM,
+				minDate : 0,
 				changeYear : true,
-				changeMonth : true
+				changeMonth : true,
+	            onSelect : function(){
+                    var date= new Date($(this).datepicker('getDate')); 
+                    var c_date=new Date(today_year,today_month,today_date);
+                    var diff = date.getTime() - c_date.getTime();
+                    var months = Math.ceil(diff/(1000 * 60 * 60 * 24*30));
+                    if(date<c_date){
+                        bootbox.alert("<h4>Expiry Notice</h4>\n\<hr/><center>An expired date being updated! </center>" );
+                        $("#btn_submit").attr("disabled","disabled");
+                    }else if(months<=6){
+                       bootbox.alert("<h4>Expiry Notice</h4>\n\<hr/><center>The expiry date updated is within 6 months! </center>" );
+                        $("#btn_submit").removeAttr('disabled');
+                    }else{
+                       $("#btn_submit").removeAttr('disabled');
+                    }
+	            }
 			});
 			counter++;
 

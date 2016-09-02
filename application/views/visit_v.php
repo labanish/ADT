@@ -109,7 +109,7 @@ foreach($actions as $action){
 		<div class="modal-body">
 			<label>
 				<strong class="label">Purpose Name</strong>
-				<input type="text" name="source_name" id="source_name" class="input-xlarge">
+				<input type="text" name="source_name" id="source_name" class="input-xlarge" required="">
 			</label>
 		</div>
 		<div class="modal-footer">
@@ -133,7 +133,7 @@ foreach($actions as $action){
 			<label>
 				<strong class="label">Purpose Name</strong>
 				<input type="hidden" name="source_id" id="edit_source_id" class="input-xlarge">
-				<input type="text" name="source_name" id="edit_source_name" class="input-xlarge">
+				<input type="text" name="source_name" id="edit_source_name" class="input-xlarge" required="">
 			</label>
 		</div>
 		<div class="modal-footer">
