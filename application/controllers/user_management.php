@@ -112,6 +112,7 @@ class User_Management extends MY_Controller {
 		;
 		$data['user_types'] = $user_types;
 		$data['facilities'] = $facilities;
+		$data['order_sites'] = Sync_Facility::get_active();
 		$data['title'] = "System Users";
 		//$data['content_view'] = "users_v";
 		$data['banner_text'] = "System Users";
@@ -436,6 +437,9 @@ class User_Management extends MY_Controller {
 
 		$this->db->insert("users",$user_data);
 
+		//Save user facilities
+		$this->save_user_facilities($this->db->insert_id(), $this -> input -> post('user_facilities_holder',TRUE));
+
 		$this -> session -> set_userdata('msg_success', $this -> input -> post('fullname') . ' \' s details were successfully saved! The default password is <strong>'.$default_password.'</strong>');
 		redirect('settings_management');
 	}
@@ -744,6 +748,11 @@ class User_Management extends MY_Controller {
 			$this -> session -> set_userdata("message_user_update_success", $message_success);
 
 		}
+
+		//Add/update user ordering sites
+		$this->save_user_facilities($this->session->userdata('user_id'), $this -> input -> post('profile_user_facilities_holder',TRUE));
+
+
 		$previous_url = $this -> input -> cookie('actual_page', true);
 		redirect($previous_url);
 
@@ -777,6 +786,31 @@ class User_Management extends MY_Controller {
 	    }
 	    $this->session->set_flashdata("notification",$notification);
 	    redirect("user_management/resetPassword");
+	}
+
+	public function save_user_facilities($user_id = '', $user_facilites = ''){
+		$save_data = array('user_id' => $user_id, 'facility' => json_encode(explode(',', $user_facilites)));
+		$table = 'user_facilities';
+		if($user_facilites){
+			$user = $this->db->get_where($table, array('user_id' => $user_id))->row_array();
+			if($user){
+				$this -> db -> where('id', $user['id']);
+				$this -> db -> update($table, $save_data);
+			}else{
+				$this->db->insert($table, $save_data);
+			}
+		}
+		return $save_data;
+	}
+
+	public function get_sites($user_id = ''){
+		$data = json_encode(array());
+		$this->db->select('facility');
+		$row = $this->db->get_where('user_facilities', array('user_id' => $user_id))->row_array();
+		if($row){
+			$data = $row['facility'];
+		}
+		echo $data;
 	}
 
 }

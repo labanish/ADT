@@ -6,7 +6,7 @@
 	.dataTables_info{
 		width:36%;
 	}
-	#edit_form, #client_form{
+	#edit_form, #client_form, .dialog_form{
 		background-color:#CCFFFF;
 	}
 
@@ -54,13 +54,17 @@
 	<div class="container-fluid">
 	  <div class="row-fluid row">
 		 <!-- Side bar menus -->
-	    <?php echo $this->load->view('settings_side_bar_menus_v.php'); ?>
+	    <?php echo $this->load->view('settings_side_bar_menus_v'); ?>
 	    <!-- SIde bar menus end -->
 		<div class="span12 span-fixed-sidebar">
 	      	<div class="hero-unit">
 				<?php echo validation_errors('<p class="error">', '</p>');?>
-				<?php if($table !="patient"){ ?>
-			    <a href="#client_form" role="button" id="new_client" class="btn" data-toggle="modal"><i class="icon-plus icon-black"></i>New <?php echo $table; ?></a>
+				<?php 
+				$order_tables = array('sync_drug', 'sync_regimen', 'sync_regimen_category', 'sync_facility');		
+				if($table != "patient" && !in_array($table, $order_tables)){ ?>
+			    	<a href="#client_form" role="button" id="new_client" class="btn" data-toggle="modal"><i class="icon-plus icon-black"></i>New <?php echo ucwords(str_replace('_',' ',$table)); ?></a>
+				<?php }else{ ?>
+				    <a href="<?php echo '#'.$table.'_form'; ?>" role="button" id="new_client" class="btn" data-toggle="modal"><i class="icon-plus icon-black"></i>New <?php echo ucwords(str_replace('_',' ',$table)); ?></a>
 				<?php } ?>
 				<?php echo $sources;?>
 				
@@ -79,8 +83,6 @@
 			<h3 id="NewDrug">Details</h3>
 		</div>
 		<div class="modal-body">	
-
-
 			<label>
 			<strong class="label">Name</strong>
 			<div class="input-prepend">
@@ -91,7 +93,7 @@
 					<?php
 				}
 				?>
-			  <input class="span12" id="source_name" name="source_name" type="text" size="30" >
+			  <input class="span12" id="source_name" name="source_name" type="text" size="30" required="required">
 			<?php
               if($table=="ccc_store_service_point"){
             ?>
@@ -111,9 +113,9 @@
               }if($table=="transaction_type"){
              ?>
                 <strong class="label">Description</strong>
-                <input class="span12" id="source_desc" name="desc" type="text" size="30" >
+                <input class="span12" id="source_desc" name="desc" type="text" size="30" required="required">
                 <strong class="label">Effect</strong>
-                <input class="span12" id="source_effect" name="effect" type="text" size="30" >
+                <input class="span12" id="source_effect" name="effect" type="text" size="30" required="required">
 		    <?php
 			  }
 			 ?>
@@ -140,7 +142,7 @@
 		<div class="modal-body">	
 			<label>
 			<strong class="label">Name</strong>
-			<input type="hidden" name="source_id" id="edit_source_id" class="input" size="30">
+			<input type="hidden" name="source_id" id="edit_source_id" class="input" size="30" required="required">
 			<div class="input-prepend">
 				<?php
 				if($table=="ccc_store_service_point"){
@@ -149,14 +151,14 @@
 					<?php
 				}
 				?>
-				<input class="span12" id="edit_source_name" name="source_name" type="text" size="30" >
+				<input class="span12" id="edit_source_name" name="source_name" type="text" size="30" required="required">
                  <?php
                  if($table=="transaction_type"){
                  ?>
                  <strong class="label">Description</strong>
-                <input class="span12" id="edit_desc" name="desc" type="text" size="30" >
+                <input class="span12" id="edit_desc" name="desc" type="text" size="30" required="required">
                 <strong class="label">Effect</strong>
-                <input class="span12" id="edit_effect" name="effect" type="text" size="30" >
+                <input class="span12" id="edit_effect" name="effect" type="text" size="30" required="required">
 				<?php
 				}
 				?>
@@ -169,5 +171,8 @@
 		</div>
 		</form>
 	</div>
+
+	<!--Order modal forms-->
+	<?php echo $this->load->view('orders/settings_view'); ?>
 
 </div>

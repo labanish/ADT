@@ -14,8 +14,8 @@ class auto_management extends MY_Controller {
 	    $dir = realpath($_SERVER['DOCUMENT_ROOT']);
 	    $link = $dir . "\\ADT\\assets\\nascop.txt";
 		$this -> nascop_url = trim(file_get_contents($link));
-		$this -> eid_url="http://viralload.nascop.org/";
-        $this->ftp_url='192.168.133.10';
+		$this -> eid_url = "http://viralload.nascop.org/";
+        $this -> ftp_url = "192.168.133.10";
 
         // off Campus access {should be active at facility level}
         // $this->ftp_url='41.89.6.210';
@@ -44,11 +44,11 @@ class auto_management extends MY_Controller {
 			//function to update patients without current_regimen with last regimen dispensed
 			$message .= $this->update_current_regimen(); 
 			//function to send eid statistics to nascop dashboard
-			$message .= $this->updateEid();
+			//$message .= $this->updateEid();
 			//function to update patient data such as active to lost_to_follow_up	
 			$message .= $this->updatePatientData();
 			//function to update data bugs by applying query fixes
-			$message .= $this->updateFixes();
+			//$message .= $this->updateFixes();
 			//function to get viral load data
 			$message .= $this->updateViralLoad();
 			//function to add new facilities list
@@ -60,14 +60,14 @@ class auto_management extends MY_Controller {
 			//function to set negative batches to zero
 			$message .= $this->setBatchBalance();
 			//function to update hash value of system to nascop
-			$message .= $this->update_system_version();
+			//$message .= $this->update_system_version();
             //function to download guidelines from nascop
-            $message .= $this->get_guidelines();
+            //$message .= $this->get_guidelines();
 			//function to update facility admin that reporting deadline is close
 			$message .= $this->update_reporting();
 
 	        //finally update the log file for auto_update 
-	        if ($this -> session -> userdata("curl_error") != 1) {
+	        if (!$this -> session -> userdata("curl_error")) {
 	        	$sql="UPDATE migration_log SET last_index='$today' WHERE source='auto_update'";
 				$this -> db -> query($sql);
 				$this -> session -> set_userdata("curl_error", "");
@@ -405,7 +405,7 @@ class auto_management extends MY_Controller {
 			
 				foreach ($phone_list as $counter=>$contact) {
 					$message = urlencode($messages_list[$counter]);
-					file("http://41.57.109.242:13000/cgi-bin/sendsms?username=clinton&password=ch41sms&to=$contact&text=$message");
+					//file("http://41.57.109.242:13000/cgi-bin/sendsms?username=clinton&password=ch41sms&to=$contact&text=$message");
 				}
 				$alert = "Patients notified (<b>" . sizeof($phone_list) . "</b>)";
 			}
@@ -740,178 +740,36 @@ class auto_management extends MY_Controller {
 		return $message;
 	}
 	public function update_database_tables(){
-		$count=0;
-		$message="";
-		$tables['dependants'] = "CREATE TABLE dependants(
-									id int(11),
-									parent varchar(30),
-									child varchar(30),
-									PRIMARY KEY (id)
-									);";
-        $tables['spouses']= "CREATE TABLE spouses(
-								id int(11),
-								primary_spouse varchar(30),
-								secondary_spouse varchar(30),
-								PRIMARY KEY (id)
-								);";
-        $tables['drug_instructions']="CREATE TABLE IF NOT EXISTS `drug_instructions` (
-									  `id` int(11) NOT NULL AUTO_INCREMENT,
-									  `name` varchar(255) NOT NULL,
-									  `active` int(11) NOT NULL,
-									  PRIMARY KEY (`id`)
-									) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=35;
-									INSERT INTO `drug_instructions` (`id`, `name`, `active`) VALUES
-									(1, 'Warning. May cause drowsiness', 1),
-									(2, 'Warning. May cause drowsiness. If affected to do not drive or operate machinery.Avoid alcoholic drink', 1),
-									(3, 'Warning. May cause drowsiness. If affected to do not drive or operate machinery.', 1),
-									(4, 'Warning. Avoid alcoholic drink', 1),
-									(5, 'Do not take indigestion remedies at the same time of the day as this medicine', 1),
-									(6, 'Do not take indigestion remedies or medicines containing Iron or Zinc at the same time of a day as this medicine', 1),
-									(7, 'Do not take milk, indigestion remedies, or medicines containing Iron or Zinc at the same time of day as this medicine', 1),
-									(8, 'Do not stop taking this medicine except on your doctor''s advice', 1),
-									(9, 'Take at regular intervals. Complete the prescribed course unless otherwise directed', 1),
-									(10, 'Warning. Follow the printed instruction you have been given with this medicine', 1),
-									(11, 'Avoid exposure of skin to direct sunlight or sun lamps', 1),
-									(12, 'Do not take anything containing aspirin while taking  this medicine', 1),
-									(13, 'Dissolve or mix with water before taking', 1),
-									(14, 'This medicine may colour the urine', 1),
-									(15, 'Caution flammable: Keep away from fire or flames', 1),
-									(16, 'Allow to dissolve under the tongue. Do not transfer from this container. Keep tightly closed. Discard 8 weeks after opening.', 1),
-									(17, 'Do not take more than??.in 24 hours', 1),
-									(18, 'Do not take more than ?..in 24 hours or?. In any one week', 1),
-									(19, 'Warning. Causes drowsiness which may continue the next day. If affected do not drive or operate machinery. Avoid alcoholic drink', 1),
-									(20, '??..with or after food', 1),
-									(21, '???.half to one hour after food', 1),
-									(22, '????..an hour before food or on an empty stomach', 1),
-									(23, '???.an hour before food or on an empty stomach', 1),
-									(24, '???. sucked or chewed', 1),
-									(25, '??? swallowed whole, not chewed', 1),
-									(26, '???dissolved under the tongue', 1),
-									(27, '????with plenty of water', 1),
-									(28, 'To be spread thinly?..', 1),
-									(29, 'Do not take more than  2 at any one time. Do not take more than 8 in 24 hours', 1),
-									(30, 'Do not take with any other paracetamol products.', 1),
-									(31, 'Contains aspirin and paracetamol. Do not take with any other paracetamol products', 1),
-									(32, 'Contains aspirin', 1),
-									(33, 'contains an apirin-like medicine', 1),
-									(34, 'Avoid a lot of fatty meals together with efavirenz', 1);";
-		$tables['sync_regimen_category']="CREATE TABLE IF NOT EXISTS `sync_regimen_category` (
-										  `id` int(2) NOT NULL AUTO_INCREMENT,
-										  `Name` varchar(50) NOT NULL,
-										  `Active` varchar(2) NOT NULL,
-										  `ccc_store_sp` int(11) NOT NULL DEFAULT '2',
-										  PRIMARY KEY (`id`),
-										  KEY `ccc_store_sp` (`ccc_store_sp`)
-										) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=14;
-										INSERT INTO `sync_regimen_category` (`id`, `Name`, `Active`, `ccc_store_sp`) VALUES
-										(4, 'Adult First Line', '1', 2),
-										(5, 'Adult Second Line', '1', 2),
-										(6, 'Other Adult ART', '1', 2),
-										(7, 'Paediatric First Line', '1', 2),
-										(8, 'Paediatric Second Line', '1', 2),
-										(9, 'Other Pediatric Regimen', '1', 2),
-										(10, 'PMTCT Mother', '1', 2),
-										(11, 'PMTCT Child', '1', 2),
-										(12, 'PEP Adult', '1', 2),
-										(13, 'PEP Child', '', 2);";
-                            $tables['faq'] = "CREATE TABLE IF NOT EXISTS `faq` (
-                                                  `id` int(11) NOT NULL AUTO_INCREMENT,
-                                                  `modules` varchar(100) NOT NULL,
-                                                  `questions` varchar(255) NOT NULL,
-                                                  `answers` varchar(255) NOT NULL,
-                                                  `active` int(5) NOT NULL DEFAULT '1',
-                                                  PRIMARY KEY (`id`)
-                                                ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;";
-
-                            $tables['regimen_category'] = "";
-
-                            $tables['regimen'] = "";
-                            
-
-                            $tables['vw_patient_list']="CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vw_patient_list` AS select `p`.`patient_number_ccc` AS `ccc_number`,`p`.`first_name` AS `first_name`,`p`.`other_name` AS `other_name`,`p`.`last_name` AS `last_name`,`p`.`dob` AS `date_of_birth`,round(((to_days(curdate()) - to_days(`p`.`dob`)) / 360),0) AS `age`,if((round(((to_days(curdate()) - to_days(`p`.`dob`)) / 360),0) >= 14),'Adult','Paediatric') AS `maturity`,`p`.`pob` AS `pob`,if((`p`.`gender` = 1),'MALE','FEMALE') AS `gender`,if((`p`.`pregnant` = 1),'YES','NO') AS `pregnant`,`p`.`weight` AS `current_weight`,`p`.`height` AS `current_height`,`p`.`sa` AS `current_bsa`,`p`.`phone` AS `phone_number`,`p`.`physical` AS `physical_address`,`p`.`alternate` AS `alternate_address`,`p`.`other_illnesses` AS `other_illnesses`,`p`.`other_drugs` AS `other_drugs`,`p`.`adr` AS `drug_allergies`,if((`p`.`tb` = 1),'YES','NO') AS `tb`,if((`p`.`smoke` = 1),'YES','NO') AS `smoke`,if((`p`.`alcohol` = 1),'YES','NO') AS `alcohol`,`p`.`date_enrolled` AS `date_enrolled`,`ps`.`name` AS `patient_source`,`s`.`Name` AS `supported_by`,`rst`.`name` AS `service`,`r1`.`regimen_desc` AS `start_regimen`,`p`.`start_regimen_date` AS `start_regimen_date`,`pst`.`Name` AS `current_status`,if((`p`.`sms_consent` = 1),'YES','NO') AS `sms_consent`,`p`.`fplan` AS `family_planning`,`p`.`tbphase` AS `tbphase`,`p`.`startphase` AS `startphase`,`p`.`endphase` AS `endphase`,if((`p`.`partner_status` = 1),'Concordant',if((`p`.`partner_status` = 2),'Discordant','')) AS `partner_status`,`p`.`status_change_date` AS `status_change_date`,if((`p`.`partner_type` = 1),'YES','NO') AS `disclosure`,`p`.`support_group` AS `support_group`,`r`.`regimen_desc` AS `current_regimen`,`p`.`nextappointment` AS `nextappointment`,(to_days(`p`.`nextappointment`) - to_days(curdate())) AS `days_to_nextappointment`,`p`.`start_height` AS `start_height`,`p`.`start_weight` AS `start_weight`,`p`.`start_bsa` AS `start_bsa`,if((`p`.`transfer_from` <> ''),`f`.`name`,'N/A') AS `transfer_from`,`dp`.`name` AS `prophylaxis` from ((((((((`patient` `p` left join `regimen` `r` on((`r`.`id` = `p`.`current_regimen`))) left join `regimen` `r1` on((`r1`.`id` = `p`.`start_regimen`))) left join `patient_source` `ps` on((`ps`.`id` = `p`.`source`))) left join `supporter` `s` on((`s`.`id` = `p`.`supported_by`))) left join `regimen_service_type` `rst` on((`rst`.`id` = `p`.`service`))) left join `patient_status` `pst` on((`pst`.`id` = `p`.`current_status`))) left join `facilities` `f` on((`f`.`facilitycode` = `p`.`transfer_from`))) left join `drug_prophylaxis` `dp` on((`dp`.`id` = `p`.`drug_prophylaxis`))) where (`p`.`active` = '1');";
-
-                $tables['vw_routine_refill_visit'] = "CREATE OR REPLACE VIEW vw_routine_refill_visit AS
-							    SELECT 
-							    	p.patient_number_ccc AS patient_number,
-							    	rst.name AS type_of_service,
-							    	s.Name AS client_support,
-							    	CONCAT_WS(' ', p.first_name, p.other_name, p.last_name) AS patient_name,
-							    	FLOOR(DATEDIFF(CURDATE(),p.dob)/365) as current_age,
-							    	g.name AS sex,
-							    	CONCAT_WS(' | ', r.regimen_code, r.regimen_desc) AS regimen,
-							    	pv.dispensing_date AS visit_date,
-							    	pv.current_weight AS current_weight,
-							        CASE 
-							        WHEN pv.pill_count > 0 AND (pv.missed_pills - pv.pill_count) >= pv.pill_count THEN 0
-							        WHEN pv.pill_count > 0 AND (pv.missed_pills - pv.pill_count) > 0 THEN ROUND(((pv.missed_pills - pv.pill_count)/pv.pill_count)*100,2)
-							        WHEN pv.missed_pills NOT REGEXP '[0-9]+' OR pv.missed_pills IS NULL THEN '-'
-							        ELSE 100 END AS missed_pill_adherence,
-							        CASE 
-							        WHEN pv.pill_count > 0 AND (pv.months_of_stock - pv.pill_count) >= pv.pill_count THEN 0
-							        WHEN pv.pill_count > 0 AND (pv.months_of_stock - pv.pill_count) > 0 THEN ROUND(((pv.months_of_stock - pv.pill_count)/pv.pill_count)*100,2)
-							        WHEN pv.months_of_stock NOT REGEXP '[0-9]+' OR pv.months_of_stock IS NULL THEN '-'
-							        ELSE 100 END AS pill_count_adherence,
-							        CASE 
-							        WHEN REPLACE(pv.adherence, '%', '') > 100 THEN 100
-							        WHEN REPLACE(pv.adherence, '%', '') < 0 THEN 0
-							        WHEN REPLACE(pv.adherence, '%', '') = 'Infinity' THEN ''
-							        ELSE REPLACE(pv.adherence, '%', '')
-							        END AS appointment_adherence,
-							    	ps.name AS source
-							    FROM patient_visit pv
-							    LEFT JOIN patient p ON p.patient_number_ccc = pv.patient_id
-							    LEFT JOIN regimen_service_type rst ON rst.id = p.service
-							    LEFT JOIN supporter s ON s.id = p.supported_by
-							    LEFT JOIN gender g ON g.id = p.gender
-							    LEFT JOIN regimen r ON r.id = pv.regimen
-							    LEFT JOIN patient_source ps on ps.id = p.source
-							    LEFT JOIN visit_purpose v ON v.id = pv.visit_purpose
-							    WHERE pv.active = 1
-							    AND v.name LIKE '%routine%';";
-
-			$table['vw_patient_pill_adherence'] = "CREATE OR REPLACE VIEW vw_patient_pill_adherence AS
-							    SELECT 
-							        CASE 
-							        WHEN rst.name LIKE '%art%' THEN 'art'
-							        ELSE 'non_art' END AS service,
-							        CASE 
-							        WHEN FLOOR(DATEDIFF(pv.dispensing_date,p.dob)/365) > 24  THEN '>24'
-							        WHEN FLOOR(DATEDIFF(pv.dispensing_date,p.dob)/365) >= 15 AND FLOOR(DATEDIFF(pv.dispensing_date,p.dob)/365) < 25 THEN '15_25'
-							        ELSE '<15' END AS age,
-							        LCASE(g.name) AS gender,
-							        pv.dispensing_date AS visit_date,
-							        CASE 
-							        WHEN pv.pill_count > 0 AND (pv.missed_pills - pv.pill_count) >= pv.pill_count THEN 0
-							        WHEN pv.pill_count > 0 AND (pv.missed_pills - pv.pill_count) > 0 THEN ROUND(((pv.missed_pills - pv.pill_count)/pv.pill_count)*100,2)
-							        WHEN pv.missed_pills NOT REGEXP '[0-9]+' OR pv.missed_pills IS NULL THEN '-'
-							        ELSE 100 END AS missed_pill_adherence,
-							        CASE 
-							        WHEN pv.pill_count > 0 AND (pv.months_of_stock - pv.pill_count) >= pv.pill_count THEN 0
-							        WHEN pv.pill_count > 0 AND (pv.months_of_stock - pv.pill_count) > 0 THEN ROUND(((pv.months_of_stock - pv.pill_count)/pv.pill_count)*100,2)
-							        WHEN pv.months_of_stock NOT REGEXP '[0-9]+' OR pv.months_of_stock IS NULL THEN '-'
-							        ELSE 100 END AS pill_count_adherence
-							    FROM patient_visit pv
-							    LEFT JOIN patient p ON p.patient_number_ccc = pv.patient_id
-							    LEFT JOIN regimen_service_type rst ON rst.id = p.service
-							    LEFT JOIN gender g ON g.id = p.gender
-							    WHERE pv.active = 1
-							    AND p.dob IS NOT NULL
-							    AND g.name IS NOT NULL;";
-
-            foreach($tables as $table=>$statements){
-            if (!$this->db->table_exists($table)){
-            	$statements=explode(";",$statements);
-            	foreach($statements as $statement){
-            		$this->db->query($statement);
-            	}
-		        $count++;
+		$count = 0;
+		$delimeter = "//";
+		$queries_dir  = 'assets/queries';
+		$accepted_files = array('sql');
+		if (is_dir($queries_dir)) {
+			$files = scandir($queries_dir);
+			foreach ($files as $file_name) {
+				$ext = pathinfo($file_name, PATHINFO_EXTENSION);
+				if ($file_name != '.' && $file_name != '..' && in_array($ext, $accepted_files)) {
+					//Get query statements
+					$query_file = $queries_dir . '/' . $file_name;
+					$query_stmt = file_get_contents($query_file);
+					//Execute query statements
+					$statements = explode($delimeter, $query_stmt);
+					foreach($statements as $statement){
+						$statement = trim($statement);
+						if ($statement){
+							if (!$this->db->simple_query($statement))
+							{
+								$error = $file_name.'==>'.$this->db->_error_message().'<br/>';
+								echo $error;
+							}
+						}
+					}
+					$count++;
+				}
 			}
-        }
+		}
 
-        if($count>0){
- 			$message="(".$count.") tables created!<br/>";
-        }
-        return $message;
+        return "(".$count.") rows affected!<br/>";
 	}
 
 	public function update_database_columns(){
@@ -922,6 +780,8 @@ class auto_management extends MY_Controller {
 		$statements['spouses']='ALTER TABLE `spouses` CHANGE `id` `id` INT(11) NOT NULL AUTO_INCREMENT';
 		$statements['dependants']='ALTER TABLE `dependants` CHANGE `id` `id` INT(11) NOT NULL AUTO_INCREMENT';
 		$statements['source_destination'] = "ALTER TABLE  `drug_stock_movement` CHANGE  `Source_Destination`  `Source_Destination` VARCHAR( 50 )";
+		$statements['maps_issynched']="ALTER TABLE `maps` ADD `issynched` varchar(5) NOT NULL DEFAULT 'N'";
+		$statements['maps_item_issynched']="ALTER TABLE `maps_item` ADD `issynched` varchar(5) NOT NULL DEFAULT 'N'";
 		if ($statements) {
 			foreach ($statements as $column => $statement) {
 				if ($statement != null) {
@@ -936,7 +796,7 @@ class auto_management extends MY_Controller {
 	}
    
         //function to download guidelines from the nascop 
-        public function get_guidelines(){
+    public function get_guidelines(){
          $this->load->library('ftp');
 
         $config['hostname'] = $this->ftp_url;
@@ -961,7 +821,7 @@ class auto_management extends MY_Controller {
 	        }
         }
    
-        public function update_system_version(){
+    public function update_system_version(){
 		$url = $this -> nascop_url . "sync/gitlog";
 		$facility_code = $this -> session -> userdata("facility");
 		$hash=Git_Log::getLatestHash();

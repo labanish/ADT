@@ -17,9 +17,13 @@ class User_Facilities extends Doctrine_Record {
 	}
 
 	public function getHydratedFacilityList($user_id) {
+		$data = array();
 		$query = Doctrine_Query::create() -> select("*") -> from("user_facilities") -> where("user_id = '" . $user_id . "'");
 		$rights = $query -> execute(array(), Doctrine::HYDRATE_ARRAY);
-		return $rights[0];
+		if(!empty($rights)){
+			$data = $rights[0];
+		}
+		return $data;
 	}
 
 }

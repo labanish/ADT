@@ -95,7 +95,7 @@
 		<div class="modal-body">	
 			<label>
 			<strong class="label">Drug Source Name</strong>
-			<input type="text" name="source_name" id="source_name" class="input-xlarge" size="30">
+			<input type="text" name="source_name" id="source_name" class="input-xlarge" size="30" required="">
 			</label>
 		</div>
 		<div class="modal-footer">
@@ -119,7 +119,7 @@
 			<label>
 			<strong class="label">Drug Source Name</strong>
 			<input type="hidden" name="source_id" id="edit_source_id" class="input" size="30">
-			<input type="text" name="source_name" id="edit_source_name" class="input-xlarge">
+			<input type="text" name="source_name" id="edit_source_name" class="input-xlarge" required="">
 			</label>
 		</div>
 		<div class="modal-footer">

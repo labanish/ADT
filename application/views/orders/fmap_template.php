@@ -1,9 +1,4 @@
 <?php
-
-// buffer created
-
-ob_start();
-
 if ($facility_object -> supported_by == "1") {
 	$supporter = "GOK";
 }
@@ -32,9 +27,6 @@ if ($facility_object -> service_pep == "1") {
 	}
 
 }
- // flush Buffer
-
-ob_get_clean();
 ?>
 <script type="text/javascript">
 	$(document).ready(function(){
@@ -140,7 +132,7 @@ ob_get_clean();
 					<?php
 				if($options=='view'){
 						echo "<h4>".@$maps_id.' '.@ucfirst($status)."</h4>";
-						echo "<a href='".site_url("order/download_order/maps/".$map_id)."'>".$maps_id." ".$fmaps_array[0]['facility_name']." ".$fmaps_array[0]['period_begin']." to ".$fmaps_array[0]['period_end'].".xls</a><p>";
+						echo "<a href='".site_url("order/download_order/maps/".$map_id)."'>".$maps_id." ".$fmaps_array[0]['facility_name']." ".$fmaps_array[0]['period_begin']." to ".$fmaps_array[0]['period_end'].".xlsx</a><p>";
 						$access_level = $this -> session -> userdata("user_indicator");
 				      	if($access_level=="facility_administrator"){
 					      	if($status=="prepared"){
@@ -213,18 +205,6 @@ ob_get_clean();
 							</td> 
 							<td colspan="2"></td>
 						</tr>
-						
-								<!-- <tr> -->
-									<!-- <th colspan="2">Total Number of Patients on ART ONLY:</th> -->
-									<!-- <td><span>Adults (&gt;15yrs)</span><input type="text"  class="validate[requied] tbl_header_input f_right"  name="art_adult" id="art_adult" readonly="readonly" value="<?php echo @$fmaps_array[0]['art_adult'];?>"/></td> -->
-									<!-- <td><span>Children (&lt;= 15yrs)</span><input type="text" class="validate[requied] tbl_header_input f_right" name="art_child" id="art_child" readonly="readonly" value="<?php echo @$fmaps_array[0]['art_child'];?>"/></td> -->
-								<!-- </tr> -->
-								<!-- <tr><th style="text-align: center" colspan="2">Males</th><th style="text-align: center" colspan="2">Females</th></tr> -->
-								<!-- <tr> -->
-									<!-- <th>New <input type="text"  class="validate[requied] tbl_header_input f_right" name="new_male" id="new_male" value="<?php echo @$fmaps_array[0]['new_male'];?>" /></th> -->
-									<!-- <th>Revisit <input type="text"  class="validate[requied] tbl_header_input f_right" name="revisit_male" id="revisit_male" value="<?php echo @$fmaps_array[0]['new_female'];?>" /></th> -->
-									<!-- <th>New <input type="text"  class="validate[requied] tbl_header_input f_right" name="new_female" id="new_female" value="<?php echo @$fmaps_array[0]['revisit_male'];?>" /></th> -->
-									<!-- <th>Revisit <input type="text"  class="validate[requied] tbl_header_input f_right" name="revisit_female" id="revisit_female" value="<?php echo @$fmaps_array[0]['revisit_female'];?>"/></th>				 -->
 								</tr>
 
 					</tbody>
@@ -276,21 +256,6 @@ ob_get_clean();
 							$regimen_list=array_filter($regimen_array,function($item) use ($category){
 								return $item['name']==$category;
 							});
-							if($supplier=="KEMSA"){
-							foreach($regimen_list as $regimen){
-								?>
-							<tr>
-								<td style="border-right:2px solid #DDD;"><?php echo @$regimen['code'];?></td>
-								<td regimen_id="<?php echo $regimen['reg_id'];?>" class="regimen_desc col_drug"><?php echo @$regimen ['description'];?></td>
-								<td regimen_id="<?php echo $regimen['reg_id'];?>" class="regimen_numbers">
-								<input type="text" class="f_right patient_number" data-cat="<?php echo $cat; ?>" name="patient_numbers[]" id="patient_numbers_<?php echo $regimen['reg_id'];?>" style="text-align: center;" value="<?php echo $regimen['total'];?>" >
-								<input name="patient_regimens[]"class="regimen_list" style="text-align: center; color: blue; font-weight: bold;" value="<?php echo $regimen['reg_id'];?>" type="hidden">
-								<input type="hidden" name="item_id[]" class="item_id"/>
-								</td>
-							</tr>
-							<?php
-							}
-						   }else{
 						   	foreach($regimen_list as $regimen){
 						   	?>
 								<tr>
@@ -304,7 +269,6 @@ ob_get_clean();
 							</tr>
 							<?php	
 						   }
-						   }
 						}
 						else{
 							//Don't display OI regimens
@@ -314,23 +278,6 @@ ob_get_clean();
 							$regimens = $category -> Regimens;
 							$cat = str_replace(' ', '_',$category -> Name);
 						?><tr class="accordion"><th colspan="3" class="reg_cat_name" id="<?php echo $cat; ?>" ><?php echo $category -> Name;?></th></tr><?php
-						 if($supplier=="KEMSA"){
-							foreach($regimens as $regimen){
-								?>
-							<tr>
-								<td style="border-right:2px solid #DDD;"><?php echo $regimen -> code;?>
-									<!--<input type="hidden" name="item_id[]" class="item_id" id="item_id_<?php echo $regimen -> id;?>" value=""/>-->
-								</td>
-								<td regimen_id="<?php echo $regimen -> id;?>" class="regimen_desc col_drug"><?php echo $regimen -> name;?></td>
-								<td regimen_id="<?php echo $regimen -> id;?>" class="regimen_numbers">
-								<input type="text" class="f_right patient_number" data-cat="<?php echo $cat; ?>" name="patient_numbers[]" id="patient_numbers_<?php echo $regimen -> id;?>" >
-								<input name="patient_regimens[]"class="regimen_list" style="text-align: center; color: blue; font-weight: bold;" value="<?php echo $regimen -> id;?>" type="hidden">
-								<input type="hidden" name="item_id[]" class="item_id"/>
-								</td>
-							</tr>
-							<?php
-							}
-						}else{
 							foreach($regimens as $regimen){
 
 								//Checking if the regimens are OI and assigning them the corresponding classes (that is the class that the input field is in, to enable easier calling from js - GT)
@@ -365,7 +312,7 @@ ob_get_clean();
 								</td>
 							</tr>
 						<?php
-						   }}
+						   }
 					   }
 						?>
 					</tbody>
@@ -374,73 +321,6 @@ ob_get_clean();
 					?>
 				</table>
 			</div>
-
-<!--Start of Remove from the maps -->
-
-			<!-- need to Remove the controller that generate the data -->
-
-			<!-- <div class="facility_info_bottom" style="width:100%;">
-				<table class=" table table-bordered ">
-					<tr>
-						<td colspan="3">
-							<strong>List Any Other Regimens</strong><br>
-							<textarea name="other_regimen" id="other_regimen" style="width:100%" value="<?php echo @$fmaps_array[0]['comments'];?>" ></textarea>
-						</td>
-					</tr>
-					<tr>
-						<th>Totals for PMTCT Clients (Pregnant Women ONLY):</th>
-						<td><span>New Clients</span><input type="text"  class="validate[requied] tbl_header_input f_right" name="new_pmtct" id="new_pmtct" value="<?php echo @$fmaps_array[0]['new_pmtct'];?>"  /></td>
-						<td><span>Revisit Clients</span><input type="text"  class="validate[requied] tbl_header_input f_right" name="revisit_pmtct" id="revisit_pmtct" value="<?php echo @$fmaps_array[0]['revisit_pmtct'];?>"  /></td>
-					</tr>
-					<tr>
-						<th colspan="2">Total No. of Infants receiving ARV prophylaxis for PMTCT:</th>
-						<td><input type="text"  class="validate[requied] tbl_header_input f_right" name="total_infant" id="total_infant" value="<?php echo @$fmaps_array[0]['total_infant'];?>" /></td>
-					</tr>
-					<tr>
-						<th>Totals for PEP Clients ONLY:</th>
-						<td><span>Adults (&gt;15yrs)</span><input type="text"  class="validate[requied] tbl_header_input f_right" name="pep_adult" id="pep_adult" value="<?php echo @$fmaps_array[0]['pep_adult'];?>" /></td>
-						<td><span>Children (&lt;=15yrs)</span><input type="text"  class="validate[requied] tbl_header_input f_right" name="pep_child" id="pep_child" value="<?php echo @$fmaps_array[0]['pep_child'];?>" /></td>
-					</tr>
-					<tr>
-						<th>Totals for Patients / Clients (ART plus Non-ART) on Cotrimoxazole/Dapsone prophylaxis:</th>
-						<td><span>Adults (&gt;15yrs)</span><input type="text"  class="validate[requied] tbl_header_input f_right" name="tot_cotr_adult" id="total_adult" value="<?php echo @$fmaps_array[0]['total_adult'];?>" /></td>
-						<td><span>Children (&lt;=15yrs)</span><input type="text"  class="validate[requied] tbl_header_input f_right" name="tot_cotr_child" id="total_child" value="<?php echo @$fmaps_array[0]['total_child'];?>" /></td>
-					</tr>
-					<tr>
-						<th>Totals for Patients / Clients on Diflucan (For Diflucan Donation Program ONLY):</th>
-						<td><span>Adults (&gt;15yrs)</span><input type="text"  class="validate[requied] tbl_header_input f_right" name="diflucan_adult" id="diflucan_adult" value="<?php echo @$fmaps_array[0]['diflucan_adult'];?>" /></td>
-						<td><span>Children (&lt;=15yrs)</span><input type="text"  class="validate[requied] tbl_header_input f_right" name="diflucan_child" id="diflucan_child" value="<?php echo @$fmaps_array[0]['diflucan_child'];?>" /></td>
-					</tr>
-				</table> -->
-	<!-- Second section of remove from MAPS -->
-				<!-- <table class=" table table-bordered ">
-					<tr>
-						<th colspan="2" style="text-align: center">CM</th><th colspan="2" style="text-align: center">OC</th>
-					</tr>
-					<tr>
-						<td>New <input type="text"  class="validate[requied] tbl_header_input f_right" name="new_cm" id="new_cm" value="<?php echo @$fmaps_array[0]['new_cm'];?>" /></td>
-						<td>Revisit <input type="text"  class="validate[requied] tbl_header_input f_right" name="revisit_cm" id="revisit_cm" value="<?php echo @$fmaps_array[0]['revisit_cm'];?>" /></td>
-						<td>New <input type="text"  class="validate[requied] tbl_header_input f_right" name="new_oc" id="new_oc" value="<?php echo @$fmaps_array[0]['new_oc'];?>" /></td>
-						<td>Revisit <input type="text"  class="validate[requied] tbl_header_input f_right" name="revisit_oc" id="revisit_oc" value="<?php echo @$fmaps_array[0]['revisit_oc'];?>" /></td>
-					</tr>
-					<?php
-					if(isset($hide_generate) && $hide_generate==2){
-						?>
-						<tr>
-							<th colspan="4" style="text-align: center">Central site Reporting rate</th>
-						</tr>
-					
-						<tr>
-							<th colspan="2">Total No. of Facility Reports Expected <input type="text"  class="validate[requied] tbl_header_input f_right" name="reports_expected" id="reports_expected" /></th>
-							<th colspan="2">Actual No. of Facility reports Received <input type="text"  class="validate[requied] tbl_header_input f_right" name="reports_actual" id="reports_actual" /></th>
-						</tr>
-						<?php
-					}
-					?>
-				</table> -->
-	<!-- End of second section -->
-
-<!-- End of the Remove section from MAPS -->
 				<?php
 				if($is_view==1 || $is_update==1){
 				?>
@@ -452,13 +332,13 @@ ob_get_clean();
 						<td><b>Report <?php echo $log->description;?> by:</b>
 							<input type="hidden" name="log_id[]" id="log_id_<?php echo $log -> id;?>" value="<?php echo $log -> id;?>"/>
 						</td>
-						<td><?php echo $log->s_user->name; ?></td>
+						<td><?php echo $log->user->Name; ?></td>
 						<td><b>Designation:</b></td>
-						<td><?php echo $log->s_user->role; ?></td>
+						<td><?php echo $log->user->Access->Level_Name; ?></td>
 					</tr>
 					<tr>
 						<td><b>Contact Telephone:</b></td>
-						<td>N/A</td>
+						<td><?php echo $log->user->Phone_Number; ?></td>
 						<td><b>Date:</b></td>
 						<td><?php echo $log->created; ?></td>
 					</tr>
