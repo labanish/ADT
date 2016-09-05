@@ -1,4 +1,4 @@
-CREATE OR REPLACE TABLE `sync_drug` (
+CREATE TABLE IF NOT EXISTS `sync_drug` (
   `id` int(11) UNSIGNED NOT NULL,
   `name` varchar(255) NOT NULL,
   `abbreviation` varchar(255) DEFAULT NULL,
@@ -9,9 +9,11 @@ CREATE OR REPLACE TABLE `sync_drug` (
   `note` varchar(255) DEFAULT NULL,
   `weight` int(4) DEFAULT '999',
   `category_id` int(11) UNSIGNED DEFAULT NULL,
-  `regimen_id` int(11) NOT NULL,
-  `Active` varchar(2) NOT NULL DEFAULT '1'
+  `regimen_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8//
+ALTER TABLE `sync_drug` ADD PRIMARY KEY (`id`)//
+ALTER TABLE `sync_drug` MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=245//
+ALTER TABLE `sync_drug` ADD `Active` varchar(2) NOT NULL DEFAULT '1'//
 INSERT INTO `sync_drug` (`id`, `name`, `abbreviation`, `strength`, `packsize`, `formulation`, `unit`, `note`, `weight`, `category_id`, `regimen_id`) VALUES
 (1, 'Zidovudine/Lamivudine/Nevirapine', 'AZT/3TC/NVP', '300/150/200mg', 60, 'FDC Tabs', '', '', 0, 1, 0),
 (2, 'Zidovudine/Lamivudine', 'AZT/3TC', '300/150mg', 60, 'FDC Tabs', '', '', 0, 1, 0),
@@ -82,5 +84,4 @@ INSERT INTO `sync_drug` (`id`, `name`, `abbreviation`, `strength`, `packsize`, `
 (241, 'Raltegravir Susp', 'RAL', '100mg/5ml', 60, 'Suspension', '', '', 999, 2, 0),
 (242, 'Isoniazid (H)', '', '300mg', 672, 'Tabs', '', '', 999, 1, 0),
 (244, 'Ritonavir', '', '100mg', 60, '', '', '', 999, 1, 0)//
-ALTER TABLE `sync_drug` ADD PRIMARY KEY (`id`)//
-ALTER TABLE `sync_drug` MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=245//
+UPDATE `sync_facility` SET `Active` = '1' WHERE `Active` = ''//
