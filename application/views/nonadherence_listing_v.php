@@ -96,7 +96,7 @@
 			<label>
 				<strong class="label">Non adherence reason</strong>
 				<input type="hidden" name="nonadherence_id" id="nonadherence_id" class="input" >
-				<input type="text" name="nonadherence_name" id="nonadherence_name" class="input-xlarge" >
+				<input type="text" name="nonadherence_name" id="nonadherence_name" class="input-xlarge" required="">
 			</label>
 		</div>
 		<div class="modal-footer">
@@ -120,7 +120,7 @@
 		<label>
 			<strong class="label">Non adherence reason</strong>
 			<input type="hidden" name="nonadherence_id" id="edit_nonadherence_id" class="input" >
-			<input type="text" name="nonadherence_name" id="edit_nonadherence_name" class="input-xlarge" >
+			<input type="text" name="nonadherence_name" id="edit_nonadherence_name" class="input-xlarge" required="">
 		</label>
 		</div>
 		<div class="modal-footer">

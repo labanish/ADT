@@ -282,7 +282,7 @@
                             <input type="text" name="pill_count[]" class="pill_count input-small" readonly="readonly" />
                         </td>
                         <td>
-                            <input type="number" name="next_pill_count[]" class="next_pill_count input-small"qty  />
+                            <input type="number" name="next_pill_count[]" class="next_pill_count input-small" />
                         </td>
                         <td>
                             <input type="number" name="duration[]" class="duration input-small" />
@@ -799,7 +799,7 @@
             $(".drug option").remove();
             $(".drug").append($("<option value='0'>-Select Drug-</option>"));
             $.each(data, function(key, value) {
-                $(".drug").append($("<option value='" + value.id + "'>" + value.drug + "</option>"));
+                $(".drug").append($("<option value='" + value.id + "'  arv_status='"+value.is_arv+"' >" + value.drug + "</option>"));
             });
         });
         request.fail(function(jqXHR, textStatus) {
@@ -850,6 +850,7 @@
         var row = $(this);
         var selected_drug = $(this).val();
         var patient_no = $("#patient").val();
+
         //Check if patient allergic to selected drug
         var _url = "<?php echo base_url() . 'dispensement_management/drugAllergies'; ?>";
         var request = $.ajax({
@@ -1299,6 +1300,12 @@
             }
             if(last_row.find(".qty_disp").hasClass("input_error")&&last_row.find(".qty_disp").val()>stock_at_hand){
                 msg+='<b>'+drug_name + '</b> :  There is a commodity that has a quantity greater than the quantity available<br/>';
+            }
+            if(!last_row.find(".next_pill_count").val() && last_row.find(".drug option:selected").attr('arv_status') == 1){
+                msg+='<b>'+drug_name + '</b> : You have not entered the pill count!<br/>';
+            }
+            if(!last_row.find(".missed_pills ").val() && last_row.find(".drug option:selected").attr('arv_status') == 1){
+                msg+='<b>'+drug_name + '</b> : You have not entered the missed pills!<br/>';
             }
         
         });

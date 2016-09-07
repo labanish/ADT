@@ -84,6 +84,12 @@ class Sync_Facility extends Doctrine_Record {
 		return $sync_facility[0]['category'];
 	}
 
+	public function get_active() {
+		$query = Doctrine_Query::create() -> select("*") -> from("sync_facility") -> where("Active='1'");
+		$sync_facility = $query -> execute(array(), Doctrine::HYDRATE_ARRAY);
+		return $sync_facility;
+	}
+
 }
 ?>
 

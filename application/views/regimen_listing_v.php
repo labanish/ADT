@@ -363,17 +363,17 @@
 			<table>
 				<tr><td><strong class="label">Regimen Code</strong></td>
 					<td><input type="hidden" name="regimen_id" id="regimen_id" class="input" >
-						<input type="text" name="regimen_code" id="regimen_code" class="input-xlarge"></td>
+						<input type="text" name="regimen_code" id="regimen_code" class="input-xlarge" required=""></td>
 					
 				</tr>
 				<tr><td><strong class="label">Description</strong></td>
 					<td>
-						<input type="text" name="regimen_desc" id="regimen_desc" class="input-xlarge"></td>
+						<input type="text" name="regimen_desc" id="regimen_desc" class="input-xlarge" required=""></td>
 					
 				</tr>
 				<tr><td><strong class="label">Category</strong></td>
 					<td>
-						<select class="input-xlarge" id="category" name="category">
+						<select class="input-xlarge" id="category" name="category" required="">
 							<?php
 			foreach($regimen_categories as $regimen_category){
 							?>
@@ -390,7 +390,7 @@
 				<tr>
 					<td><strong class="label">Type of Service</strong></td>
 					<td>
-						<select class="input-xlarge" id="type_of_service" name="type_of_service">
+						<select class="input-xlarge" id="type_of_service" name="type_of_service" required="">
 							<?php 
 								foreach($regimen_service_types as $regimen_service_type){
 								if($access_level!="facility_administrator"){
@@ -493,17 +493,17 @@
 		<table id="regimen_edit_tbl">
 			<tr><td><strong class="label">Regimen Code</strong></td>
 				<td><input type="hidden" name="regimen_id" id="edit_regimen_id" class="input" >
-					<input type="text" name="regimen_code" id="edit_regimen_code" class="input-xlarge"></td>
+					<input type="text" name="regimen_code" id="edit_regimen_code" class="input-xlarge" required=""></td>
 				
 			</tr>
 			<tr><td><strong class="label">Description</strong></td>
 				<td>
-					<input type="text" name="regimen_desc" id="edit_regimen_desc" class="input-xlarge"></td>
+					<input type="text" name="regimen_desc" id="edit_regimen_desc" class="input-xlarge" required=""></td>
 				
 			</tr>
 			<tr><td><strong class="label">Category</strong></td>
 				<td>
-					<select class="input-xlarge" id="edit_category" name="category">
+					<select class="input-xlarge" id="edit_category" name="category" required="">
 						<?php
 		foreach($regimen_categories as $regimen_category){
 						?>
@@ -520,7 +520,7 @@
 			<tr>
 				<td><strong class="label">Type of Service</strong></td>
 				<td>
-					<select class="input-xlarge" id="edit_type_of_service" name="type_of_service">
+					<select class="input-xlarge" id="edit_type_of_service" name="type_of_service" required="">
 						<?php
 		foreach($regimen_service_types as $regimen_service_type){
 						?>

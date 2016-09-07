@@ -81,6 +81,7 @@ class notification_management extends MY_Controller {
 	}
 
 	public function update_notification() {
+		/*
 		ini_set("max_execution_time", "1000000");
 		$this -> load -> library('Curl');
 
@@ -144,6 +145,9 @@ class notification_management extends MY_Controller {
 			}
 		}
 		echo $temp;
+		*/
+		$changelog_link=base_url().'changelog.txt';
+		echo "<li><a href='$changelog_link' target='_blank'><i class='icon-th'></i>System Up to Date</a></li>";
 	}
 
 	public function error_notification($display_array=false) {

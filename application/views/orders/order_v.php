@@ -10,7 +10,7 @@
 <div class="container-fluid">	
 	<!--row for notification and welcome message-->
 	<div class="row-fluid">
-		  <div class="span6">
+		<div class="span12">
 			<?php 
 			if($this->session->flashdata('order_delete')){
 			?>
@@ -34,17 +34,6 @@
 			?>
 		   
 	  	</div>
-		<div class="span5">
-			<label style="float:right;"><i class="icon-user icon-black"></i> <b><?php echo $this->session->userdata("api_user");?> |</b> 
-		  		<div class="dropdown" style="display:inline-block;">
-					<a class="dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-wrench"></i> Updates</a> <strong> |</strong>
-					<ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
-						<li><a id="updates" href="#" class="updater"><i class="icon-refresh"></i> Update Records</a>
-		                <li><a  href="#" class="updater"><i class="icon-download"></i> Update Settings</a>
-					</ul>
-				</div>
-			<a href='<?php echo site_url("order/logout"); ?>'><i class="icon-off"></i> Logout</a></label>
-		</div>
 	</div>
 	<!--row for tabs-->
 	<div class="row-fluid">
@@ -56,20 +45,13 @@
 			<li id="maps_btn">
 				<a  href="#maps">my MAPs</a>
 			</li>
-            <!--ensure it shows when its a central site-->
-            <?php 
-               $facility_type = Facilities::getType($this -> session -> userdata("facility"));
-                if($facility_type > 1 && $supplier_name ==="kemsa"){
-            ?>		
-			<li id="aggregate_btn">
-				<a  href="#aggregate">my Aggregates</a>
+			<li id="templates_btn">
+				<a href="#templates">my TEMPLATEs</a>
 			</li>
-			<?php
-                }
-			?>
 		  </ul>
 		</div>
 	</div>
+
 	<!--row for table and buttons-->
     <div class="row-fluid">
 	<div class="span12">
@@ -96,11 +78,27 @@
 			<?php echo $map_table; ?>
 			</div>
 		</div>
-		<div id="aggregate" class="tab-pane">
-			<div class="menu_container">
-			</div>
-			<div class="aggregate_table table-responsive">
-			  <?php echo $aggregate_table;?>
+		<div id="templates" class="tab-pane">
+			<div class="table-responsive">
+				<span id="test">
+				<div class="span12" style="margin-top:1em;">
+				<h4>CDRR Templates  <i><img class="img-rounded" style="height:30px;" src="<?php echo base_url().'assets/images/excel.jpg';?>"/> </i></h4>
+				<div class="accordion-inner">
+					<a href="<?php echo base_url().'downloads/modern-templates/F-CDRR for Satellite Sites.xlsx';?>"> <i class="icon-download-alt"></i> F-CDRR for Satellite/Standalone Sites.xlsx</a>
+				<div>
+				</div class="accordion-inner">	
+					<a href="<?php echo base_url().'downloads/modern-templates/D-CDRR for Central Sites.xlsx';?>"> <i class="icon-download-alt"></i> D-CDRR for Central Sites.xlsx</a>
+				</div>
+				<h4>MAPS Templates <i><img class="img-rounded" style="height:30px;" src="<?php echo base_url() . 'assets/images/excel.jpg';?>"/> </i></h4>
+				<div class="accordion-inner">
+					<a href="<?php echo base_url().'downloads/modern-templates/F-MAPS for Satellite Sites.xlsx';?>"><i class="icon-download-alt"></i> F-MAPS for Satellite/Standalone Sites.xlsx</a>
+				<div>
+				</div class="accordion-inner">	
+					<a href="<?php echo base_url().'downloads/modern-templates/D-MAPS for Central Sites.xlsx';?>"><i class="icon-download-alt"></i> D-MAPS for Central Sites.xlsx</a>
+				</div>
+				</div>
+				</span>	
+
 			</div>
 		</div>
 	</div>
@@ -129,7 +127,6 @@
 						<?php
 						$options = array();
                          foreach($facilities as $facility){
-                        // 	$options[$facility['facilitycode']]=$facility['name'];
 						?>
 						<option value="<?php echo $facility['facilitycode'];?>"><?php echo 'MFL CODE:'.$facility['facilitycode'].' '.$facility['name'];?></option>
 						<?php 
@@ -151,7 +148,7 @@
 	<div id="excel_upload" style="text-align:center;display: none">
 		<form id='fmImportData' name="frm" method="post" enctype="multipart/form-data" id="frm" action="<?php echo base_url()."order/import_order/cdrr"?>">
 			<p>
-				<input type="file"  name="file[]" size="30" multiple="multiple"  required="required" accept="application/vnd.ms-excel"/>
+				<input type="file"  name="file[]" size="30" multiple="multiple"  required="required" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"/>
 				<input name="btn_save" class="btn" type="submit"  value="Save"  style="width:80px; height:30px;"/>
 			</p>
 		</form>
@@ -265,20 +262,6 @@
 				"bStateSave" : true,
 			});
 			oTable2.fnSort([[1, 'desc']]);
-			
-          //aggregate table
-          	var oTable3 = $('#order_listing_aggregate').dataTable({
-				"bJQueryUI" : true,
-				"sPaginationType" : "full_numbers",
-				"sDom" : '<"H"T<"clear">lfr>t<"F"ip>',
-				"bProcessing" : true,
-				"bServerSide" : false,
-				"bAutoWidth" : false,
-				"bDeferRender" : true,
-				"bInfo" : true,
-				"bStateSave" : true,
-			});
-			oTable3.fnSort([[1, 'desc']]);
 		});
 
 	</script>
@@ -288,38 +271,8 @@
 
 	$(document).ready(function() {
 	  var base_url="<?php echo base_url();?>";
-	  var online = navigator.onLine;
-	  	if(online==true){
-	      $(".updater").show();
-	      //run auto update for orders
-	        update_orders();	
-	      	window.setInterval(function(){
-		     update_orders();	
-	        },900000);
-		  
-	    }else{
-	       $(".updater").hide();
-	    }
-	    
-	  //update function
 	  
-	  $(".updater").click(function(){
-	  	$.blockUI({ message: '<h3><img width="30" height="30" src="<?php echo asset_url().'images/loading_spin.gif' ?>" /> synchronizing...</h3>' }); 
-	  	var type=$(this).attr("id");
-	  	if(type=="updates"){
-	  	  var link=base_url+"order/get_updates";	
-	  	}else{
-	  	  var link=base_url+"order/api_sync";	
-	  	}
-			$.ajax({
-				    url: link,
-				    type: 'POST',
-				    success: function(data) {
-					   window.location = base_url + "order"; 
-				    }
-		    });
-	  });	    
-	    
+	  /*Delete order event*/  
 	  $(".delete_order").live('click',function(event){
 	  		event.preventDefault();
 	  		var href=$(this).attr('href');
@@ -339,31 +292,31 @@
 
 	  });
 	  /*
-	   * Delete order report end
+	   * Tab functionality
 	   */
-		
+
 		$("#cdrr_btn").click(function() {
 			$("#maps_btn").removeClass();
-			$("#aggregate_btn").removeClass();
+			$("#templates_btn").removeClass();
 			$(this).addClass("active");
 			$("#cdrrs").show();
 			$("#maps").hide();
-			$("#aggregate").hide();
+			$("#templates").hide();
 		});
 		$("#maps_btn").click(function() {
 			$("#cdrr_btn").removeClass();
-			$("#aggregate_btn").removeClass();
+			$("#templates_btn").removeClass();
 			$(this).addClass("active");
 			$("#maps").show();
 			$("#cdrrs").hide();
-			$("#aggregate").hide();
+			$("#templates").hide();
 
 		});
-		$("#aggregate_btn").click(function() {
+		$("#templates_btn").click(function() {
 			$("#cdrr_btn").removeClass();
 			$("#maps_btn").removeClass();
 			$(this).addClass("active");
-			$("#aggregate").show();
+			$("#templates").show();
 			$("#maps").hide();
 			$("#cdrrs").hide();
 		});
@@ -381,19 +334,6 @@
 		});
 	});
 	
-	function update_orders(){
-		 var base_url="<?php echo base_url();?>";
-		 var link=base_url+"order/get_updates/1";
-		    $.ajax({
-				    url: link,
-				    type: 'POST',
-				    success: function(data) {
-				       if(data !=2){
-					   window.location = base_url + "order"; 
-					   }
-				    }
-		    });
-	}
 </script>
 <?php
 	if($this->session->userdata("order_go_back")){
@@ -403,12 +343,9 @@
 			<script type="text/javascript">
 				$(document).ready(function(){
 					$("#maps_btn").removeClass();
-					$("#aggregate_btn").removeClass();
 					$(this).addClass("active");
 					$("#maps").hide();
 					$("#maps_wrapper").hide();
-					$("#aggregate").hide();
-					$("#aggregate_wrapper").hide();
 					$("#cdrrs").show();
 					$("#cdrrs_wrapper").show();
 					
@@ -422,12 +359,9 @@
 			<script type="text/javascript">
 					$(document).ready(function(){
 					$("#cdrr_btn").removeClass();
-					$("#aggregate_btn").removeClass();
 					$("#maps_btn").addClass("active");
 					$("#cdrrs").hide();
 					$("#cdrrs_wrapper").css("display","none");
-					$("#aggregate").hide();
-					$("#aggregate_wrapper").hide();
 					$("#maps").show();
 					$("#maps_wrapper").show();
 					
@@ -443,12 +377,9 @@
 		<script type="text/javascript">
 		$(document).ready( function () {
 			$("#maps_btn").removeClass();
-			$("#aggregate_btn").removeClass();
 			$(this).addClass("active");
 			$("#maps").hide();
 			$("#maps_wrapper").hide();
-			$("#aggregate").hide();
-			$("#aggregate_wrapper").hide();
 			$("#cdrrs").show();
 			$("#cdrrs_wrapper").show();
 		});

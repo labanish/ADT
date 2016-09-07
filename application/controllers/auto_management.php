@@ -14,8 +14,8 @@ class auto_management extends MY_Controller {
 	    $dir = realpath($_SERVER['DOCUMENT_ROOT']);
 	    $link = $dir . "\\ADT\\assets\\nascop.txt";
 		$this -> nascop_url = trim(file_get_contents($link));
-		$this -> eid_url="http://viralload.nascop.org/";
-        $this->ftp_url='192.168.133.10';
+		$this -> eid_url = "http://viralload.nascop.org/";
+        $this -> ftp_url = "192.168.133.10";
 
         // off Campus access {should be active at facility level}
         // $this->ftp_url='41.89.6.210';
@@ -44,11 +44,11 @@ class auto_management extends MY_Controller {
 			//function to update patients without current_regimen with last regimen dispensed
 			$message .= $this->update_current_regimen(); 
 			//function to send eid statistics to nascop dashboard
-			$message .= $this->updateEid();
+			//$message .= $this->updateEid();
 			//function to update patient data such as active to lost_to_follow_up	
 			$message .= $this->updatePatientData();
 			//function to update data bugs by applying query fixes
-			$message .= $this->updateFixes();
+			//$message .= $this->updateFixes();
 			//function to get viral load data
 			$message .= $this->updateViralLoad();
 			//function to add new facilities list
@@ -60,14 +60,14 @@ class auto_management extends MY_Controller {
 			//function to set negative batches to zero
 			$message .= $this->setBatchBalance();
 			//function to update hash value of system to nascop
-			$message .= $this->update_system_version();
+			//$message .= $this->update_system_version();
             //function to download guidelines from nascop
-            $message .= $this->get_guidelines();
+            //$message .= $this->get_guidelines();
 			//function to update facility admin that reporting deadline is close
-			$message .= $this->update_reporting();
+			//$message .= $this->update_reporting();
 
 	        //finally update the log file for auto_update 
-	        if ($this -> session -> userdata("curl_error") != 1) {
+	        if ($this -> session -> userdata("curl_error") == '') {
 	        	$sql="UPDATE migration_log SET last_index='$today' WHERE source='auto_update'";
 				$this -> db -> query($sql);
 				$this -> session -> set_userdata("curl_error", "");
@@ -405,7 +405,7 @@ class auto_management extends MY_Controller {
 			
 				foreach ($phone_list as $counter=>$contact) {
 					$message = urlencode($messages_list[$counter]);
-					file("http://41.57.109.242:13000/cgi-bin/sendsms?username=clinton&password=ch41sms&to=$contact&text=$message");
+					//file("http://41.57.109.242:13000/cgi-bin/sendsms?username=clinton&password=ch41sms&to=$contact&text=$message");
 				}
 				$alert = "Patients notified (<b>" . sizeof($phone_list) . "</b>)";
 			}
@@ -459,7 +459,8 @@ class auto_management extends MY_Controller {
 					   FROM patient p
 					   LEFT JOIN patient_status ps ON ps.id=p.current_status
 					   WHERE ps.Name LIKE '%$active%'
-					   AND (DATEDIFF(CURDATE(),nextappointment )) >=$days_to_lost_followup) as p1
+					   AND (DATEDIFF(CURDATE(),nextappointment )) >=$days_to_lost_followup
+					   AND p.status_change_date != CURDATE()) as p1
 					   SET p.current_status = '$state[$lost]'";
 			}
 			
@@ -632,7 +633,7 @@ class auto_management extends MY_Controller {
 		$json_data = curl_exec($ch); 
 		if (empty($json_data)) {
 			$message = "cURL Error: " . curl_error($ch)."<br/>";
-			$this -> session -> set_userdata("curl_error", 1);
+			//$this -> session -> set_userdata("curl_error", 1);
 		} else {
 			$data = json_decode($json_data, TRUE); 
 			$lab_data=$data['posts'];
@@ -739,102 +740,35 @@ class auto_management extends MY_Controller {
 		return $message;
 	}
 	public function update_database_tables(){
-		$count=0;
-		$message="";
-		$tables['dependants'] = "CREATE TABLE dependants(
-									id int(11),
-									parent varchar(30),
-									child varchar(30),
-									PRIMARY KEY (id)
-									);";
-        $tables['spouses']= "CREATE TABLE spouses(
-								id int(11),
-								primary_spouse varchar(30),
-								secondary_spouse varchar(30),
-								PRIMARY KEY (id)
-								);";
-        $tables['drug_instructions']="CREATE TABLE IF NOT EXISTS `drug_instructions` (
-									  `id` int(11) NOT NULL AUTO_INCREMENT,
-									  `name` varchar(255) NOT NULL,
-									  `active` int(11) NOT NULL,
-									  PRIMARY KEY (`id`)
-									) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=35;
-									INSERT INTO `drug_instructions` (`id`, `name`, `active`) VALUES
-									(1, 'Warning. May cause drowsiness', 1),
-									(2, 'Warning. May cause drowsiness. If affected to do not drive or operate machinery.Avoid alcoholic drink', 1),
-									(3, 'Warning. May cause drowsiness. If affected to do not drive or operate machinery.', 1),
-									(4, 'Warning. Avoid alcoholic drink', 1),
-									(5, 'Do not take indigestion remedies at the same time of the day as this medicine', 1),
-									(6, 'Do not take indigestion remedies or medicines containing Iron or Zinc at the same time of a day as this medicine', 1),
-									(7, 'Do not take milk, indigestion remedies, or medicines containing Iron or Zinc at the same time of day as this medicine', 1),
-									(8, 'Do not stop taking this medicine except on your doctor''s advice', 1),
-									(9, 'Take at regular intervals. Complete the prescribed course unless otherwise directed', 1),
-									(10, 'Warning. Follow the printed instruction you have been given with this medicine', 1),
-									(11, 'Avoid exposure of skin to direct sunlight or sun lamps', 1),
-									(12, 'Do not take anything containing aspirin while taking  this medicine', 1),
-									(13, 'Dissolve or mix with water before taking', 1),
-									(14, 'This medicine may colour the urine', 1),
-									(15, 'Caution flammable: Keep away from fire or flames', 1),
-									(16, 'Allow to dissolve under the tongue. Do not transfer from this container. Keep tightly closed. Discard 8 weeks after opening.', 1),
-									(17, 'Do not take more than??.in 24 hours', 1),
-									(18, 'Do not take more than ?..in 24 hours or?. In any one week', 1),
-									(19, 'Warning. Causes drowsiness which may continue the next day. If affected do not drive or operate machinery. Avoid alcoholic drink', 1),
-									(20, '??..with or after food', 1),
-									(21, '???.half to one hour after food', 1),
-									(22, '????..an hour before food or on an empty stomach', 1),
-									(23, '???.an hour before food or on an empty stomach', 1),
-									(24, '???. sucked or chewed', 1),
-									(25, '??? swallowed whole, not chewed', 1),
-									(26, '???dissolved under the tongue', 1),
-									(27, '????with plenty of water', 1),
-									(28, 'To be spread thinly?..', 1),
-									(29, 'Do not take more than  2 at any one time. Do not take more than 8 in 24 hours', 1),
-									(30, 'Do not take with any other paracetamol products.', 1),
-									(31, 'Contains aspirin and paracetamol. Do not take with any other paracetamol products', 1),
-									(32, 'Contains aspirin', 1),
-									(33, 'contains an apirin-like medicine', 1),
-									(34, 'Avoid a lot of fatty meals together with efavirenz', 1);";
-		$tables['sync_regimen_category']="CREATE TABLE IF NOT EXISTS `sync_regimen_category` (
-										  `id` int(2) NOT NULL AUTO_INCREMENT,
-										  `Name` varchar(50) NOT NULL,
-										  `Active` varchar(2) NOT NULL,
-										  `ccc_store_sp` int(11) NOT NULL DEFAULT '2',
-										  PRIMARY KEY (`id`),
-										  KEY `ccc_store_sp` (`ccc_store_sp`)
-										) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=14;
-										INSERT INTO `sync_regimen_category` (`id`, `Name`, `Active`, `ccc_store_sp`) VALUES
-										(4, 'Adult First Line', '1', 2),
-										(5, 'Adult Second Line', '1', 2),
-										(6, 'Other Adult ART', '1', 2),
-										(7, 'Paediatric First Line', '1', 2),
-										(8, 'Paediatric Second Line', '1', 2),
-										(9, 'Other Pediatric Regimen', '1', 2),
-										(10, 'PMTCT Mother', '1', 2),
-										(11, 'PMTCT Child', '1', 2),
-										(12, 'PEP Adult', '1', 2),
-										(13, 'PEP Child', '', 2);";
-                            $tables['faq'] = "CREATE TABLE IF NOT EXISTS `faq` (
-                                                  `id` int(11) NOT NULL AUTO_INCREMENT,
-                                                  `modules` varchar(100) NOT NULL,
-                                                  `questions` varchar(255) NOT NULL,
-                                                  `answers` varchar(255) NOT NULL,
-                                                  `active` int(5) NOT NULL DEFAULT '1',
-                                                  PRIMARY KEY (`id`)
-                                                ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;";
-            foreach($tables as $table=>$statements){
-            if (!$this->db->table_exists($table)){
-            	$statements=explode(";",$statements);
-            	foreach($statements as $statement){
-            		$this->db->query($statement);
-            	}
-		        $count++;
+		$count = 0;
+		$delimeter = "//";
+		$queries_dir  = 'assets/queries';
+		$accepted_files = array('sql');
+		if (is_dir($queries_dir)) {
+			$files = scandir($queries_dir);
+			foreach ($files as $file_name) {
+				$ext = pathinfo($file_name, PATHINFO_EXTENSION);
+				if ($file_name != '.' && $file_name != '..' && in_array($ext, $accepted_files)) {
+					//Get query statements
+					$query_file = $queries_dir . '/' . $file_name;
+					$query_stmt = file_get_contents($query_file);
+					//Execute query statements
+					$statements = explode($delimeter, $query_stmt);
+					foreach($statements as $statement){
+						$statement = trim($statement);
+						if ($statement){
+							if (!$this->db->simple_query($statement))
+							{
+								$error = $file_name.'==>'.$this->db->_error_message().'<br/>';
+							}
+						}
+					}
+					$count++;
+				}
 			}
-        }
+		}
 
-        if($count>0){
- 			$message="(".$count.") tables created!<br/>";
-        }
-        return $message;
+        return "(".$count.") rows affected!<br/>";
 	}
 
 	public function update_database_columns(){
@@ -845,6 +779,8 @@ class auto_management extends MY_Controller {
 		$statements['spouses']='ALTER TABLE `spouses` CHANGE `id` `id` INT(11) NOT NULL AUTO_INCREMENT';
 		$statements['dependants']='ALTER TABLE `dependants` CHANGE `id` `id` INT(11) NOT NULL AUTO_INCREMENT';
 		$statements['source_destination'] = "ALTER TABLE  `drug_stock_movement` CHANGE  `Source_Destination`  `Source_Destination` VARCHAR( 50 )";
+		$statements['maps_issynched']="ALTER TABLE `maps` ADD `issynched` varchar(5) NOT NULL DEFAULT 'N'";
+		$statements['maps_item_issynched']="ALTER TABLE `maps_item` ADD `issynched` varchar(5) NOT NULL DEFAULT 'N'";
 		if ($statements) {
 			foreach ($statements as $column => $statement) {
 				if ($statement != null) {
@@ -859,7 +795,7 @@ class auto_management extends MY_Controller {
 	}
    
         //function to download guidelines from the nascop 
-        public function get_guidelines(){
+    public function get_guidelines(){
          $this->load->library('ftp');
 
         $config['hostname'] = $this->ftp_url;
@@ -884,7 +820,7 @@ class auto_management extends MY_Controller {
 	        }
         }
    
-        public function update_system_version(){
+    public function update_system_version(){
 		$url = $this -> nascop_url . "sync/gitlog";
 		$facility_code = $this -> session -> userdata("facility");
 		$hash=Git_Log::getLatestHash();

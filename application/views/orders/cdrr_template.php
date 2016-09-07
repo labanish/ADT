@@ -35,7 +35,7 @@
          <?php echo $option_links; ?>
         </ul>
 		<label><h2><b><?php echo $cdrr_array[0]['cdrr_label']." ".$cdrr_array[0]['status_name'];?></b></h2></label><br/>
-o		<a href='<?php echo site_url("order/download_order/cdrr/".$cdrr_id);?>'><?php echo $cdrr_array[0]['cdrr_label']." ".$cdrr_array[0]['facility_name']." ".$cdrr_array[0]['period_begin']." to ".$cdrr_array[0]['period_end'].".xls";?></a>
+		<a href='<?php echo site_url("order/download_order/cdrr/".$cdrr_id);?>'><?php echo $cdrr_array[0]['cdrr_label']." ".$cdrr_array[0]['facility_name']." ".$cdrr_array[0]['period_begin']." to ".$cdrr_array[0]['period_end'].".xlsx";?></a>
 		<p></p>
 		<input type="hidden"  id="status" name="status" value="<?php echo strtolower($cdrr_array[0]['status_name']);?>"/>
 		<input type="hidden"  id="created" name="created" value="<?php echo $cdrr_array[0]['created'];?>"/>
@@ -144,7 +144,7 @@ o		<a href='<?php echo site_url("order/download_order/cdrr/".$cdrr_id);?>'><?php
 						</select>			
 						<?php
 						  } 
-						  if($hide_generate !=1){
+						  if($hide_generate !=1 && $hide_btn==0){
 						?>
 
                        	<select class="multiselect" id="stores" name="stores" multiple="multiple">
@@ -437,13 +437,9 @@ o		<a href='<?php echo site_url("order/download_order/cdrr/".$cdrr_id);?>'><?php
 		</div>
 		<div>
 			<span style="vertical-align:bottom;font-size:1.2em;">Comments (Explain ALL Losses and Adjustments):</span>
-			<textarea style="width:100%;font-size:18px;" rows="8" name="comments" id="comments">
-				<?php 
-				  if($options=="update" || $options=="view"){
-					 echo @$cdrr_array[0]['comments'];
-					}
-				 ?>
-			</textarea>
+			<textarea style="width:100%;font-size:18px;" rows="8" name="comments" id="comments"><?php 
+				if($options=="update" || $options=="view") echo @$cdrr_array[0]['comments'];
+			?></textarea>
 			<?php
 	           if($hide_generate==2){
 	        ?>
@@ -467,13 +463,13 @@ o		<a href='<?php echo site_url("order/download_order/cdrr/".$cdrr_id);?>'><?php
 					<td><b>Report <?php echo $log->description;?> by:</b> 
 					<input type="hidden" name="log_id[]" id="log_id_<?php echo $log -> id;?>" value="<?php echo $log -> id;?>"/>	
 					</td>
-					<td><?php echo $log->s_user->name; ?></td>
+					<td><?php echo $log->user->Name; ?></td>
 					<td><b>Designation:</b></td>
-					<td><?php echo $log->s_user->role; ?></td>
+					<td><?php echo $log->user->Access->Level_Name; ?></td>
 				</tr>
 				<tr>
 					<td><b>Contact Telephone:</b></td>
-					<td>N/A</td>
+					<td><?php echo $log->user->Phone_Number; ?></td>
 					<td><b>Date:</b></td>
 					<td><?php echo $log->created; ?></td>
 				</tr>

@@ -181,4 +181,5 @@ class Facilities extends Doctrine_Record {
 		return $facility;
 	}
 
+
 }

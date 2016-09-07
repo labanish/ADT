@@ -1,12 +1,27 @@
+<style type="text/css">
+	.ui-multiselect-menu {
+	    display: none;
+	    margin-left: 15px;
+	    position: static; 
+	    text-align: left;
+	   	zoom: 0.8;
+	}
+
+    .ui-multiselect-header{
+		zoom:0.9;
+	}
+
+</style>
+
 <!-- Modal edit user profile-->
 <div id="edit_user_profile" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-  <form action="<?php echo base_url().'user_management/profile_update' ?>" method="post">
+  <form action="<?php echo base_url().'user_management/profile_update' ?>" method="post" id="profile_update_frm">
   <div class="modal-header">
     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
     <h3 id="myModalLabel">User details</h3>
   </div>
   <div class="modal-body">
-   
+   		<div id="profile_error"></div>
 		<table>
 			<tr>
 
@@ -37,13 +52,24 @@
 					<input style='height:2.1em' type="tel" class="input-large" name="u_phone" id="u_phone" value="<?php echo $this->session->userdata('Phone_Number') ?>"/>
 				</div></td>
 			</tr>
+			<tr>
+				<td>
+					<label>Ordering Sites</label>
+				</td>
+				<td>
+					<span class="add-on"><i class=" icon-chevron-down icon-black"></i></span>
+					<input type="hidden" id="profile_user_facilities_holder" name="profile_user_facilities_holder" />
+					<select name="profile_user_facilities" id="profile_user_facilities" class="input-xlarge" multiple="multiple" required="">
+					</select>
+				</td>
+			</tr>
 		</table>
 	
   </div>
   
   <div class="modal-footer">
     <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
-    <input type="submit" class="btn btn-primary" value="Save changes">
+    <input type="submit" class="btn btn-primary" value="Save changes" id="btn_save_profile_frm">
   </div>
   </form>
 </div>
@@ -178,3 +204,56 @@
 <!-- Submit confirmation ends  maps-->
 
 <!-- Login for escm -->
+
+
+<script type="text/javascript">
+	var sitesURL = "<?php echo base_url().'order_settings/fetch/sync_facility';?>"
+	var userSitesURL = "<?php echo base_url().'user_management/get_sites/'.$this->session->userdata('user_id') ;?>"
+	var profileDiv = '#profile_user_facilities'
+	$(function(){
+	    $.get(sitesURL, function(data) {
+	       	//Parse json to array
+			data = $.parseJSON(data);
+
+			//Append results to selectbox
+			$.each(data, function(i, item) {
+			    $(profileDiv).append($("<option></option>").attr("value", item.id).text(item.name));
+			});
+
+			//Make multiselect
+			$(profileDiv).multiselect().multiselectfilter();
+
+			//Get user ordering sites
+			$.get(userSitesURL, function(data) {
+				//Parse json to array
+				data = $.parseJSON(data);
+
+				//Select user sites
+				$.each(data, function(i, item) {
+					$("select"+profileDiv).multiselect("widget").find(":checkbox[value='"+item+"']").each(function() {
+                       $(this).click();
+                    });
+				});
+			});
+	    });
+
+
+	   $("#btn_save_profile_frm").live('click',function(event){
+			event.preventDefault();
+			//Order sites
+			var profile_user_facilities = $("select#profile_user_facilities").multiselect("getChecked").map(function() {
+					return this.value;
+			}).get();
+			$("#profile_user_facilities_holder").val(profile_user_facilities);
+
+			if ($.trim(profile_user_facilities) ==""){
+				//Display error message
+				$("#profile_error").html("<div class='alert alert-error'><button type='button' class='close' data-dismiss='alert'>&times;</button><strong>Required!</strong> Select Order Sites for user!</div>");
+			}else{
+				//Submit
+				$("#profile_update_frm").submit();
+			}
+		});
+
+	});
+</script>
