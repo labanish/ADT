@@ -1341,7 +1341,7 @@ class Order extends MY_Controller {
 			$sql = "SELECT r.map
 				    FROM regimen r
 				    WHERE(r.regimen_code='$regimen_code'
-				    AND r.regimen_desc='$regimen_desc')";
+				    OR r.regimen_desc='$regimen_desc')";
 			$query = $this -> db -> query($sql);
 			$results = $query -> result_array();
 			if ($results) {
