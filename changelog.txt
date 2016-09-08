@@ -1,0 +1,143 @@
+Version 2.18 10/11/2014
+==============================================
+- Added: Lost to Followup Reporty
+- Added: Ajax Loading for Patient Listing
+- Added: Ajax Loading for Patient Details and Dispensing
+- Fixed: D-CDRR Ordering Bug
+- Fixed: Issued/Received Drug Report
+
+Version 2.17 7/10/2014
+==============================================
+- Added: Changed NASCOP URL
+- Added: Guidelines Summary 
+- Added: Different colors for tabs in reports and inventory
+- Added: Edit Dispensing fixed not showing selected drugs
+- Added: htaccess link .ini variales ssize increased
+- Fixed: ordering links e.g view,update during review status 
+- Fixed: Bincard fix for batches without expiry date
+
+Version 2.16 10/09/2014
+==============================================
+- Added: Manual Auto Update in settings
+- Added: Added an alert box for drug consumption in settings
+- Added: dependent/spouse lost to follow up message
+- Added: changed last regimen label to current regimen
+- Added: when type of service is pep hide prophylaxis
+- Fixed: update for spouses/dependants when ccc_no is changed
+- Fixed: bug for illnesses listing in edit annd patient details
+
+Version 2.15 09/09/2014
+==============================================
+- Added: Graph for patients enrolled chnaged to highcharts,more accurate
+- Added: Add the most recent viral load test on the patient info modal
+- Added: Latest facility master list
+- Added: When dispensing, if patient is no longer pregnant, change type of service to ART
+- Added: Mother to Child Linkage,Add QUESTION Match to parent/guardian in ccc?
+- Added: Concordant Partners linkage,Add Question Match to Spouse in ccc?
+- Added: Isonazid prophylaxis should have start date and end date
+- Added: Adherence report, include 100% to the >=95% group and include the number of days part into the percentage
+- Added: Add Category to TB section 
+(if category 1 then intensive is 3 months & continuation is 112 days, else if category 2 is intensive is 3 months range and continuation 5 months)
+- Fixed: Error listing for no status change should not list transit patients
+- Fixed: Send version of system installed
+- Fixed: 'round' function replaced with 'floor' in dispense controller
+- Fixed: ordering saving to escm
+
+Version 2.14 03/09/2014
+==============================================
+- Added: When dispensing, if patient is no longer pregnant, change type of service to ART
+- Fixed: recheck how age is calculated, round is not working
+- Fixed: Total number of patients on ART only calculation
+
+Version 2.13 -28/08/2014
+==============================================
+-Fixed: Reports: Patient Missing appointment accuracy
+-Fixed: Reports: Visiting patients - List of patients started on a certain period
+-Changed: Auto logout feature disabled 
+-Changed: Password expiry feature disabled
+-Fixed: Error notification tables listing accuracy
+
+Version 2.12 -25/08/2014
+==============================================
+- Fixed: Regimen Drugs Search filter
+- Fixed: CM to be picked from other illnesses in FMAPS
+- Fixed: Bug in Dispensing. Dose when choosing routine refill
+- Fixed: Routine refill for patients
+- Fixed: Inventory Selectt box width
+- Fixed: Aggregate downloads in xlsx format
+- Fixed: adr,other_drugs and other_illnesses tabs bug
+- Fixed: Orders log names replaced with ecsm/nascop users.
+- Added: Ordering directly to escm/nascop
+- Added: Ordering deletion is a soft action
+- Added: Fmaps, Total ART patient numbers to change on change of total patients under regimens
+- Added: Generate PDF for drugs issued transactions
+- Added: Non mapped regimens to be listed in other regimens list on Fmaps
+
+
+Version 2.11 -04/08/2014
+==============================================
+- Fixed: Transit patients are changed status once dispensed
+- Fixed: Maps - Saving of total patients on cotrimo and dapsone
+- Fixed: Running Balance Calculator Bug.
+- Fixed: Reset fields when clicking reset button in dispense
+- Added: New Redirect Updated Patient Record to errors list if updating an error.
+- Added: Calculation of running balance, select drugs to be updated
+- Added: Start ART as purpose of visit, prompt for WHO stage in non existent
+- Added: Routine refill populating previously dispensed drugs
+- Added: Ctrl + F to search for patients and drugs
+- Added: Add facility contacts to appointment sms
+- Added: Viral Load API
+- Added: Reports export All feature
+- Added: Bulk mapping for regimens and drugs
+
+
+Version 2.1 - 23/07/2014
+==============================================
+- Fixed: Merging drugs,regimens on diffferent pages.
+- Added: New Ctrl+F Search for Patients and Commodities
+
+Version 2.0 - 17/07/2013
+==============================================
+- Fixed: Added  Facility Dashboards
+- Added: New Reports Module
+
+Version 1.3 - 04/03/2013
+==============================================
+- Fixed: Adding Dispensing date to new Patients
+- Fixed: Adding Family Planning and other diseases bug saving 'null'
+- Added: Font-size for banner-text reduced to 22px
+- Added: User manual 
+- Added: Patient Scheduled to Visit Phone number/Alternative/Address added and visit status
+- Added: Quick Links
+- Added: Javascript HTML Table filter generator version 2.5 fro reports filtering
+
+Version 1.2 - 03/22/2013
+==============================================
+- Fixed: Footer Margin and Length
+- Fixed: Height for Bin card
+- Fixed: Other illness listing error
+- Added: Styling to Patient Management and inventory datagrid
+- Added: Display of Facility Name in offline pages
+- Added: Image Icons for add patient
+- Added: Year for offline pages from javascript
+- Added: datepicker for expirydate in dispensing
+- Added: UPPERCASE data display for patient management and inventory datagrid
+- Added: Notifier for success of adding patients and drug commodities
+
+
+Version 1.1 - 03/21/2013
+==============================================
+- Fixed: Data sanitization for Lost to follow up,PEP End and PMTCT End
+- Fixed: make sure the appointment date is set
+- Fixed: Synchronization of Drug Stock Movements
+- Fixed: Bug for counting enabled drugcodes
+- Fixed: Display of enabled drug codes on drugcode grid
+- Added: redesign of ADT interfaces to match Access-ADT
+- Added: Start Weight,Height,Body Surface Area,Transfer_From,nextappointment columns in Database
+- Added: Advanced Search for patients and inventory
+- Added: jQuery UI MultiSelect Widget added to handle family planning and other disease listing
+- Added: Synchronization of Non-Adherence Reasons changed from hard-coded reasons
+- Added: Synchronization of all facilitites to local database 
+- Added: Datatables intergration to settings
+
+
