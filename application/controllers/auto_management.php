@@ -64,10 +64,10 @@ class auto_management extends MY_Controller {
             //function to download guidelines from nascop
             //$message .= $this->get_guidelines();
 			//function to update facility admin that reporting deadline is close
-			$message .= $this->update_reporting();
+			//$message .= $this->update_reporting();
 
 	        //finally update the log file for auto_update 
-	        if (!$this -> session -> userdata("curl_error")) {
+	        if ($this -> session -> userdata("curl_error") == '') {
 	        	$sql="UPDATE migration_log SET last_index='$today' WHERE source='auto_update'";
 				$this -> db -> query($sql);
 				$this -> session -> set_userdata("curl_error", "");
@@ -633,7 +633,7 @@ class auto_management extends MY_Controller {
 		$json_data = curl_exec($ch); 
 		if (empty($json_data)) {
 			$message = "cURL Error: " . curl_error($ch)."<br/>";
-			$this -> session -> set_userdata("curl_error", 1);
+			//$this -> session -> set_userdata("curl_error", 1);
 		} else {
 			$data = json_decode($json_data, TRUE); 
 			$lab_data=$data['posts'];
@@ -760,7 +760,6 @@ class auto_management extends MY_Controller {
 							if (!$this->db->simple_query($statement))
 							{
 								$error = $file_name.'==>'.$this->db->_error_message().'<br/>';
-								echo $error;
 							}
 						}
 					}

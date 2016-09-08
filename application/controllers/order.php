@@ -1191,7 +1191,7 @@ class Order extends MY_Controller {
 
 			//Second column
 			for ($i = 14; $i <= 66; $i++) {
-				if (!in_array($i, array(25,32,33,39,43,44,45,46,51,54))) {
+				if (!in_array($i, array(25,32,33,39,43,44,45,46,51,54,61,62,63,64,65,66))) {
 					$regimen_code = $arr[$i]['F'];
 					$regimen_desc = $arr[$i]['G'];
 					$key = $this -> getMappedRegimen($regimen_code, $regimen_desc);
@@ -1338,10 +1338,10 @@ class Order extends MY_Controller {
 
 	public function getMappedRegimen($regimen_code = "", $regimen_desc = "") {
 		if ($regimen_code != "") {
-			$sql = "SELECT r.map
-				    FROM regimen r
-				    WHERE(r.regimen_code='$regimen_code'
-				    AND r.regimen_desc='$regimen_desc')";
+			$sql = "SELECT r.id as map
+				    FROM sync_regimen r
+				    WHERE(r.code='$regimen_code'
+				    OR r.name='$regimen_desc')";
 			$query = $this -> db -> query($sql);
 			$results = $query -> result_array();
 			if ($results) {

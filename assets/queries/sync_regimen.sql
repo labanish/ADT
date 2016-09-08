@@ -1,13 +1,13 @@
-CREATE OR REPLACE TABLE `sync_regimen` (
+CREATE TABLE IF NOT EXISTS `sync_regimen` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
   `code` varchar(5) DEFAULT NULL,
   `old_code` varchar(45) DEFAULT NULL,
   `description` text NOT NULL,
   `category_id` int(11) DEFAULT NULL,
-  `Active` varchar(2) NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8//
+ALTER TABLE `sync_regimen` ADD `Active` varchar(2) NOT NULL DEFAULT '1'//
 INSERT INTO `sync_regimen` (`id`, `name`, `code`, `old_code`, `description`, `category_id`) VALUES
 (1, 'AZT + 3TC + NVP', 'AF1A', '', 'Zidovudine + Lamivudine + Nevirapine', 4),
 (2, 'AZT + 3TC + EFV', 'AF1B', '', 'Zidovudine + Lamivudine + Efavirenz', 4),
@@ -91,28 +91,6 @@ INSERT INTO `sync_regimen` (`id`, `name`, `code`, `old_code`, `description`, `ca
 (240, 'New patients with CM on Diflucan (For Diflucan Donation Program ONLY)', 'CM3N', '', 'Total number of New Patients / Clients on Diflucan - disaggregated by Cryptococcal meningitis (CM)', 21),
 (241, 'Revisit patients with CM on Diflucan (For Diflucan Donation Program ONLY)', 'CM3R', '', 'Total number of Revisit Patients / Clients on Diflucan - disaggregated by Cryptococcal meningitis (CM)', 21),
 (242, 'New patients with OC on Diflucan (For Diflucan Donation Program ONLY)', 'OC3N', '', 'Total number of New Patients / Clients on Diflucan - disaggregated by Oesophageal candidiasis (OC)', 21),
-(243, 'Revisit patients with OC on Diflucan (For Diflucan Donation Program ONLY)', 'OC3R', '', 'Total number of Revisit Patients / Clients on Diflucan - disaggregated by Oesophageal candidiasis (OC)', 21),
-(244, 'AZT + 3TC + NVP', 'AF1A', '', 'AZT + 3TC + NVP\r\n', 4),
-(245, 'AZT + 3TC + EFV', 'AF1B', '', 'Zidovudine + Lamivudine + Efavirenz', 4),
-(246, 'TDF + 3TC + NVP', 'AF2A', '', 'Tenofovir + Lamivudine + Nevirapine', 4),
-(247, 'TDF + 3TC + EFV', 'AF2B', '', 'Tenofovir + Lamivudine + Efavirenz', 4),
-(248, 'd4T + 3TC + NVP', 'AF3A', '', 'Stavudine + Lamivudine + Nevirapine', 4),
-(249, 'd4T + 3TC + EFV', 'AF3B', '', 'Stavudine + Lamivudine + Efavirenz', 4),
-(250, 'NVP OD up to 6 weeks of age for: (i) Infants born of mothers on HAART (Breastfeeding or not); (ii) ALL Non-Breastfeeding infants born of mothers not on HAART', 'PC1', '', 'NVP OD up to 6 weeks of age for: (i) Infants born of mothers on HAART (Breastfeeding or not); (ii) ALL Non-Breastfeeding infants born of mothers not on HAART\r\n', 11),
-(251, 'NVP OD for Breastfeeding Infants until 1 week after complete cessation of Breastfeeding ', 'PC2', '', 'NVP OD for Breastfeeding Infants until 1 week after complete cessation of Breastfeeding \r\n', 11),
-(252, 'PMTCT HAART: AZT + 3TC + NVP', 'PM3', '', 'PMTCT HAART: AZT + 3TC + NVP\r\n', 10),
-(253, 'PMTCT HAART: AZT + 3TC + EFV', 'PM4', '', 'PMTCT HAART: AZT + 3TC + EFV\r\n', 10),
-(254, 'PMTCT HAART: AZT + 3TC + LPV/r', 'PM5', '', 'PMTCT HAART: AZT + 3TC + LPV/r\r\n', 10),
-(255, 'AZT + 3TC + NVP', 'CF1A', '', 'AZT + 3TC + NVP\r\n', 7),
-(256, 'AZT + 3TC + EFV', 'CF1B', '', 'AZT + 3TC + EFV\r\n', 7),
-(257, 'AZT + 3TC + LPV/r', 'CF1C', '', 'AZT + 3TC + LPV/r\r\n', 7),
-(258, 'ABC + 3TC + NVP', 'CF2A', '', 'ABC + 3TC + NVP\r\n', 7),
-(259, 'ABC + 3TC + EFV', 'CF2B', '', 'ABC + 3TC + EFV\r\n', 7),
-(260, 'ABC + 3TC + LPV/r', 'CF2D', '', 'ABC + 3TC + LPV/r\r\n', 7),
-(261, 'AZT + 3TC + LPV/r', 'CS1A', '', 'AZT + 3TC + LPV/r\r\n', 8),
-(262, 'ABC + 3TC + LPV/r', 'CS2A', '', 'ABC + 3TC + LPV/r\r\n', 8),
-(263, 'AZT + 3TC + ATV/r', 'AS1B', '', 'AZT + 3TC + ATV/r', 5),
-(264, 'TDF + 3TC + ATV/r', 'AS2C', '', 'TDF + 3TC + ATV/r', 5),
-(265, 'AZT 300mg BD (from week 14 to Delivery); then NVP 200mg stat + AZT 600mg stat (or 300mg BD) + 3TC 150mg BD during labour; then 1 tab of AZT/3TC 300mg/150mg BD for ONE week post-partum', 'PM1', '', 'PMTCT for the mother: Zidovudine 300mg BD (from week 14 to Delivery); then Nevirapine 200mg stat + Zidovudine 600mg stat (or 300mg BD) + Lamivudine 150mg BD during labour; then 1 tab of Zidovudine/Lamivudine 300mg/150mg BD for ONE week post-partum', 10),
-(266, 'AZT + 3TC + LPV/r ', 'AS1A', '', 'Zidovudine + Lamivudine + Lopinavir/Ritonavir\r\n', 5),
-(267, 'TDF + 3TC + LPV/r', 'AS2A', '', 'Tenofovir + Lamivudine + Lopinavir/Ritonavir\r\n', 5)//
+(243, 'Revisit patients with OC on Diflucan (For Diflucan Donation Program ONLY)', 'OC3R', '', 'Total number of Revisit Patients / Clients on Diflucan - disaggregated by Oesophageal candidiasis (OC)', 21)//
+DELETE FROM `sync_regimen` WHERE id > 243 AND id < 268//
+UPDATE `sync_regimen_category` SET `Active` = '1' WHERE `Active` = ''//

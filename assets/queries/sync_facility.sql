@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS `sync_facility` (
   `affiliate_organization_id` int(11) UNSIGNED DEFAULT NULL,
    PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8//
+ALTER TABLE `sync_facility` ADD `Active` varchar(2) NOT NULL DEFAULT '1'//
 INSERT INTO `sync_facility` (`id`, `name`, `code`, `category`, `sponsors`, `services`, `manager_id`, `district_id`, `address_id`, `parent_id`, `ordering`, `affiliation`, `service_point`, `county_id`, `hcsm_id`, `keph_level`, `location`, `affiliate_organization_id`) VALUES
 (2, 'Maseno Mission Hospital', '13781', 'standalone', 'PEPFAR', 'ART,PMTCT,PEP,LAB,RTK', 895, 29, 146, NULL, 1, 'mission', 0, 17, NULL, 'Level 1', 'North West Kisumu', 2),
 (3, 'Zombe (AIC) Dispensary', '12860', 'satellite', '', '', 828, 73, 579, 102, 0, 'mission', 0, 18, NULL, 'Not Classified', '', 0),
@@ -2314,5 +2315,4 @@ INSERT INTO `sync_facility` (`id`, `name`, `code`, `category`, `sponsors`, `serv
 (2405, 'Mbaka Oromo', '20199', 'satellite', 'PEPFAR', 'ART', NULL, 94, 2403, 423, 0, '', 1, 17, NULL, 'Not Classified', '', 43),
 (2406, 'Mainga Dispensary', '21208', 'satellite', 'PEPFAR', 'ART', NULL, 94, 2404, 423, 1, '', 1, 17, NULL, 'Not Classified', '', 0),
 (2407, 'SOS childrens Home (Kisumu)', '20836', 'standalone', '', 'ART', NULL, 94, 2405, 423, 1, 'public', 1, 17, NULL, 'Not Classified', '', 1)//
-ALTER TABLE `sync_facility` ADD IF NOT EXISTS `Active` varchar(2) NOT NULL DEFAULT '1'//
-UPDATE `sync_facility` SET `Active` = '1' WHERE `Active` IS NULL//
+UPDATE `sync_facility` SET `Active` = '1' WHERE `Active` = ''//
