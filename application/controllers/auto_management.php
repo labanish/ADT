@@ -781,6 +781,7 @@ class auto_management extends MY_Controller {
 		$statements['source_destination'] = "ALTER TABLE  `drug_stock_movement` CHANGE  `Source_Destination`  `Source_Destination` VARCHAR( 50 )";
 		$statements['maps_issynched']="ALTER TABLE `maps` ADD `issynched` varchar(5) NOT NULL DEFAULT 'N'";
 		$statements['maps_item_issynched']="ALTER TABLE `maps_item` ADD `issynched` varchar(5) NOT NULL DEFAULT 'N'";
+		$statements['cdrr_item_adjustments_neg']="ALTER TABLE `cdrr_item` ADD `adjustments_neg` INT(11) NULL AFTER `adjustments`";
 		if ($statements) {
 			foreach ($statements as $column => $statement) {
 				if ($statement != null) {
