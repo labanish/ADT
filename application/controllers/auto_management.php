@@ -642,16 +642,31 @@ class auto_management extends MY_Controller {
 				   $ccc_no=trim($tests['Patient']);
 				   $result=$tests['Result'];
 				   $date_tested=$tests['DateTested'];
-				   $patient_tests[$ccc_no][]=array('date_tested'=>$date_tested,'result'=>$result);
+					//An array to store patient viral Load data 
+				   $viral_load_data = array(
+						'patient_ccc_number' => $ccc_no,
+						'test_date' => $date_tested,
+						'result' => $result
+					);
+				   	//inserting into patient_viral_load table  
+				   $insert=$this->db->insert('patient_viral_load', $viral_load_data);
+				   if($insert){
+				   	  $message="Viral Load data stored successfully into the database<br/>"; }
+				   else{
+  					  $message="Viral Load data not stored successfully into the database<br/>";
+				   }
                 }
 			}
+
 		    $message="Viral Load Download Success!<br/>";
 		}
-		curl_close($ch);
+		
+		//$this->db->insert('students', $patient_tests);
         //write to file
+        /*curl_close($ch);
 		$fp = fopen('assets/viral_load.json', 'w');
 		fwrite($fp, json_encode($patient_tests,JSON_PRETTY_PRINT));
-		fclose($fp);
+		fclose($fp);*/
 		return $message;
 	}
 
