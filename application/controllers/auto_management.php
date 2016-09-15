@@ -642,26 +642,32 @@ class auto_management extends MY_Controller {
 				   $ccc_no=trim($tests['Patient']);
 				   $result=$tests['Result'];
 				   $date_tested=$tests['DateTested'];
+				   $justification="justification";
 					//An array to store patient viral Load data 
-				   $viral_load_data = array(
+				   $viral_load_data[] = array(
 						'patient_ccc_number' => $ccc_no,
 						'test_date' => $date_tested,
 						'result' => $result
 					);
+				  	 $sql = "CALL proc_check_viral_load(?,?,?,?)";
+        			$parameters = array($ccc_no,$date_tested, $result, $justification);
+       				 $query = $this->db->query($sql, $parameters);
+
+				   //$this->db->query("call proc_check_viral_load(".$ccc_no.",".$date_tested.","$result.","$justification.")");
 				   	//inserting into patient_viral_load table  
-				   $insert=$this->db->insert('patient_viral_load', $viral_load_data);
-				   if($insert){
-				   	  $message="Viral Load data stored successfully into the database<br/>"; }
-				   else{
-  					  $message="Viral Load data not stored successfully into the database<br/>";
-				   }
+				   //$insert=$this->db->insert('patient_viral_load', $viral_load_data);
+				  // if($insert){
+				   	  //$message="Viral Load data stored successfully into the database<br/>"; }
+				   //else{
+  					  //$message="Viral Load data not stored successfully into the database<br/>";
+				   //}
                 }
 			}
 
 		    $message="Viral Load Download Success!<br/>";
 		}
 		
-		//$this->db->insert('students', $patient_tests);
+		
         //write to file
         /*curl_close($ch);
 		$fp = fopen('assets/viral_load.json', 'w');
@@ -669,7 +675,17 @@ class auto_management extends MY_Controller {
 		fclose($fp);*/
 		return $message;
 	}
+public function get_viral_load(){
+			$this->db->select('*');
+        	$this->db->from('patient_viral_load');
+        	$query = $this->db->get();
+        	$result = $query->result();
+        	echo "<pre>";
+        	print_r($result);
+        	echo "</pre>";
+        	json_encode($result);
 
+		}
 	public function updateFacilties(){
 		$total=Facilities::getTotalNumber();
 		$message="";
