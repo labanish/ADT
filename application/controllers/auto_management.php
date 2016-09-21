@@ -677,20 +677,6 @@ public function get_viral_load($patient_no){
 
         	$query = $this->db->get();
         	$result = $query->result_array();
-        	/*foreach ($result as $results) {
-        		$pccc= $results['patient_ccc_number'];
-        		$test=$results['test_date'];
-        		$re= $results['result'];
-        		$just=$results['justification'];
-        		//die();
-        	
-        		$viralload[$pccc]= array('test_date' =>$test, 'result' =>$re ,'justification' =>$just);
-        		
-        	}
-        	/*echo "<pre>";
-        	print_r($viralload);
-        	echo "</pre>";*/
-        
         	echo json_encode($result);
 
 		}
