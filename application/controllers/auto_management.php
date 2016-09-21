@@ -644,11 +644,6 @@ class auto_management extends MY_Controller {
 				   $date_tested=$tests['DateTested'];
 				   $justification="justification";
 					//An array to store patient viral Load data 
-				   $viral_load_data[] = array(
-						'patient_ccc_number' => $ccc_no,
-						'test_date' => $date_tested,
-						'result' => $result
-					);
 				  	 $sql = "CALL proc_check_viral_load(?,?,?,?)";
         			$parameters = array($ccc_no,$date_tested, $result, $justification);
        				 $query = $this->db->query($sql, $parameters);
@@ -675,15 +670,28 @@ class auto_management extends MY_Controller {
 		fclose($fp);*/
 		return $message;
 	}
-public function get_viral_load(){
+public function get_viral_load($patient_no){
 			$this->db->select('*');
+			$this->db->where('patient_ccc_number', $patient_no);
         	$this->db->from('patient_viral_load');
+
         	$query = $this->db->get();
-        	$result = $query->result();
-        	echo "<pre>";
-        	print_r($result);
-        	echo "</pre>";
-        	json_encode($result);
+        	$result = $query->result_array();
+        	/*foreach ($result as $results) {
+        		$pccc= $results['patient_ccc_number'];
+        		$test=$results['test_date'];
+        		$re= $results['result'];
+        		$just=$results['justification'];
+        		//die();
+        	
+        		$viralload[$pccc]= array('test_date' =>$test, 'result' =>$re ,'justification' =>$just);
+        		
+        	}
+        	/*echo "<pre>";
+        	print_r($viralload);
+        	echo "</pre>";*/
+        
+        	echo json_encode($result);
 
 		}
 	public function updateFacilties(){

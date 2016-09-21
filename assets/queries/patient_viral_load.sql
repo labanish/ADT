@@ -3,4 +3,4 @@ CREATE TABLE IF NOT EXISTS patient_viral_load(
 	test_date date,
 	result varchar(30),
 	justification varchar(30)
-)
+)//

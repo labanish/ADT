@@ -562,6 +562,7 @@
                     <tr>
                         <th>Date Tested</th>
                         <th>Result</th>
+                        <th>Justification</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -571,8 +572,9 @@
                 </tbody>
                 <tfoot>
                     <tr>
-                        <th>Date Tested</th>
+                     <th>Date Tested</th>
                         <th>Result</th>
+                        <th>Justification</th>
                     </tr>
                 </tfoot>
             </table>
