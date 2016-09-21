@@ -209,41 +209,28 @@ function sanitizeForm(){
 
 function getViralLoad(){
  	var patient_no = $("#patient_number_ccc").val();
- 	var link = base_url +"assets/viral_load.json";
+ 	var link = base_url +"auto_management/get_viral_load/"+patient_no;
+ 	
+ 	//console.log(link);
+ 		$.ajax({
+	    url: link,
+	    type: 'POST',
+	    success: function(data) {	
+	    	var table='';
+	    	
+	    	var decoded_tble = JSON.parse(data);
+	    	var justification = decoded_tble[0].justification;
+	    	// var justification = decoded_tble.justification;
+	    	var patient_ccc_number = decoded_tble[0].patient_ccc_number;
+	    	var result = decoded_tble[0].result;
+	    	var test_date = decoded_tble[0].test_date;
 
- 	$.getJSON( link ,function( data ){
-        var table='';
-        if(data.length !=0){
-        	patient_no = patient_no.toString().trim();
-	        viral_data = data[patient_no]; 
-            $.each(viral_data,function(i,v){
-                table+='<tr><td>'+v.date_tested+'</td><td>'+v.result+'</td></tr>';
-            });
-        }
-        $("#viral_load_data tbody").empty();
-    	$("#viral_load_data tbody").append(table);
- 	});
-
-}
-
-function get_viral_result(ccc_no){
-	ccc_no = ccc_no.toString().trim();
-	data_source=base_url+"assets/viral_load.json";
-	$("#viral_load_date").text('N/A');
-	$("#viral_load_result").text('N/A');
-	$.get(data_source,function(data){
-		if(data.length !=0){
-			data_length=data[ccc_no].length; 
-			if(data_length >0){
-				$.each(data[ccc_no],function(key,val) {
-				    if(key==(data_length-1)){  
-				    	$("#viral_load_date").text(val.date_tested);
-			            $("#viral_load_result").text(val.result);   
-			        }      
-			    });	
-			}
-		}
-	});
+	    	console.log(justification);
+	    	table+='<tr><td>'+test_date+'</td><td>'+result+'</td><td>'+justification+'</td></tr>';
+	    	$("#viral_load_data tbody").empty();
+    		$("#viral_load_data tbody").append(table);
+	    }
+	});	
 }
  
 function getDispensing(){

@@ -642,19 +642,35 @@ class auto_management extends MY_Controller {
 				   $ccc_no=trim($tests['Patient']);
 				   $result=$tests['Result'];
 				   $date_tested=$tests['DateTested'];
-				   $patient_tests[$ccc_no][]=array('date_tested'=>$date_tested,'result'=>$result);
-                }
+				   $justification="justification";
+					//An array to store patient viral Load data 
+				  	 $sql = "CALL proc_check_viral_load(?,?,?,?)";
+        			$parameters = array($ccc_no,$date_tested, $result, $justification);
+       				 $query = $this->db->query($sql, $parameters);
+               }
 			}
+
 		    $message="Viral Load Download Success!<br/>";
 		}
-		curl_close($ch);
+		
+		
         //write to file
+        /*curl_close($ch);
 		$fp = fopen('assets/viral_load.json', 'w');
 		fwrite($fp, json_encode($patient_tests,JSON_PRETTY_PRINT));
-		fclose($fp);
+		fclose($fp);*/
 		return $message;
 	}
+public function get_viral_load($patient_no){
+			$this->db->select('*');
+			$this->db->where('patient_ccc_number', $patient_no);
+        	$this->db->from('patient_viral_load');
 
+        	$query = $this->db->get();
+        	$result = $query->result_array();
+        	echo json_encode($result);
+
+		}
 	public function updateFacilties(){
 		$total=Facilities::getTotalNumber();
 		$message="";
