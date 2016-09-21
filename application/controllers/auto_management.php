@@ -6,29 +6,23 @@ class auto_management extends MY_Controller {
 	var $viral_load_url="";
 	function __construct() {
 		parent::__construct();
-
 		ini_set("max_execution_time", "100000");
 		ini_set("memory_limit", '2048M');
 		ini_set("allow_url_fopen", '1');
-
 	    $dir = realpath($_SERVER['DOCUMENT_ROOT']);
 	    $link = $dir . "\\ADT\\assets\\nascop.txt";
 		$this -> nascop_url = trim(file_get_contents($link));
 		$this -> eid_url = "http://viralload.nascop.org/";
         $this -> ftp_url = "192.168.133.10";
-
         // off Campus access {should be active at facility level}
         // $this->ftp_url='41.89.6.210';
 	}
-
 	public function index($manual=FALSE){
 		$message ="";
 		$today = (int)date('Ymd');
-
 		//get last update time of log file for auto_update
 		$log=Migration_Log::getLog('auto_update');
 		$last_update = (int)$log['last_index'];
-
 		//if not updated today
 		if ($today != $last_update || $manual==TRUE) {
 			//Function to create stored procedures
@@ -65,7 +59,6 @@ class auto_management extends MY_Controller {
             //$message .= $this->get_guidelines();
 			//function to update facility admin that reporting deadline is close
 			//$message .= $this->update_reporting();
-
 	        //finally update the log file for auto_update 
 	        if ($this -> session -> userdata("curl_error") == '') {
 	        	$sql="UPDATE migration_log SET last_index='$today' WHERE source='auto_update'";
@@ -73,7 +66,6 @@ class auto_management extends MY_Controller {
 				$this -> session -> set_userdata("curl_error", "");
 			} 
 	    }
-
 	    if($manual==TRUE){
           	$message="<div class='alert alert-info'><button type='button' class='close' data-dismiss='alert'>&times;</button>".$message."</div>";
 	    }
@@ -87,7 +79,6 @@ class auto_management extends MY_Controller {
 				FROM  `drug_stock_movement` 
 				WHERE drug =0 AND batch_number!=''
 				ORDER BY  `drug_stock_movement`.`drug` ";
-
 		$query = $this -> db -> query($sql);
 		$res = $query -> result_array();
 		$counter = 0;
@@ -121,7 +112,6 @@ class auto_management extends MY_Controller {
 				FROM  `patient_visit` 
 				WHERE drug_id =0 AND batch_number!=''
 				ORDER BY  `patient_visit`.`drug_id` ";
-
 		$query = $this -> db -> query($sql);
 		$res = $query -> result_array();
 		$counter = 0;
@@ -197,14 +187,13 @@ class auto_management extends MY_Controller {
         $this->db->query($sql);
         $count=$this->db->affected_rows();
         $message="(".$count.") transactions changed from main pharmacy to main store!<br/>";
-
         if($count<=0){
 			$message="";
 		}
 		return $message;
 	}
 	
-	public function setBatchBalance(){//Set batch balance to zero where balance is negative
+	public function setBatchBalance(){
 		$facility_code=$this->session->userdata("facility");
 		$sql="UPDATE drug_stock_balance dsb
 		      SET dsb.balance=0
@@ -213,7 +202,6 @@ class auto_management extends MY_Controller {
         $this->db->query($sql);
         $count=$this->db->affected_rows();
         $message="(".$count.") batches with negative balance have been updated!<br/>";
-
         if($count<=0){
 			$message="";
 		}
@@ -279,7 +267,6 @@ class auto_management extends MY_Controller {
 		$results = $query -> result_array();
 		if($results){
 			$json_data = json_encode($results, JSON_PRETTY_PRINT);
-
 			$ch = curl_init();
 			curl_setopt($ch, CURLOPT_URL, $url);
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -303,7 +290,6 @@ class auto_management extends MY_Controller {
 		$facility_name=$this -> session -> userdata('facility_name');
 		$facility_phone=$this->session->userdata("facility_phone");
 		$facility_sms_consent=$this->session->userdata("facility_sms_consent");
-
 		if($facility_sms_consent==TRUE){
 			/* Find out if today is on a weekend */
 			$weekDay = date('w');
@@ -312,9 +298,7 @@ class auto_management extends MY_Controller {
 			} else {
 				$tommorrow = date('Y-m-d', strtotime('+1 day'));
 			}
-
 			$nextweek=date('Y-m-d', strtotime('+1 week'));
-
 			$phone_minlength = '8';
 			$phone = "";
 			$phone_list = "";
@@ -322,7 +306,6 @@ class auto_management extends MY_Controller {
 			$first_part = "";
 			$kenyacode = "254";
 			$arrDelimiters = array("/", ",", "+");
-
 			/*Get All Patient Who Consented Yes That have an appointment Tommorow */
 			$sql = "SELECT p.phone,p.patient_number_ccc,p.nextappointment,temp.patient,temp.appointment,temp.machine_code as status,temp.id
 						FROM patient p
@@ -336,11 +319,9 @@ class auto_management extends MY_Controller {
 						AND char_length(p.phone)>$phone_minlength
 						AND temp.machine_code !='s'
 						GROUP BY p.patient_number_ccc";
-
 			$query = $this -> db -> query($sql);
 			$results = $query -> result_array();
 			$phone_data=array();
-
 			if ($results) {
 				foreach ($results as $result) {
 					$phone = $result['phone'];
@@ -348,7 +329,6 @@ class auto_management extends MY_Controller {
 					$newphone = substr($phone, -$phone_minlength);
 					$first_part = str_replace($newphone, "", $phone);
 					$message = "You have an Appointment on " . date('l dS-M-Y', strtotime($appointment)) . " at $facility_name Contact Phone: $facility_phone";
-
 					if (strlen($first_part) < 7) {
 						if ($first_part === '07') {
 							$phone = "+" . $kenyacode . substr($phone, 1);
@@ -364,12 +344,10 @@ class auto_management extends MY_Controller {
 							$phone_list .= $phone;
 							$messages_list .= "+" .$message;
 						}
-
 					} else {
 						/*If Phone Does not meet requirements*/
 						$phone = str_replace($arrDelimiters, "-|-", $phone);
 						$phones = explode("-|-", $phone);
-
 						foreach ($phones as $phone) {
 							$newphone = substr($phone, -$phone_minlength);
 							$first_part = str_replace($newphone, "", $phone);
@@ -399,7 +377,6 @@ class auto_management extends MY_Controller {
 				}
 				$phone_list = substr($phone_list, 1);
 				$messages_list = substr($messages_list, 1);
-
 				$phone_list = explode("+", $phone_list);
 			    $messages_list = explode("+", $messages_list);
 			
@@ -426,7 +403,6 @@ class auto_management extends MY_Controller {
 		$adult_days = $days_in_year * $adult_age;
 		$message = "";
 		$state = array();
-
 		//Get Patient Status id's
 		$status_array = array($active, $lost, $pep, $pmtct);
 		foreach ($status_array as $status) {
@@ -439,7 +415,6 @@ class auto_management extends MY_Controller {
                             $state[$status]='NAN'; //If non existant
                         }	
 		}
-
 		if(!empty($state)){
 			/*Change Last Appointment to Next Appointment*/
 			$sql['Change Last Appointment to Next Appointment'] = "(SELECT patient_number_ccc,nextappointment,temp.appointment,temp.patient
@@ -452,7 +427,6 @@ class auto_management extends MY_Controller {
 						AND DATEDIFF(temp.appointment,p.nextappointment)>0
 						GROUP BY p.patient_number_ccc) as p1
 						SET p.nextappointment=p1.appointment";
-
 			/*Change Active to Lost_to_follow_up*/
 			if(isset($state[$lost])){
 				$sql['Change Active to Lost_to_follow_up'] = "(SELECT patient_number_ccc,nextappointment,DATEDIFF(CURDATE(),nextappointment) as days
@@ -474,7 +448,6 @@ class auto_management extends MY_Controller {
 					   SET p.current_status = '$state[$active]' ";
 			}
 			
-
 			/*Change Active to PEP End*/
 			if(isset($state[$pep])){
 				$sql['Change Active to PEP End'] = "(SELECT patient_number_ccc,rst.name as Service,ps.Name as Status,DATEDIFF(CURDATE(),date_enrolled) as days_enrolled
@@ -487,7 +460,6 @@ class auto_management extends MY_Controller {
 					   SET p.current_status = '$state[$pep]' ";
 			}
 			
-
 			/*Change PEP End to Active*/
 			if(isset($state[$active])){
 				$sql['Change PEP End to Active'] = "(SELECT patient_number_ccc,rst.name as Service,ps.Name as Status,DATEDIFF(CURDATE(),date_enrolled) as days_enrolled
@@ -500,7 +472,6 @@ class auto_management extends MY_Controller {
 					   SET p.current_status = '$state[$active]' ";
 			}
 			
-
 			/*Change Active to PMTCT End(children)*/
 			if(isset($state[$pmtct])){
 				$sql['Change Active to PMTCT End(children)'] = "(SELECT patient_number_ccc,rst.name AS Service,ps.Name AS Status,DATEDIFF(CURDATE(),dob) AS days
@@ -514,7 +485,6 @@ class auto_management extends MY_Controller {
 					   SET p.current_status = '$state[$pmtct]'";
 			}
 			
-
 			/*Change PMTCT End to Active(Adults)*/
 			if(isset($state[$active])){
 				$sql['Change PMTCT End to Active(Adults)'] = "(SELECT patient_number_ccc,rst.name AS Service,ps.Name AS Status,DATEDIFF(CURDATE(),dob) AS days
@@ -583,7 +553,6 @@ class auto_management extends MY_Controller {
 		$fixes[]="UPDATE drug_instructions 
 				  SET name=REPLACE(name, '?', '.')
 				  WHERE name LIKE '%?%'";
-
 		$facility_code=$this->session->userdata("facility");
 		//Auto Update Supported and supplied columns for satellite facilities
 		$fixes[] = "UPDATE facilities f, 
@@ -599,7 +568,6 @@ class auto_management extends MY_Controller {
 				  SET p.other_drugs = TRIM(Replace(Replace(Replace(p.other_drugs,'\t',''),'\n',''),'\r','')),
 				  p.other_illnesses = TRIM(Replace(Replace(Replace(p.other_illnesses,'\t',''),'\n',''),'\r','')),
 				  p.adr = TRIM(Replace(Replace(Replace(p.adr,'\t',''),'\n',''),'\r',''))";
-
 		//Execute fixes
 		$total=0;
 		foreach ($fixes as $fix) {
@@ -625,11 +593,9 @@ class auto_management extends MY_Controller {
 		$facility_code = $this -> session -> userdata("facility");
 		$url = $this -> eid_url . "vlapi.php?mfl=" . $facility_code;
 		$patient_tests=array();
-
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
 		$json_data = curl_exec($ch); 
 		if (empty($json_data)) {
 			$message = "cURL Error: " . curl_error($ch)."<br/>";
@@ -642,17 +608,26 @@ class auto_management extends MY_Controller {
 				   $ccc_no=trim($tests['Patient']);
 				   $result=$tests['Result'];
 				   $date_tested=$tests['DateTested'];
-				   $patient_tests[$ccc_no][]=array('date_tested'=>$date_tested,'result'=>$result);
-                }
+				   $justification="justification";
+					//An array to store patient viral Load data 
+				  	 $sql = "CALL proc_check_viral_load(?,?,?,?)";
+        			$parameters = array($ccc_no,$date_tested, $result, $justification);
+       				 $query = $this->db->query($sql, $parameters);
+               }
 			}
 		    $message="Viral Load Download Success!<br/>";
 		}
-		curl_close($ch);
-        //write to file
-		$fp = fopen('assets/viral_load.json', 'w');
-		fwrite($fp, json_encode($patient_tests,JSON_PRETTY_PRINT));
-		fclose($fp);
+
 		return $message;
+	}
+
+	public function get_viral_load($patient_no){
+		$this->db->select('*');
+		$this->db->where('patient_ccc_number', $patient_no);
+    	$this->db->from('patient_viral_load');
+    	$query = $this->db->get();
+    	$result = $query->result_array();
+    	echo json_encode($result);
 	}
 
 	public function updateFacilties(){
@@ -670,7 +645,6 @@ class auto_management extends MY_Controller {
 			$facilities=array();
 			$facility_code=$this->session->userdata("facility");
 			$lists=Facilities::getParentandSatellites($facility_code);
-
 			for ($row = 2; $row < $highestRow; $row++) {
 				$facility_id=$arr[$row]['A'];
 				$facility_name=$arr[$row]['B'];
@@ -739,6 +713,7 @@ class auto_management extends MY_Controller {
 	    }
 		return $message;
 	}
+
 	public function update_database_tables(){
 		$count = 0;
 		$delimeter = "//";
@@ -767,7 +742,6 @@ class auto_management extends MY_Controller {
 				}
 			}
 		}
-
         return "(".$count.") rows affected!<br/>";
 	}
 
@@ -781,6 +755,8 @@ class auto_management extends MY_Controller {
 		$statements['source_destination'] = "ALTER TABLE  `drug_stock_movement` CHANGE  `Source_Destination`  `Source_Destination` VARCHAR( 50 )";
 		$statements['maps_issynched']="ALTER TABLE `maps` ADD `issynched` varchar(5) NOT NULL DEFAULT 'N'";
 		$statements['maps_item_issynched']="ALTER TABLE `maps_item` ADD `issynched` varchar(5) NOT NULL DEFAULT 'N'";
+		$statements['cdrr_item_adjustments_neg']="ALTER TABLE `cdrr_item` ADD `adjustments_neg` INT(11) NULL AFTER `adjustments`";
+
 		if ($statements) {
 			foreach ($statements as $column => $statement) {
 				if ($statement != null) {
@@ -794,31 +770,27 @@ class auto_management extends MY_Controller {
 		return $message;
 	}
    
-        //function to download guidelines from the nascop 
     public function get_guidelines(){
-         $this->load->library('ftp');
-
+        $this->load->library('ftp');
         $config['hostname'] = $this->ftp_url;
         $config['username'] = 'demo';
         $config['password'] = 'demo';
         $config['port']     = 21;
         $config['passive']  = TRUE;
         $config['debug']    = TRUE;
-
         $this->ftp->connect($config);
         $server_file="/";
         $dir = realpath($_SERVER['DOCUMENT_ROOT']);
        
-        
         $files = $this->ftp->list_files($server_file);
-	        if(!empty($files))
-	        {
-		        foreach($files as $file){
-		             $local_file = $dir . "/ADT/assets/guidelines". $file;
-		             $downloadfile= $this->ftp->download($file,$local_file , 'ascii');
-		        }
+        if(!empty($files))
+        {
+	        foreach($files as $file){
+	             $local_file = $dir . "/ADT/assets/guidelines". $file;
+	             $downloadfile= $this->ftp->download($file,$local_file , 'ascii');
 	        }
         }
+    }
    
     public function update_system_version(){
 		$url = $this -> nascop_url . "sync/gitlog";
@@ -826,7 +798,6 @@ class auto_management extends MY_Controller {
 		$hash=Git_Log::getLatestHash();
 		$results = array("facility_code" => $facility_code, "hash_value" => $hash);
 		$json_data = json_encode($results, JSON_PRETTY_PRINT);
-
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -865,7 +836,6 @@ class auto_management extends MY_Controller {
 			$facility_code = $this -> session -> userdata("facility");
 			$central_site = Sync_Facility::getId($facility_code, 0);
 			$central_site = $central_site['id'];
-
 			$sql = "SELECT sf.name as facility_name,sf.code as facility_code,IF(c.id,'reported','not reported') as status
 			        FROM sync_facility sf
 			        LEFT JOIN cdrr c ON c.facility_id=sf.id AND c.period_begin='$start_date' 
@@ -875,7 +845,6 @@ class auto_management extends MY_Controller {
 			        GROUP BY sf.id";
 			$query = $this -> db -> query($sql);
 			$satellites = $query -> result_array();
-
 			$notification .= "<table border='1'>";
 			$notification .= "<thead><tr><th>Name</th><th>Code</th><th>Status</th></tr></thead><tbody>";
 			if ($satellites) {
@@ -884,11 +853,9 @@ class auto_management extends MY_Controller {
 				}
 			}
 			$notification .= "</tbody></table>";
-
 			//send notification via email 
 			ini_set("SMTP", "ssl://smtp.gmail.com");
 			ini_set("smtp_port", "465");
-
 			$sql = "SELECT DISTINCT(Email_Address) as email 
 			        FROM users u
 			        LEFT JOIN access_level al ON al.id=u.Access_Level
@@ -907,22 +874,18 @@ class auto_management extends MY_Controller {
 			if(!empty($mail_list))
 			{
 				$mail_list = implode(",", $mail_list);
-
 				$config['mailtype'] = "html";
 				$config['protocol'] = 'smtp';
 				$config['smtp_host'] = 'ssl://smtp.googlemail.com';
 				$config['smtp_port'] = 465;
 				$config['smtp_user'] = stripslashes('webadt.chai@gmail.com');
 				$config['smtp_pass'] = stripslashes('WebAdt_052013');
-
 				$this -> load -> library('email', $config);
-
 				$this -> email -> set_newline("\r\n");
 				$this -> email -> from('webadt.chai@gmail.com', "WEB_ADT CHAI");
 				$this -> email -> to("$mail_list");
 				$this -> email -> subject("ORDER REPORTING NOTIFICATION");
 				$this -> email -> message("$notification");
-
 				if ($this -> email -> send()) {
 					$message = 'Reporting Notification was sent!<br/>';
 					$this -> email -> clear(TRUE);
@@ -934,7 +897,7 @@ class auto_management extends MY_Controller {
 		return $message;
 	}
 	
-	function createStoredProcedures(){
+	public function createStoredProcedures(){
 		$data =array();
 		
 		$data["MAPS: Patient Revisit OC CM Stored Procedure"] ="
@@ -987,7 +950,7 @@ class auto_management extends MY_Controller {
 		return $message;
 	}
 	
-	public function addIndex(){//Create indexes on columns in table;
+	public function addIndex(){
 		$columns = array(
 						array(
 							"table"=>"patient_visit",
@@ -1026,6 +989,5 @@ class auto_management extends MY_Controller {
 		return $message;
 	}
 }
-
 ob_get_clean();
 ?>
