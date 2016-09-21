@@ -1,11 +1,11 @@
-DROP PROCEDURE IF EXISTS proc_check_patient;
+DROP PROCEDURE IF EXISTS proc_check_viralload;
 DELIMITER //
-CREATE PROCEDURE proc_check_patient(
+CREATE PROCEDURE proc_check_viralload(
 
 	IN in_ccc_number VARCHAR(30), 
 	IN in_test_date DATE,
 	IN in_result VARCHAR(30),
-	IN in_justification varchar(30)
+	IN in_justification TEXT
 	
 	)
 BEGIN
