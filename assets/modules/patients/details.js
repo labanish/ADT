@@ -220,12 +220,10 @@ function getViralLoad(){
 	    	
 	    	var decoded_tble = JSON.parse(data);
 	    	var justification = decoded_tble[0].justification;
-	    	// var justification = decoded_tble.justification;
 	    	var patient_ccc_number = decoded_tble[0].patient_ccc_number;
 	    	var result = decoded_tble[0].result;
 	    	var test_date = decoded_tble[0].test_date;
 
-	    	console.log(justification);
 	    	table+='<tr><td>'+test_date+'</td><td>'+result+'</td><td>'+justification+'</td></tr>';
 	    	$("#viral_load_data tbody").empty();
     		$("#viral_load_data tbody").append(table);
