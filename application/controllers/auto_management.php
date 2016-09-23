@@ -43,14 +43,14 @@ class auto_management extends MY_Controller {
 			$message .= $this->updatePatientData();
 			//function to update data bugs by applying query fixes
 			//$message .= $this->updateFixes();
-			//function to get viral load data
-			$message .= $this->updateViralLoad();
 			//function to add new facilities list
 			$message .= $this->updateFacilties();
 			//function to create new tables into adt
 			$message .= $this->update_database_tables();
 			//function to create new columns into table
 			$message .= $this->update_database_columns();
+			//function to get viral load data
+			$message .= $this->updateViralLoad();
 			//function to set negative batches to zero
 			$message .= $this->setBatchBalance();
 			//function to update hash value of system to nascop
@@ -605,14 +605,14 @@ class auto_management extends MY_Controller {
 			$lab_data=$data['posts'];
 			foreach($lab_data as $lab){
 				foreach($lab as $tests){
-				   $ccc_no=trim($tests['Patient']);
-				   $result=$tests['Result'];
-				   $date_tested=$tests['DateTested'];
-				   $justification="justification";
-					//An array to store patient viral Load data 
-				  	 $sql = "CALL proc_check_viral_load(?,?,?,?)";
-        			$parameters = array($ccc_no,$date_tested, $result, $justification);
-       				 $query = $this->db->query($sql, $parameters);
+				   	$ccc_no = trim($tests['Patient']);
+				   	$result = $tests['Result'];
+				    $date_tested = $tests['DateTested'];
+				    $justification = $tests['Justification'];
+					//An array to store patient viral Load data
+					$sql = "CALL proc_check_viralload(?, ?, ?, ?)";
+					$parameters = array($ccc_no, $date_tested, $result, $justification);
+					$this->db->query($sql, $parameters);
                }
 			}
 		    $message="Viral Load Download Success!<br/>";
