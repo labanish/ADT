@@ -443,9 +443,9 @@ foreach ($results as $result) {
                 //Add listener to check purpose
                 $("#purpose").change(function() {
                     //reset drug tables
-                    resetRoutineDrugs();
-                    var regimen = $("#current_regimen option:selected").attr("value");
-                    var last_regimen = $("#last_regimen").attr("value");
+                    //resetRoutineDrugs();
+                  //  var regimen = $("#current_regimen option:selected").attr("value");
+                   // var last_regimen = $("#last_regimen").attr("value");
                     purpose_visit = $("#purpose :selected").text().toLowerCase();
                     //If purpose of visit is not switch regimen, current regimen is last regimen
                     if (purpose_visit === 'switch regimen' ||  purpose_visit === '--select one--') {
