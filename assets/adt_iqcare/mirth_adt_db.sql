@@ -89,4 +89,4 @@ CREATE TABLE `tbl_adt_dispensing` (
   `dispensing_quantity` bigint(20) NOT NULL,
   `ptn_pharmacy_PK` bigint(20) NOT NULL,
   `next_appointment_date` date NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1//
