@@ -33,6 +33,12 @@ class Sync_Facility extends Doctrine_Record {
 	}
 
 	public function getId($facility_code, $status_code = 0) {
+
+		/*
+		status_code >= 3 -> Central;ensure category is central;ordering = 1;service_point = 1
+		status_code = 0 -> Satellite;ensure category is satellite;ordering = 0;service_point = 1 (also dispensing_point)
+		status_code = 1 -> Standalone;ensure category is standalone;ordering = 1;service_point = 0
+		*/
 		if ($status_code == 0) {
 			$conditions = "code='$facility_code' and ordering='1'";
 		} else if ($status_code == 3) {
