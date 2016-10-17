@@ -53,6 +53,8 @@ class auto_management extends MY_Controller {
 			$message .= $this->updateViralLoad();
 			//function to set negative batches to zero
 			$message .= $this->setBatchBalance();
+			//function to create mirth_sync_db
+			$message .= $this->mirth_adt_db();
 			//function to update hash value of system to nascop
 			//$message .= $this->update_system_version();
             //function to download guidelines from nascop
@@ -71,7 +73,63 @@ class auto_management extends MY_Controller {
 	    }
 	    echo $message;
 	}
+	public function mirth_adt_db(){
+		/*$message="";
+		$this->load->dbforge();
+		if ($this->dbforge->create_database('mirth_adt_db'))
+		{
+			$query_stmt = file_get_contents('assets/adt_iqcare/');
+			print_r($query_stmt);
+			die();
+			//Execute query statements
+			$statements = explode("//", $query_stmt);
+			foreach($statements as $statement){
+				$statement = trim($statement);
+				if ($statement){
 
+					$mirth_db=$this->load->database('mirth_db',TRUE);
+					$mirth_db->query($statement);
+					$message="ADT IQCARE sncy database created successfully";	
+				}
+			}
+
+		}
+		return $message;*/
+		$this->load->dbforge();
+		if ($this->dbforge->create_database('mirth_adt_db'))
+		{
+		$count = 0;
+		$delimeter = "//";
+		$queries_dir  = 'assets/adt_iqcare/';
+		$accepted_files = array('sql');
+		if (is_dir($queries_dir)) {
+			$files = scandir($queries_dir);
+			foreach ($files as $file_name) {
+				$ext = pathinfo($file_name, PATHINFO_EXTENSION);
+				if ($file_name != '.' && $file_name != '..' && in_array($ext, $accepted_files)) {
+					//Get query statements
+					$query_file = $queries_dir . '/' . $file_name;
+					$query_stmt = file_get_contents($query_file);
+					//Execute query statements
+					$statements = explode($delimeter, $query_stmt);
+					foreach($statements as $statement){
+						$statement = trim($statement);
+						if ($statement){
+							$mirth_db=$this->load->database('mirth_db',TRUE);
+							if (!$mirth_db->simple_query($statement))
+							{
+								$error = $file_name.'==>'.$mirth_db->_error_message().'<br/>';
+							}
+						}
+					}
+					$count++;
+				}
+			}
+		
+		}
+       
+	}
+}
 	public function updateDrugId() {
 		//function to update drug_id column in drug_stock_movement table where drug_id column is zero
 		//Get batches for drugs which are associateed with those drugs

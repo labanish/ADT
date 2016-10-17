@@ -324,11 +324,11 @@
 		$('.btn_satellite').click(function(){//check which button was clicked
 			var btn_id=$(this).attr('id');
 			if(btn_id=='btn_new_cdrr_satellite'){
-				$('#fmFillOrderForm').attr('action','<?php echo base_url().'order/create_order/cdrr/2'?>');
+				$('#fmFillOrderForm').attr('action','<?php echo base_url().'order/create_order/cdrr/0'?>');
 				$('#fmImportData').attr('action','<?php echo base_url().'order/import_order/cdrr'?>');
 			}
 			else if(btn_id=='btn_new_maps_satellite'){
-				$('#fmFillOrderForm').attr('action','<?php echo base_url().'order/create_order/maps/2'?>');
+				$('#fmFillOrderForm').attr('action','<?php echo base_url().'order/create_order/maps/0'?>');
 				$('#fmImportData').attr('action','<?php echo base_url().'order/import_order/maps'?>');
 			}
 		});
