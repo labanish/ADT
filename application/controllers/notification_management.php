@@ -344,17 +344,7 @@ class notification_management extends MY_Controller {
 
 
 		}	
-	$statement="select * from mirth_sync where inserted=0";
-	$query=$this->db->query($statement);
-		$row = $query->num_rows();
-
-		$temp_link = $order_link = site_url('new_patients');
-		$temp = "<li><a href='" . $temp_link . "'><i class='icon-th'></i>Patients From IQCARE<div class='badge badge-important'>" . $row . "</div></a><li>";
-
-		echo $temp;												
-	}
-	public function load_from_iq(){
-		echo "one";
+													
 	}
 
 	public function load_error_view() {
@@ -575,7 +565,7 @@ class notification_management extends MY_Controller {
 		//loop  through patients adding the rows
         foreach($patients as $patient){
         	$detail_link="<a href='".base_url()."patient_management/viewDetails/".$patient['id']."'>Detail</a>";
-        	$edit_link="<a href='".base_url()."/patient_management/edit/".$patient['id']."'>Edit</a>";
+        	$edit_link="<a href='".base_url()."patient_management/edit/".$patient['id']."'>Edit</a>";
         	$disable_link="<a href='".base_url()."patient_management/disable/".$patient['id']."' class='red'>Disable</a>";
             $patient['links']=$detail_link." |  ".$edit_link." | ".$disable_link;
         	unset($patient['id']);
