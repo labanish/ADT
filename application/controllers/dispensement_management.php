@@ -611,12 +611,12 @@ class Dispensement_Management extends MY_Controller {
 
 		//MPDF Config
 		$mode = 'utf-8';
-		$format = array(80,90);
-		$default_font_size = '11';
-		$default_font = 'Helvetica';
-		$margin_left = '5';
-		$margin_right = '5';
-		$margin_top = '4';
+		$format = array(88.9,38.1);
+		$default_font_size = '8';
+		$default_font = 'Segoe UI';
+		$margin_left = '2';
+		$margin_right = '2';
+		$margin_top = '6';
 		$margin_bottom = '4';
 		$margin_header = '';
 		$margin_footer = '';
@@ -634,7 +634,7 @@ class Dispensement_Management extends MY_Controller {
 				   
 	               while($count<=$no_to_print[$counter]){
 	               	     $this -> mpdf -> addPage();
-	               	     $str='<table border="1"  style="border-collapse:collapse;font-size:11px;">';
+	               	     $str='<table border="1"  style="border-collapse:collapse;font-size:8px; margin_top:10px;">';
 						 $str.='<tr>';
 						 $str.='<td colspan="2">Drugname: <b>'.strtoupper($drug_name[$counter]).'</b></td>';
 						 $str.='<td>Qty: <b>'.$qty[$counter].'</b></td>';
