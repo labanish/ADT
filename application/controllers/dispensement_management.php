@@ -606,17 +606,16 @@ class Dispensement_Management extends MY_Controller {
 		$facility_name=$this->input->post("print_facility_name");
 		$facility_phone=$this->input->post("print_facility_phone");
 		$str="";
-		
 		$this -> load -> library('mpdf');
 
 		//MPDF Config
 		$mode = 'utf-8';
-		$format = array(80,90);
-		$default_font_size = '11';
-		$default_font = 'Helvetica';
-		$margin_left = '5';
-		$margin_right = '5';
-		$margin_top = '4';
+		$format = array(88.9,38.1);
+		$default_font_size = '8';
+		$default_font = 'Segoe UI';
+		$margin_left = '2';
+		$margin_right = '2';
+		$margin_top = '6';
 		$margin_bottom = '4';
 		$margin_header = '';
 		$margin_footer = '';
@@ -629,45 +628,44 @@ class Dispensement_Management extends MY_Controller {
 			foreach($check_if_print as $counter=>$check_print){
 				//selected to print
 				if($check_print){
-	               //count no. to print
-	               $count=1;
-				   
-	               while($count<=$no_to_print[$counter]){
-	               	     $this -> mpdf -> addPage();
-	               	     $str='<table border="1"  style="border-collapse:collapse;font-size:11px;">';
-						 $str.='<tr>';
-						 $str.='<td colspan="2">Drugname: <b>'.strtoupper($drug_name[$counter]).'</b></td>';
-						 $str.='<td>Qty: <b>'.$qty[$counter].'</b></td>';
-						 $str.='</tr>';
-						 $str.='<tr>';
-						 $str.='<td colspan="3">Tablets/Capsules: ';
-						 $str.='<b>'.$dose_value[$counter].'</b> to be taken <b>'.$dose_frequency[$counter].'</b> times a day after every <b>'.$dose_hours[$counter].'</b> hours</td>';
-						 $str.='</tr>';
-						 $str.='<tr>';
-						 $str.='<td colspan="3">Before/After Meals: ';
-						 $str.='<b>'.$drug_instructions[$counter].'</b></td>';
-						 $str.='</tr>';
-						 $str.='<tr>';
-						 $str.='<td>Patient Name: <b>'.$patient_name.'</b> </td><td> Pharmacy :<b>'.$pharmacy_name[$counter].'</b> </td> <td>Date:<b>'.$dispensing_date.'</b></td>';
-						 $str.='</tr>';
-						 $str.='<tr>';
-						 $str.='<td colspan="3" style="text-align:center;">Keep all medicines in a cold dry place out of reach of children.</td></tr>';
-						 $str.='<tr><td colspan="2">Facility Name: <b>'.$this->session->userdata("facility_name").'</b></td><td> Facility Phone: <b>'.$this->session->userdata("facility_phone").'</b>';
-						 $str.='</td>';
-						 $str.='</tr>';
-						 $str.='</table>';
-						 //write to page
-						 $this -> mpdf -> WriteHTML($str);
-						 $count++;
-					}
-	            }
-			}
+					//count no. to print
+					$count=1;
+					while($count<=$no_to_print[$counter]){
+						$this -> mpdf -> addPage();
+						$str='<table border="1"  style="border-collapse:collapse;font-size:8px; margin_top:10px;">';
+						$str.='<tr>';
+						$str.='<td colspan="2">Drugname: <b>'.strtoupper($drug_name[$counter]).'</b></td>';
+						$str.='<td>Qty: <b>'.$qty[$counter].'</b></td>';
+						$str.='</tr>';
+						$str.='<tr>';
+						$str.='<td colspan="3">Tablets/Capsules: ';
+						$str.='<b>'.$dose_value[$counter].'</b> to be taken <b>'.$dose_frequency[$counter].'</b> times a day after every <b>'.$dose_hours[$counter].'</b> hours</td>';
+						$str.='</tr>';
+						$str.='<tr>';
+						$str.='<td colspan="3">Before/After Meals: ';
+						$str.='<b>'.$drug_instructions[$counter].'</b></td>';
+						$str.='</tr>';
+						$str.='<tr>';
+						$str.='<td>Patient Name: <b>'.$patient_name.'</b> </td><td> Pharmacy :<b>'.$pharmacy_name[$counter].'</b> </td> <td>Date:<b>'.$dispensing_date.'</b></td>';
+						$str.='</tr>';
+						$str.='<tr>';
+						$str.='<td colspan="3" style="text-align:center;">Keep all medicines in a cold dry place out of reach of children.</td></tr>';
+						$str.='<tr><td colspan="2">Facility Name: <b>'.$this->session->userdata("facility_name").'</b></td><td> Facility Phone: <b>'.$this->session->userdata("facility_phone").'</b>';
+						$str.='</td>';
+						$str.='</tr>';
+						$str.='</table>';
+						//write to page
+						$this -> mpdf -> WriteHTML($str);
+						$count++;
+					} //end while
+				}//end if
+			} //end foreach
 			$file_name='Export/'.$patient_name.'(Labels).pdf';
 			$this -> mpdf -> Output($file_name, 'F');
 			echo base_url().$file_name;
-	    }else{
-	    	echo 0;
-	    }
+		}else{
+			echo 0;
+		}
 	}
 
 	public function getInstructions($drug_id){

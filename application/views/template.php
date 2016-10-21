@@ -480,7 +480,7 @@ if (isset($styles)) {
 		   	 <div class="control-group">
 			    <div class="controls">
 			      <select id="search_criteria" name="search_criteria" required  class="span3">
-			      	<option data-cat='patient' value="0" data-dest="patient_management/viewDetails/">Search Patients</option>
+			      	<option data-cat='patient' value="0" data-dest="patient_management/load_view/details/">Search Patients</option>
 			      	<?php 
 		      		foreach ($ccc_stores as $ccc_store) {
 						echo "<option data-cat='drugcode' value='".$ccc_store['id']."' data-id ='".$ccc_store['id']."' data-dest='inventory_management/getDrugBinCard/'>Search drugs (".$ccc_store['Name'].")</option>";	  

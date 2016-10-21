@@ -210,25 +210,19 @@ function sanitizeForm(){
 function getViralLoad(){
  	var patient_no = $("#patient_number_ccc").val();
  	var link = base_url +"auto_management/get_viral_load/"+patient_no;
+ 	var table = '';
  	
- 	//console.log(link);
- 		$.ajax({
-	    url: link,
-	    type: 'POST',
-	    success: function(data) {	
-	    	var table='';
-	    	
-	    	var decoded_tble = JSON.parse(data);
-	    	var justification = decoded_tble[0].justification;
-	    	var patient_ccc_number = decoded_tble[0].patient_ccc_number;
-	    	var result = decoded_tble[0].result;
-	    	var test_date = decoded_tble[0].test_date;
+ 	$.getJSON(link, function(data){
+ 		if(data.length == 0){
+ 			table += '<tr><td colspan="3">No Data Available</td></tr>';
+ 		}
 
-	    	table+='<tr><td>'+test_date+'</td><td>'+result+'</td><td>'+justification+'</td></tr>';
-	    	$("#viral_load_data tbody").empty();
-    		$("#viral_load_data tbody").append(table);
-	    }
-	});	
+ 		$.each(data, function(i, vldata){
+ 			table += '<tr><td>'+vldata.test_date+'</td><td>'+vldata.result+'</td><td>'+vldata.justification+'</td></tr>';
+ 		});
+ 		$("#viral_load_data tbody").empty();
+ 		$("#viral_load_data tbody").append(table);
+ 	});
 }
  
 function getDispensing(){

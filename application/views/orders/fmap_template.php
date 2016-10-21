@@ -168,6 +168,8 @@ if ($facility_object -> service_pep == "1") {
 				<table class="table"  border="1"  style="border:1px solid #DDD; font-size: 1em;">
 					<tbody>
 						<tr>
+							<input type="hidden" id="reports_expected" name="reports_expected" value="" />
+							<input type="hidden" id="reports_actual" name="reports_actual" value="" />
 							<input type="hidden" name="facility_id" value="<?php echo @$facility_id;?>" />
 							<input type="hidden" name="central_facility" value="<?php echo @$facility_object -> parent;?>" />
 							<input type="hidden" name="order_type" value="0"/>
