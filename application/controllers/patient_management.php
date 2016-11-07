@@ -1865,10 +1865,10 @@ class Patient_Management extends MY_Controller {
         $filter = "";
         if ($status != NULL){
             if($status=='inactive'){
-                $filter.="AND p.current_status != 1";
+                $filter.="AND ps.Name NOT LIKE '%active%'";
             }
         }else{
-            $filter.="AND p.current_status = 1";
+            $filter.="AND ps.Name LIKE '%active%'";
         }
         $facility_code = $this -> session -> userdata("facility");
         $access_level = $this -> session -> userdata('user_indicator');
