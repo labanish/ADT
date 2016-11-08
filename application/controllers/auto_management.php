@@ -683,6 +683,7 @@ class auto_management extends MY_Controller {
 		$this->db->select('*');
 		$this->db->where('patient_ccc_number', $patient_no);
     	$this->db->from('patient_viral_load');
+    	$this->db->order_by('test_date','desc');
     	$query = $this->db->get();
     	$result = $query->result_array();
     	echo json_encode($result);
