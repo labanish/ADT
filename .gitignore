@@ -38,3 +38,4 @@ application/cache/
 assets/cache
 application/views/sections/link.php
 application/config/database.php
+Export/
