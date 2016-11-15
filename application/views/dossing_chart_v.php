@@ -26,7 +26,7 @@
 			    success: function(datas) {
 					for(var i=0;i<datas.length; i++){
 						var ids=datas[i]['id'];
-						var doses= datas[i]['dose'];
+						var doses= datas[i]['Name'];
 						$('#dose').append($('<option>', {
 							value: ids,
 							text: doses
@@ -46,7 +46,8 @@
 			    data: {"id":id},
 			    dataType: "json",
 			    success: function(data) {
-			    	var id = data[0]['id'];		    	
+			    	var id = data[0]['id'];	
+			    	//console.log(id);	    	
 					var max_weight = data[0]['max_weight'];
 					var min_weight = data[0]['min_weight'];
 					var dose = data[0]['Name'];
@@ -55,7 +56,10 @@
 					$('#max_weight').val(max_weight);
 					$('#min_weights').val(min_weight);
 					//DRUGS
-					$('#drugs')	.append($('<option>', {
+					$('#drugs')	.find('option')
+   									.remove()
+   									.end()
+   									.append($('<option>', {
     									value: id,
    				    					text: drug
 									}));
@@ -76,7 +80,7 @@
 			                }
 			            	});
 					//DOSE
-					$('#dose').find('option')
+					$('#doses').find('option')
    									.remove()
    									.end()
 					 				.append($('<option>', {
@@ -90,10 +94,12 @@
 			        type: 'POST',
 			        dataType: "json",
 			        success: function(datas) {
+
 						for(var i=0;i<datas.length; i++){
+							//console.log(datas);
 								var ids=datas[i]['id'];
 								var doses= datas[i]['Name'];
-								$('#drugs').append($('<option>', {
+								$('#doses').append($('<option>', {
 									value: ids,
 									 text: doses
 							}));
@@ -220,7 +226,7 @@
 			</select>
 			<label>
 			<strong class="label">Dose</strong>
-			<select name="doses" id="dose">
+			<select name="doses" id="doses">
 			</select>
 			</label>
 		</div>

@@ -1,4 +1,5 @@
 <?php
+
 foreach ($results as $result) {
     
 }
@@ -629,7 +630,6 @@ foreach ($results as $result) {
 
                 //drug change event
                 $(".drug").change(function() {
-                    var row = $(this);
                     var drug_name = row.find("option:selected").text();
                     resetFields(row);
                     row.closest("tr").find(".batch option").remove();
@@ -715,7 +715,7 @@ foreach ($results as $result) {
                              }
                             ?>
 
-                            var dose = "";
+                       
                             //Get batches that have not yet expired and have stock balance
                             var _url = "<?php echo base_url() . 'inventory_management/getBacthes'; ?>";
 
@@ -761,6 +761,24 @@ foreach ($results as $result) {
                                     dose = value.dose;
                                
  //Dosage for Paediatrics
+            var record_no = "<?php echo $result['id']; ?>";
+            var request=$.ajax({
+            url: "dispensement_management/get_patient_details",
+            type: 'POST',
+             data: {"record_no":record_no},
+                dataType: "json",
+                success: function(datas) {
+                    console.log(datas);
+                    for(var i=0;i<datas.length; i++){
+                        var ids=datas[i]['id'];
+                        var drugs= datas[i]['drug'];
+                        $('#drug').append($('<option>', {
+                            value: ids,
+                            text: drugs
+                            }));
+                    }   
+                }
+            });
 
         if (selected_drug=='12'){
 

@@ -40,9 +40,9 @@ class dossing_chart extends MY_Controller {
 
 				if ($classification['is_active'] == 1) {
 					$links .= " | ";
-					$links .= anchor('drugcode_classification/disable/' . $classification['id'], 'Disable', array('class' => 'disable_user'));
+					$links .= anchor('dossing_chart/disable/' . $classification['id'], 'Disable', array('class' => 'disable_user'));
 				} else {
-					$links .= anchor('drugcode_classification/enable/' . $classification['id'], 'Enable', array('class' => 'enable_user'));
+					$links .= anchor('dossing_chart/enable/' . $classification['id'], 'Enable', array('class' => 'enable_user'));
 				}
 			}
 
@@ -70,7 +70,7 @@ class dossing_chart extends MY_Controller {
 	}
 	//function to get doses from dose table 
 	public function get_dose(){
-		$sql="select Name as dose
+		$sql="select id, Name
 			  from dose";
 		$query = $this -> db -> query($sql);
 		$data = $query -> result_array();
@@ -112,45 +112,48 @@ class dossing_chart extends MY_Controller {
 	//function to get data for edit view
 	public function edit(){
 		$id = $this -> input -> post('id');
-		$sql="select min_weight,max_weight,do.Name,dc.drug from dossing_chart d
+		$sql="select d.id,min_weight,max_weight,do.Name,dc.drug from dossing_chart d
 			  inner join drugcode dc on dc.id=d.drug_id
 			  inner join dose do on do.id=d.dose_id
 			  where d.id='$id'";
 		$query = $this -> db -> query($sql);
 		$data = $query -> result_array();
 		echo json_encode($data);
-
 	}
-
+	//update records
 	public function update() {
-		$classification_id = $this -> input -> post('classification_id');
-		$classification_name = $this -> input -> post("edit_classification_name");
-		$query = $this -> db -> query("UPDATE drug_classification SET name='$classification_name' WHERE id='$classification_id'");
-		$this -> session -> set_userdata('msg_success', $this -> input -> post('edit_classification_name') . ' was Updated');
-		$this -> session -> set_flashdata('filter_datatable', $this -> input -> post('edit_classification_name'));
+		$id = $this -> input -> post('idno');
+		$min_weight = $this -> input -> post('min_weights');
+		$max_weight = $this -> input -> post('max_weights');
+		$drug_id = $this -> input -> post('drugs');
+		$dose_id = $this -> input -> post('doses');
+		$query = $this -> db -> query("UPDATE dossing_chart SET 
+									    min_weight='$min_weight',
+									    max_weight='$max_weight',
+									    drug_id='$drug_id',
+									    dose_id='$dose_id'
+									    WHERE id='$id'");
+	
+		$this -> session -> set_userdata('msg_success','Update Was Successfull');
 		//Filter datatable
 		redirect("settings_management");
 	}
+	
 
 	public function enable($classification_id) {
-		$query = $this -> db -> query("UPDATE drug_classification SET Active='1'WHERE id='$classification_id'");
-		$results = Drug_Classification::getClassification($classification_id);
-		$this -> session -> set_userdata('msg_success', $results -> Name . ' was enabled');
-		$this -> session -> set_flashdata('filter_datatable', $results -> Name);
+		$query = $this -> db -> query("UPDATE dossing_chart SET is_active='1' WHERE id='$classification_id'");
+		$this -> session -> set_userdata('msg_success','Item was enabled');
 		//Filter datatable
 		redirect("settings_management");
 	}
 
 	public function disable($classification_id) {
-		$query = $this -> db -> query("UPDATE drug_classification SET Active='0'WHERE id='$classification_id'");
-		$results = Drug_Classification::getClassification($classification_id);
-		$this -> session -> set_userdata('msg_error', $results -> Name . ' was disabled');
-		$this -> session -> set_flashdata('filter_datatable', $results -> Name);
+		$query = $this -> db -> query("UPDATE dossing_chart SET is_active='0' WHERE id='$classification_id'");
+		$this -> session -> set_userdata('msg_error','Item was disabled');
 		//Filter datatable
 		redirect("settings_management");
 	}
 	private function _submit_validate() {
-		//validation rules
 		$this->form_validation->set_rules('min_weight', 'Mimimum Weight', 'required');
 		$this->form_validation->set_rules('max_weight', 'Maximium Weight', 'required');
 		$this->form_validation->set_rules('dose', 'Dosage', 'required');
@@ -159,7 +162,6 @@ class dossing_chart extends MY_Controller {
 	}
 
 	public function base_params($data) {
-		//$data['quick_link'] = "indications";
 		$this -> load -> view('dossing_chart_v', $data);
 	}
 }

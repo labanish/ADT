@@ -1,3 +1,4 @@
+DROP TRIGGER IF EXISTS before_insert_patient_visits;
 DELIMITER //
 CREATE TRIGGER `before_insert_patient_visits` BEFORE INSERT ON `patient_visit` FOR EACH ROW BEGIN
   
@@ -5,8 +6,9 @@ CREATE TRIGGER `before_insert_patient_visits` BEFORE INSERT ON `patient_visit` F
 
 END//
 DELIMITER ;
+DROP PROCEDURE IF EXISTS proc_check_drug;
 DELIMITER //
-CREATE OR REPLACE PROCEDURE `proc_check_drug`(
+CREATE PROCEDURE `proc_check_drug`(
 				IN pid VARCHAR(50), 
 				IN drug VARCHAR(50),
 				IN d_date VARCHAR(50),
