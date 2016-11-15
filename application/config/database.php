@@ -44,7 +44,7 @@ $active_group = 'default';
 $active_record = TRUE;
 $db['default']['hostname'] = 'localhost';
 $db['default']['username'] = 'root';
-$db['default']['password'] = 'root';
+$db['default']['password'] = '';
 $db['default']['database'] = 'testadt';
 $db['default']['dbdriver'] = 'mysql';
 $db['default']['dbprefix'] = '';
@@ -60,7 +60,7 @@ $db['default']['stricton'] = FALSE;
 
 $db['mirth_db']['hostname'] = 'localhost';
 $db['mirth_db']['username'] = 'root';
-$db['mirth_db']['password'] = 'root';
+$db['mirth_db']['password'] = '';
 $db['mirth_db']['database'] = 'mirth_adt_db';
 $db['mirth_db']['dbdriver'] = 'mysql';
 $db['mirth_db']['dbprefix'] = '';

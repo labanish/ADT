@@ -333,6 +333,12 @@
 								<li>
 									<a href="#" class="drug_stock_balance_sync/view_balance" title="Drug Balances Management">Drug Running Balance</a>
 								</li>
+								<li>
+									<a href="#" class="dossing_chart" title="Drug Balances Management">Dossing Chart</a>
+								</li>
+								<li>
+									<a href="#" class="peadiatric_dossing_chart" title="Drug Balances Management">Peadiatric Dossing Chart</a>
+								</li>
 							</ul>
 						</li>
 						<li class="divider-vertical"></li>
