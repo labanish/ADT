@@ -35,6 +35,12 @@ SCCS
 _$*
 /nbproject/private/
 application/cache/
+<<<<<<< .merge_file_a09700
+assets/cache/14732593341cd61b25796ccb6cbf22d8e1527cc816.css
+assets/cache/1473259334e3269901e7f60dbcfcacfa964593fb6d.js
+assets/adt_iqcare/trig_after_update.sql
+=======
 assets/cache
 application/views/sections/link.php
 application/config/database.php
+>>>>>>> .merge_file_a09636

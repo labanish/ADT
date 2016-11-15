@@ -66,6 +66,18 @@ class Dispensement_Management extends MY_Controller {
 		}
 		echo json_encode($iqcare_data);
 	}
+	public function get_patient_details(){
+		$record_no = $this -> input -> post('record_no');
+		$facility_code = $this -> session -> userdata('facility');
+		$sql = "select ps.name as patient_source,p.patient_number_ccc,FLOOR(DATEDIFF(CURDATE(),p.dob)/365) as age from patient p 
+				LEFT JOIN patient_source ps ON ps.id = p.source
+				where p.id='$record_no' and facility_code='$facility_code'
+				";
+		$query = $this -> db -> query($sql);
+		$results = $query -> result_array();
+		echo json_encode($results);
+
+	}
 	public function dispense($record_no) {
 		$facility_code = $this -> session -> userdata('facility');
                 
@@ -87,7 +99,6 @@ class Dispensement_Management extends MY_Controller {
 			$patient_no = $results[0]['patient_number_ccc'];
 			$age=@$results[0]['age'];
 			$data['results'] = $results;
-	
 		}
 
 		/*************/
