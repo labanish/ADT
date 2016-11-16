@@ -2757,6 +2757,8 @@ class report_management extends MY_Controller {
 				$age = $result['current_age'];
 				$gender = $result['sex'];
 				$appointments = $result['appointment_adherence'];
+				$appointments = str_replace(">","",$appointments);
+				$appointments = str_replace("=","",$appointments);
 				$dispensing_date = date('d-M-Y', strtotime($result['visit_date']));
 				$regimen_desc = "<b>" . $result['regimen'] . "</b>";
 				$weight = $result['current_weight'];
