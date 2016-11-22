@@ -279,8 +279,9 @@
                             <input type="text" name="expiry[]" name="expiry" class="expiry input-small" id="expiry_date" readonly="" size="15"/>
                         </td>
                         <td class="dose_col">
-                            <input  name="dose[]" list="dose" id="doselist" class="input-small next_pill dose icondose">
-                            <datalist id="dose" class="dose"><select name="dose1[]" class="dose"></select></datalist>
+                            <select name="dose[]" class="next_pill input-small dose  span2"></select></td>
+                            <!-- <input  name="dose[]" list="dose" id="doselist" class="input-small next_pill dose icondose"> -->
+                            <!-- <datalist id="dose" class="dose"><select name="dose1[]" class="dose"></select></datalist> -->
                         </td>
                         <td>
                             <input type="text" name="pill_count[]" class="pill_count input-small" readonly="readonly" />
@@ -731,7 +732,7 @@ var patient_iqcare=false;
 //load previously dispensed drugs
 //loadMyPreviousDispensedDrugs();
         //reset drug tables
-        console.log(patient_iqcare);
+        
 if(patient_iqcare==false){
         resetRoutineDrugs();
         var regimen = $("#current_regimen option:selected").attr("value");
@@ -871,6 +872,7 @@ if(patient_iqcare==false){
         var row = $(this);
         var selected_drug = $(this).val();
         var patient_no = $("#patient").val();
+      
 
         //Check if patient allergic to selected drug
         var _url = "<?php echo base_url() . 'dispensement_management/drugAllergies'; ?>";
@@ -985,6 +987,45 @@ if(patient_iqcare==false){
                         row.closest("tr").find(".comment").val(value.comment);
                         dose = value.dose;
                     });
+
+                      //check pediatric dose
+        var link ="<?php echo base_url();?>patient_management/get_patient_details";
+        var patient_id = "<?php echo $patient_id;?>";
+        var request = $.ajax({
+                        url: link,
+                        type: 'post',
+                        data: {"patient_id": patient_id},
+                        dataType: "json"
+                    });
+                    
+            request.done(function(datas){
+                  //var dose = data.dose;
+                    //console.log(datas);
+                var age = datas.Dob;
+                var weight=datas.Weight;
+                var drug_id =selected_drug ;              
+               if (age < 15) {
+                 //console.log(age);
+                    var link ="<?php echo base_url();?>patient_management/get_peadiatric_dose";
+                    var request = $.ajax({
+                        url: link,
+                        type: 'post',
+                        data: {"weight": weight,"drug_id":drug_id},
+                        dataType: "json"
+                    })
+                    request.done(function(data){
+                    //var dose = data.dose;
+                    var id=data.id;
+                    var dose=data.Name;
+                    console.log(dose);
+                    row.closest("tr").find(".dose option").remove();
+                    row.closest("tr").find(".dose").append($("<option value='"+ id+"'>"+dose+"</option>"));
+                
+                    
+                    });
+               }   
+                
+             });
                     //Get brands
                     var new_url = "<?php echo base_url() . 'dispensement_management/getBrands'; ?>";
                     var request_brand = $.ajax({
@@ -1457,7 +1498,7 @@ if(patient_iqcare==false){
                 bootbox.alert("<h4>Regimens Details Alert</h4>\n\<hr/>\n\<center>Could not retrieve regimens details : </center>" + textStatus);
             });
     }
-    
+
     function checkIfPregnant(pregnancy_status,patient_ccc){
         if(pregnancy_status=='1'){
             bootbox.confirm("<h4>Pregnancy confirmation</h4>\n\<hr/><center>Is patient still pregnant?</center>","No", "Yes",
