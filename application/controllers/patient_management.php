@@ -1631,7 +1631,7 @@ class Patient_Management extends MY_Controller {
                         v_v.patient_visit_id AS record_id, 
                         D.drug, 
                         v_v.quantity, 
-                        v_v.weight, 
+                        v_v.current_weight, 
                         R.regimen_desc, 
                         v_v.batch_number, 
                         v_v.pill_count, 

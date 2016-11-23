@@ -180,6 +180,7 @@
                                 });
 			}else{
 				bootbox.alert("<h4>Selection Alert</h4>\n\<hr/><center>You have not selected any drugs to enable</center>");
+				return false;
 			}
 			
 			
