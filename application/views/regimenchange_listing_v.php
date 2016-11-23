@@ -158,7 +158,7 @@ foreach($actions as $action){
 		</div>
 		<div class="modal-footer">
 		   <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
-		   <input type="submit" class="save_btn" value="Save" class="btn btn-primary " />
+		   <input type="submit" value="Save" class="btn btn-primary " />
 		</div>
 		</form>
 	</div>
@@ -192,11 +192,9 @@ foreach($actions as $action){
 
 <script type="text/javascript">
 	$(document).ready(function(){
-		 $(".save_btn").live('click',function(event){
-			event.preventDefault();
-			$(this).prop('disabled',true);		
-			$("#regimenchange_management_frm").submit();
-			
+		/*Prevent Double Click*/
+		$('form').submit(function(){
+		  	$(this).find(':submit').attr('disabled','disabled');
 		});
 	});
 </script>

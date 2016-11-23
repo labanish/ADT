@@ -46,6 +46,12 @@
 			$("#edit_desc").val($(this).attr("desc"));
 			$("#edit_effect").val($(this).attr("effect"));
 		});
+
+		/*Prevent Double Click*/
+		$('form').submit(function(){
+		  	$(this).find(':submit').attr('disabled','disabled');
+		});
+		
 	});
 
 </script>
