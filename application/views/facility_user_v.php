@@ -152,7 +152,7 @@ $("#sms_map").val("<?php echo $facility['map'];?>");
 							</table>
 							<p>&nbsp;</p>
 							<hr size="2" style="border-top: 1px solid #000;">
-							<div class="span3">
+							<!--<div class="span3">
 								<fieldset>
 									<legend style="color:red">Client Supported By</legend>
 									
@@ -167,7 +167,7 @@ $("#sms_map").val("<?php echo $facility['map'];?>");
 									  ?>
 
 								</fieldset>
-							</div>
+							</div>-->
 
 							<div class="span4">
 								<fieldset>
@@ -186,7 +186,7 @@ $("#sms_map").val("<?php echo $facility['map'];?>");
 									</label>
 								</fieldset>
 							</div>
-							<div class="span2">
+							<!--<div class="span2">
 								<fieldset>
 									<legend style="color:red">Client Supplied By</legend>
 									<label class="radio">
@@ -198,7 +198,7 @@ $("#sms_map").val("<?php echo $facility['map'];?>");
 									     Kenya Pharma
 									</label> 
 								</fieldset>
-							</div>					
+							</div>-->					
 						</fieldset>
 						<input type="submit" class="btn btn-warning" value="Save">
 				</div>

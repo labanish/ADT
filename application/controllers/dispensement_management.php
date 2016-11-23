@@ -199,6 +199,12 @@ class Dispensement_Management extends MY_Controller {
 		echo json_encode($get_doses_array);
 	}
 
+	public function getDrugDose($drug_id) {
+		$get_doses_sql = $this -> db -> query("SELECT id,dose FROM drugcode where id='$drug_id'");
+		$get_doses_array = $get_doses_sql -> result_array();
+		echo json_encode($get_doses_array);
+	}
+
 //function to return drugs on the sync_drugs
 	public function getMappedDrugCode(){
 		$drug_id = $this -> input -> post("selected_drug");
