@@ -2757,6 +2757,8 @@ class report_management extends MY_Controller {
 				$age = $result['current_age'];
 				$gender = $result['sex'];
 				$appointments = $result['appointment_adherence'];
+				$appointments = str_replace(">","",$appointments);
+				$appointments = str_replace("=","",$appointments);
 				$dispensing_date = date('d-M-Y', strtotime($result['visit_date']));
 				$regimen_desc = "<b>" . $result['regimen'] . "</b>";
 				$weight = $result['current_weight'];
@@ -2766,7 +2768,7 @@ class report_management extends MY_Controller {
 				$adherence_array = array($missed_pills, $pill_count, $appointments );
 				$avg_adherence = number_format(array_sum($adherence_array) / count($adherence_array), 2);
 				$row_string .= "<tr><td>$patient_no</td><td>$service_type</td><td>$supported_by</td><td>$patient_name</td><td>$age</td><td>$gender</td><td>$regimen_desc</td><td>$dispensing_date</td><td>$weight</td>
-				<td>$missed_pills</td><td>$pill_count</td><td>$appointment</td><td>$avg_adherence</td><td>$source</td></tr>";
+				<td>$missed_pills</td><td>$pill_count</td><td>$appointments</td><td>$avg_adherence</td><td>$source</td></tr>";
 
 				$overall_total++;
 			}

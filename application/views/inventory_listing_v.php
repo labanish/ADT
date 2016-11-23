@@ -11,7 +11,7 @@ $first_load = $ccc_stores[0]['id'];//Which store to load first
 	    zoom:1;	
 	}
 	
-	.table-bordered input {
+	.table-bordered input{
 		width:9em;
 	}
 

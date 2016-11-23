@@ -576,10 +576,12 @@ class Patient_Management extends MY_Controller {
         $appointment = $this -> input -> post('next_appointment_date', TRUE);
         $facility = $this -> session -> userdata('facility');
         $patient = $this -> input -> post('patient_number', TRUE);
+
         if ($appointment) {
             $sql = "select * from patient_appointment where patient='$patient' and appointment='$prev_appointment' and facility='$facility'";
             $query = $this -> db -> query($sql);
             $results = $query -> result_array();
+           
             if ($results) {
                 $record_no = $results[0]['id'];
                 //If exisiting appointment(Update new Record)
@@ -590,6 +592,7 @@ class Patient_Management extends MY_Controller {
             }
             $this -> db -> query($sql);
         }
+
 
         $family_planning = $this -> input -> post('family_planning_holder', TRUE);
         if ($family_planning == null) {
@@ -685,7 +688,7 @@ class Patient_Management extends MY_Controller {
             'Start_Regimen_Date' => $this -> input -> post('service_started', TRUE),
             'Current_Regimen' => $this -> input -> post('current_regimen', TRUE),
             'Nextappointment' => $this -> input -> post('next_appointment_date', TRUE));
-
+        $this -> db -> update('patients');
         $this -> db -> where('id', $record_id);
         $this -> db -> update('patient', $data);
 
@@ -1939,6 +1942,17 @@ class Patient_Management extends MY_Controller {
         $patient_id = $this ->input ->post('patient_id');
         $query = patient::get_patient_details($patient_id);
         echo json_encode($query);
+    }
+    //to get the dose for a child patient
+    public function get_peadiatric_dose(){
+        $weight = $this ->input ->post('weight');
+        $drug_id = $this ->input ->post('drug_id');
+        $sql="select do.id,Name,frequency from dossing_chart d
+              inner join dose do on do.id=d.dose_id
+              where min_weight <= '$weight' and max_weight >= '$weight' and drug_id='$drug_id' ";
+        $query = $this -> db -> query($sql);
+        $data = $query -> row();
+        echo json_encode($data);
     }
 
 }

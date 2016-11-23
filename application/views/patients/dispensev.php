@@ -957,7 +957,15 @@ if(patient_iqcare==false){
                 });
                 request.done(function(data) {
                 //dosing 
-                    //get and check age
+                  var url_dose = "<?php echo base_url() . 'dispensement_management/getDoses'; ?>";
+                    //Get doses
+                    var request_dose = $.ajax({
+                        url: url_dose,
+                        type: 'post',
+                        dataType: "json"
+                    });
+                    request_dose.done(function(data) {
+                 //check pediatric dose
                     var link ="<?php echo base_url();?>patient_management/get_patient_details";
                     var patient_id = "<?php echo $patient_id;?>";
                     var request = $.ajax({
@@ -967,76 +975,59 @@ if(patient_iqcare==false){
                         dataType: "json"
                     });
                     
-                    request.done(function(datas){
-                          //var dose = data.dose;
-                           // console.log(datas);
-                        var age = datas.Dob;
-                        var weight=datas.Weight;
-                        var drug_id =selected_drug ; 
-                        //if patient is a child              
-                       if (age < 15) {
-                           var url_dose = "<?php echo base_url() . 'dispensement_management/getDoses'; ?>";
-                            //Get doses
-                            var request_dose = $.ajax({
-                                url: url_dose,
-                                type: 'post',
-                                dataType: "json"
+            request.done(function(datas){
+                var age = datas.Dob;
+                var weight=datas.Weight;
+                var drug_id =selected_drug ; 
+                //if patient is a child              
+               if (age < 15) {
+                    var link ="<?php echo base_url();?>patient_management/get_peadiatric_dose";
+                    var request = $.ajax({
+                        url: link,
+                        type: 'post',
+                        data: {"weight": weight,"drug_id":drug_id},
+                        dataType: "json"
+                    })
+                    request.done(function(data){
+                        var id=data.id;
+                        var dose=data.Name;
+                        row.closest("tr").find(".dose option").remove();
+                        row.closest("tr").find(".dose").append($("<option value='"+ id+"'>"+dose+"</option>"));
+                    });
+               } 
+               //if patient is not a child 
+               else{
+                  
+                        var url_drug_dose = "<?php echo base_url() . 'dispensement_management/getDrugDose/'; ?>";
+                        var new_url_dose = url_drug_dose+selected_drug;
+                     
+                        var request_one_dose = $.ajax({
+                            url: new_url_dose,
+                            type: 'post',
+                            dataType: "json"
+                        });
+                        request_one_dose.done(function(data_single_dose) {
+                            // console.log(data1);
+                            var current_dose = data_single_dose[0].dose;
+                            // console.log(current_dose);
+                            row.closest("tr").find(".dose option").remove();
+                            $.each(data, function(key, value) {
+                                if(current_dose==value.Name){
+                                    row.closest("tr").find(".dose").append($("<option selected=\"selected\" value='"+ value.id+"'>"+value.Name+"</option>"));
+                                }else{
+                                    row.closest("tr").find(".dose").append($("<option value='"+ value.id+"'>"+value.Name+"</option>"));
+                                }
+                                  
                             });
-                            request_dose.done(function(data) {
-                            var link ="<?php echo base_url();?>patient_management/get_peadiatric_dose";
-                            var request = $.ajax({
-                                url: link,
-                                type: 'post',
-                                data: {"weight": weight,"drug_id":drug_id},
-                                dataType: "json"
-                            })
-                            request.done(function(data_1){
-                                var dose=data_1.Name;
-                                  row.closest("tr").find(".dose option").remove();
-                                    $.each(data, function(key, value) {
-                                        if(dose==value.Name){
-                                            row.closest("tr").find(".dose").append($("<option selected=\"selected\" value='"+ value.id+"'>"+value.Name+"</option>"));
-                                        }else{
-                                            row.closest("tr").find(".dose").append($("<option value='"+ value.id+"'>"+value.Name+"</option>"));
-                                        }
-                                    });
-                            });
-                        } 
-                        //if patient is not a child 
-                        else{
-                            var url_dose = "<?php echo base_url() . 'dispensement_management/getDoses'; ?>";
-                            //Get doses
-                            var request_dose = $.ajax({
-                                url: url_dose,
-                                type: 'post',
-                                dataType: "json"
-                            });
-                            request_dose.done(function(data) {
-                                var url_drug_dose = "<?php echo base_url() . 'dispensement_management/getDrugDose/'; ?>";
-                                var new_url_dose = url_drug_dose+selected_drug;
-                             
-                                var request_one_dose = $.ajax({
-                                    url: new_url_dose,
-                                    type: 'post',
-                                    dataType: "json"
-                                });
-                            request_one_dose.done(function(data_single_dose) {
-                                var current_dose = data_single_dose[0].dose;
-                                row.closest("tr").find(".dose option").remove();
-                                $.each(data, function(key, value) {
-                                    if(current_dose==value.Name){
-                                        row.closest("tr").find(".dose").append($("<option selected=\"selected\" value='"+ value.id+"'>"+value.Name+"</option>"));
-                                    }else{
-                                        row.closest("tr").find(".dose").append($("<option value='"+ value.id+"'>"+value.Name+"</option>"));
-                                    }
-                                });
-                            });
-                            });
-                        }  
-                
+                         });
                     });
 
-                    // end of doses
+
+               }  
+                
+            });
+
+
                     row.closest("tr").find(".batch option").remove();
                     row.closest("tr").find(".batch").append($("<option value='0'>Select</option>"));
                     $.each(data, function(key, value) {
