@@ -141,7 +141,7 @@ foreach($actions as $action){
 	</div><!--/.fluid-container-->
 	<div id="regimenchange_form" title="New regimen change reason" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="NewRegimen" aria-hidden="true">
 		<?php
-		$attributes = array('class' => 'input_form');
+		$attributes = array('class' => 'input_form','id'=>'regimenchange_management_frm');
 		echo form_open('regimenchange_management/save', $attributes);
 		echo validation_errors('<p class="error">', '</p>');
 		?>
@@ -158,7 +158,7 @@ foreach($actions as $action){
 		</div>
 		<div class="modal-footer">
 		   <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
-		   <input type="submit" value="Save" class="btn btn-primary " />
+		   <input type="submit" class="save_btn" value="Save" class="btn btn-primary " />
 		</div>
 		</form>
 	</div>
@@ -166,7 +166,7 @@ foreach($actions as $action){
 	<!--Edit regimen change reason -->
 	<div id="edit_form" title="Edit regimen change reason" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="NewRegimen" aria-hidden="true">
 		<?php
-		$attributes = array('class' => 'input_form');
+		$attributes = array('class' => 'input_form','id'=>'regimenupdate_management_frm');
 		echo form_open('regimenchange_management/update', $attributes);
 		echo validation_errors('<p class="error">', '</p>');
 		?>
@@ -189,6 +189,17 @@ foreach($actions as $action){
 	</div>
 
 </div>
+
+<script type="text/javascript">
+	$(document).ready(function(){
+		 $(".save_btn").live('click',function(event){
+			event.preventDefault();
+			$(this).prop('disabled',true);		
+			$("#regimenchange_management_frm").submit();
+			
+		});
+	});
+</script>
 
 
 
