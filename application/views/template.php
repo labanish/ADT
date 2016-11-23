@@ -180,7 +180,7 @@ if (isset($styles)) {
 						$(".welcome_msg").css("margin-top","2.5%");
 					}
 					else{
-						$(".welcome_msg").css("margin-top","5%");
+						$(".welcome_msg").css("margin-top","3%");
 					}	
 				}else{
 					$(".welcome_msg").css("margin-top","4%")

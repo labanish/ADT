@@ -1949,7 +1949,7 @@ class Patient_Management extends MY_Controller {
         $drug_id = $this ->input ->post('drug_id');
         $sql="select do.id,Name,frequency from dossing_chart d
               inner join dose do on do.id=d.dose_id
-              where min_weight <= '$weight' and max_weight >= '$weight' and drug_id='$drug_id' ";
+              where min_weight <= '$weight' and max_weight >= '$weight' and drug_id='$drug_id' and is_active = '1'";
         $query = $this -> db -> query($sql);
         $data = $query -> row();
         echo json_encode($data);
