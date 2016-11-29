@@ -1418,7 +1418,7 @@
 						</td>
 					</tr>
 					<tr><th>Ref. /Order No</th></tr>
-					<tr><td><input type="text" name="reference_number" id="reference_number" class="input-large" /></td></tr>
+					<tr><td><input type="text" name="reference_number" id="reference_number" required="required" class="input-large" /></td></tr>
 					<tr class="t_source"><th>Source</th></tr>
 					<tr class="t_source"><td>
 						<select name="source" id="select_source" class="input-large">
