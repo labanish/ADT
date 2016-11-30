@@ -661,6 +661,7 @@
 		
 		//Save transaction details
 		$("#btn_submit").click(function(){
+
 			//Timestamp
 			var time_stamp="<?php echo date('U');?>";
 			var all_drugs_supplied=1;
@@ -848,8 +849,14 @@
 				var get_stock_type=stock_type;
 				var get_user=user;
 			
+				if(reference_number.value == ''){
+					    bootbox.alert("<h4>Ref. / Order Number Required</h4>\n\<hr/><center>Please enter the reference_number! </center>" );
+					    $("#btn_submit").prop("disabled",false);
+					}
+				else{
+
 				//var emailaddress=dump["email_address"];
-				$("#btn_submit").attr("disabled","disabled");
+				$("#btn_submit").prop("disabled",false);
 				var request=$.ajax({
 			     url: _url,
 			     type: 'post',
@@ -913,6 +920,11 @@
 						
 					}
 			    });
+
+
+				}
+
+				
 			  
 			};
 			
@@ -1418,7 +1430,7 @@
 						</td>
 					</tr>
 					<tr><th>Ref. /Order No</th></tr>
-					<tr><td><input type="text" name="reference_number" id="reference_number" required="required" class="input-large" /></td></tr>
+					<tr><td><input type="text" name="reference_number" id="reference_number" required="" class="input-large" /></td></tr>
 					<tr class="t_source"><th>Source</th></tr>
 					<tr class="t_source"><td>
 						<select name="source" id="select_source" class="input-large">
