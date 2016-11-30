@@ -678,7 +678,7 @@ class Patient_Management extends MY_Controller {
             'Endphase' => $this -> input -> post('tophase', TRUE),
             'Date_Enrolled' => $this -> input -> post('enrolled', TRUE),
             'Current_Status' => $this -> input -> post('current_status', TRUE),
-            'Status_Change_Date' => $this -> input -> post('status_started', TRUE),
+            'status_change_date' => $this -> input -> post('status_started', TRUE),
             'Source' => $this -> input -> post('source', TRUE),
             'Transfer_From' => $this -> input -> post('transfer_source', TRUE),
             'Supported_By' => $this -> input -> post('support', TRUE),
