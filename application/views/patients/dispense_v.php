@@ -348,8 +348,17 @@ var patient_iqcare=false;
     $(document).ready(function(){
         var loopcounter = 0;
         //iqcare flag
-        var id="<?php echo $patient_id; ?>";
-        console.log(id);
+         var id="<?php echo $patient_id; ?>";
+          var link = "<?php echo base_url() . 'patient_management/get_viral_load_info'; ?>";
+        var request_viral_load=$.ajax({
+                url: link,
+                type: 'POST',
+                data: {"id":id},
+                dataType: "json",
+                success: function(data) {
+                    console.log(data);
+                }
+            });
         
 
         //Run after all are done
@@ -969,9 +978,20 @@ if(patient_iqcare==false){
                     request.done(function(datas){
                         var age = datas.Dob;
                         var weight=datas.Weight;
-                        var drug_id =selected_drug ; 
-                        //if patient is a child              
-                        if (age < 15) {
+                        var drug_id =selected_drug ;
+                        //get facility adult age
+                        var link ="<?php echo base_url();?>dispensement_management/getFacililtyAge";
+                        var request = $.ajax({
+                            url: link,
+                            type: 'post',
+                            dataType: "json"
+                        });
+                    
+                        request.done(function(datas){ 
+                        var adult_age=datas[0].adult_age;
+                        //if patient is a child 
+
+                        if (age < adult_age) {
                             var url_dose = "<?php echo base_url() . 'dispensement_management/getDoses'; ?>";
                             //Get doses
                             var request_dose = $.ajax({
@@ -1028,7 +1048,8 @@ if(patient_iqcare==false){
                                     });
                                 });
                             });
-                        }  
+                        } 
+                         });
                     });
 
                     // end of doses

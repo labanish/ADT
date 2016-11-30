@@ -186,7 +186,7 @@ class Dispensement_Management extends MY_Controller {
 //die();
 	}
 
-        public function getBrands() {
+    public function getBrands() {
 		$drug_id = $this -> input -> post("selected_drug");
 		$get_drugs_sql = $this -> db -> query("SELECT DISTINCT id,brand FROM brand WHERE drug_id='" . $drug_id . "' AND brand!=''");
 		$get_drugs_array = $get_drugs_sql -> result_array();
@@ -203,6 +203,13 @@ class Dispensement_Management extends MY_Controller {
 		$get_doses_sql = $this -> db -> query("SELECT id,dose FROM drugcode where id='$drug_id'");
 		$get_doses_array = $get_doses_sql -> result_array();
 		echo json_encode($get_doses_array);
+	}
+	public function getFacililtyAge(){
+		$facility_code = $this -> session -> userdata('facility');
+		$get_adult_age_sql = $this -> db -> query("SELECT adult_age FROM facilities where facilitycode='$facility_code'");
+		$get_adult_age_array = $get_adult_age_sql -> result_array();
+		//echo $facility_code;
+		echo json_encode($get_adult_age_array);
 	}
 
 //function to return drugs on the sync_drugs
