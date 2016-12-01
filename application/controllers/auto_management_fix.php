@@ -414,7 +414,7 @@ class auto_management extends MY_Controller {
 	}
 
 	public function updatePatientData() {
-		$days_to_lost_followup = 90;
+		$days_to_lost_followup = 180;
 		$days_to_pep_end = 30;
 		$days_in_year = date("z", mktime(0, 0, 0, 12, 31, date('Y'))) + 1;
 		$adult_age = 12;
@@ -555,7 +555,7 @@ class auto_management extends MY_Controller {
                   AND p.start_regimen_date IS NOT NULL";
         //Update status_change_date for lost_to_follow_up patients
         $fixes[]="UPDATE patient p,
-				 (SELECT p.id, INTERVAL 90 DAY + p.nextappointment AS choosen_date
+				 (SELECT p.id, INTERVAL 180 DAY + p.nextappointment AS choosen_date
 				  FROM patient p
 				  LEFT JOIN patient_status ps ON ps.id = p.current_status
 				  WHERE ps.Name LIKE  '%lost%') as test 
