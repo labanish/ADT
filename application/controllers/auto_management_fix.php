@@ -1,7 +1,7 @@
 <?php
 ob_start();
 //error_reporting(0);
-class auto_management extends MY_Controller {
+class auto_management_fix extends MY_Controller {
 	var $nascop_url = "";
 	var $viral_load_url="";
 	function __construct() {
@@ -426,7 +426,6 @@ class auto_management extends MY_Controller {
 		$adult_days = $days_in_year * $adult_age;
 		$message = "";
 		$state = array();
-
 		//Get Patient Status id's
 		$status_array = array($active, $lost, $pep, $pmtct);
 		foreach ($status_array as $status) {
@@ -435,11 +434,10 @@ class auto_management extends MY_Controller {
 			$rs = $q -> result_array();
 			if($rs){
 			    $state[$status] = $rs[0]['id'];
-			}  else {
-                            $state[$status]='NAN'; //If non existant
-                        }	
+			} else{
+                $state[$status]='NAN'; //If non existant
+            }	
 		}
-
 		if(!empty($state)){
 			/*Change Last Appointment to Next Appointment*/
 			$sql['Change Last Appointment to Next Appointment'] = "(SELECT patient_number_ccc,nextappointment,temp.appointment,temp.patient
@@ -452,7 +450,6 @@ class auto_management extends MY_Controller {
 						AND DATEDIFF(temp.appointment,p.nextappointment)>0
 						GROUP BY p.patient_number_ccc) as p1
 						SET p.nextappointment=p1.appointment";
-
 			/*Change Active to Lost_to_follow_up*/
 			if(isset($state[$lost])){
 				$sql['Change Active to Lost_to_follow_up'] = "(SELECT patient_number_ccc,nextappointment,DATEDIFF(CURDATE(),nextappointment) as days
@@ -461,7 +458,7 @@ class auto_management extends MY_Controller {
 					   WHERE ps.Name LIKE '%$active%'
 					   AND (DATEDIFF(CURDATE(),nextappointment )) >=$days_to_lost_followup
 					   AND p.status_change_date != CURDATE()) as p1
-					   SET p.current_status = '$state[$lost]'";
+					   SET p.current_status = '$state[$lost]', p.status_change_date = CURDATE()";
 			}
 			
 			/*Change Lost_to_follow_up to Active */
@@ -471,10 +468,9 @@ class auto_management extends MY_Controller {
 					   LEFT JOIN patient_status ps ON ps.id=p.current_status
 					   WHERE ps.Name LIKE '%$lost%'
 					   AND (DATEDIFF(CURDATE(),nextappointment )) <$days_to_lost_followup) as p1
-					   SET p.current_status = '$state[$active]' ";
+					   SET p.current_status = '$state[$active]', p.status_change_date = CURDATE()";
 			}
 			
-
 			/*Change Active to PEP End*/
 			if(isset($state[$pep])){
 				$sql['Change Active to PEP End'] = "(SELECT patient_number_ccc,rst.name as Service,ps.Name as Status,DATEDIFF(CURDATE(),date_enrolled) as days_enrolled
@@ -484,10 +480,9 @@ class auto_management extends MY_Controller {
 					   WHERE (DATEDIFF(CURDATE(),date_enrolled))>=$days_to_pep_end 
 					   AND rst.name LIKE '%$pep%' 
 					   AND ps.Name NOT LIKE '%$pep%') as p1
-					   SET p.current_status = '$state[$pep]' ";
+					   SET p.current_status = '$state[$pep]', p.status_change_date = CURDATE()";
 			}
 			
-
 			/*Change PEP End to Active*/
 			if(isset($state[$active])){
 				$sql['Change PEP End to Active'] = "(SELECT patient_number_ccc,rst.name as Service,ps.Name as Status,DATEDIFF(CURDATE(),date_enrolled) as days_enrolled
@@ -497,10 +492,9 @@ class auto_management extends MY_Controller {
 					   WHERE (DATEDIFF(CURDATE(),date_enrolled))<$days_to_pep_end 
 					   AND rst.name LIKE '%$pep%' 
 					   AND ps.Name NOT LIKE '%$active%') as p1
-					   SET p.current_status = '$state[$active]' ";
+					   SET p.current_status = '$state[$active]', p.status_change_date = CURDATE()";
 			}
 			
-
 			/*Change Active to PMTCT End(children)*/
 			if(isset($state[$pmtct])){
 				$sql['Change Active to PMTCT End(children)'] = "(SELECT patient_number_ccc,rst.name AS Service,ps.Name AS Status,DATEDIFF(CURDATE(),dob) AS days
@@ -511,10 +505,9 @@ class auto_management extends MY_Controller {
 					   AND (DATEDIFF(CURDATE(),dob)) <$adult_days
 					   AND rst.name LIKE  '%$pmtct%'
 					   AND ps.Name NOT LIKE  '%$pmtct%') as p1
-					   SET p.current_status = '$state[$pmtct]'";
+					   SET p.current_status = '$state[$pmtct]', p.status_change_date = CURDATE()";
 			}
 			
-
 			/*Change PMTCT End to Active(Adults)*/
 			if(isset($state[$active])){
 				$sql['Change PMTCT End to Active(Adults)'] = "(SELECT patient_number_ccc,rst.name AS Service,ps.Name AS Status,DATEDIFF(CURDATE(),dob) AS days
@@ -525,7 +518,7 @@ class auto_management extends MY_Controller {
 					   AND (DATEDIFF(CURDATE(),dob)) >=$adult_days 
 					   AND rst.name LIKE '%$pmtct%'
 					   AND ps.Name LIKE '%$pmtct%') as p1
-					   SET p.current_status = '$state[$active]'";
+					   SET p.current_status = '$state[$active]', p.status_change_date = CURDATE()";
 			}
 			
 			foreach ($sql as $i => $q) {
@@ -553,14 +546,8 @@ class auto_management extends MY_Controller {
                   SET p.start_regimen_date='' 
                   WHERE rst.name LIKE '%oi%'
                   AND p.start_regimen_date IS NOT NULL";
-        //Update status_change_date for lost_to_follow_up patients
-        $fixes[]="UPDATE patient p,
-				 (SELECT p.id, INTERVAL 180 DAY + p.nextappointment AS choosen_date
-				  FROM patient p
-				  LEFT JOIN patient_status ps ON ps.id = p.current_status
-				  WHERE ps.Name LIKE  '%lost%') as test 
-				 SET p.status_change_date=test.choosen_date
-				 WHERE p.id=test.id";
+        //Update status_change_date for lost_to_follow_up patients @180
+        $fixes[]="UPDATE patient p,(SELECT p.id,CASE WHEN p.nextappointment != '' THEN INTERVAL 180 DAY + p.nextappointment ELSE CASE WHEN p.start_regimen_date != '' THEN INTERVAL 180 DAY + p.start_regimen_date ELSE INTERVAL 180 DAY + p.date_enrolled END END AS choosen_date FROM patient p LEFT JOIN patient_status ps ON ps.id = p.current_status WHERE ps.Name LIKE '%lost%' AND p.status_change_date = '') as test SET p.status_change_date=test.choosen_date WHERE p.id=test.id";
 	    //Update patients without service lines ie Pep end status should have pep as a service line
         $fixes[]="UPDATE patient p
 			 	  LEFT JOIN patient_status ps ON ps.id=p.current_status,
@@ -583,7 +570,6 @@ class auto_management extends MY_Controller {
 		$fixes[]="UPDATE drug_instructions 
 				  SET name=REPLACE(name, '?', '.')
 				  WHERE name LIKE '%?%'";
-
 		$facility_code=$this->session->userdata("facility");
 		//Auto Update Supported and supplied columns for satellite facilities
 		$fixes[] = "UPDATE facilities f, 
@@ -599,7 +585,6 @@ class auto_management extends MY_Controller {
 				  SET p.other_drugs = TRIM(Replace(Replace(Replace(p.other_drugs,'\t',''),'\n',''),'\r','')),
 				  p.other_illnesses = TRIM(Replace(Replace(Replace(p.other_illnesses,'\t',''),'\n',''),'\r','')),
 				  p.adr = TRIM(Replace(Replace(Replace(p.adr,'\t',''),'\n',''),'\r',''))";
-
 		//Execute fixes
 		$total=0;
 		foreach ($fixes as $fix) {

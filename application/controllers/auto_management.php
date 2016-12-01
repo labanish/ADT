@@ -42,7 +42,7 @@ class auto_management extends MY_Controller {
 			//function to update patient data such as active to lost_to_follow_up	
 			$message .= $this->updatePatientData();
 			//function to update data bugs by applying query fixes
-			//$message .= $this->updateFixes();
+			$message .= $this->updateFixes();
 			//function to add new facilities list
 			$message .= $this->updateFacilties();
 			//function to create new tables into adt
@@ -469,9 +469,9 @@ class auto_management extends MY_Controller {
 			$rs = $q -> result_array();
 			if($rs){
 			    $state[$status] = $rs[0]['id'];
-			}  else {
-                            $state[$status]='NAN'; //If non existant
-                        }	
+			} else{
+                $state[$status]='NAN'; //If non existant
+            }	
 		}
 		if(!empty($state)){
 			/*Change Last Appointment to Next Appointment*/
@@ -493,7 +493,7 @@ class auto_management extends MY_Controller {
 					   WHERE ps.Name LIKE '%$active%'
 					   AND (DATEDIFF(CURDATE(),nextappointment )) >=$days_to_lost_followup
 					   AND p.status_change_date != CURDATE()) as p1
-					   SET p.current_status = '$state[$lost]'";
+					   SET p.current_status = '$state[$lost]', p.status_change_date = CURDATE()";
 			}
 			
 			/*Change Lost_to_follow_up to Active */
@@ -503,7 +503,7 @@ class auto_management extends MY_Controller {
 					   LEFT JOIN patient_status ps ON ps.id=p.current_status
 					   WHERE ps.Name LIKE '%$lost%'
 					   AND (DATEDIFF(CURDATE(),nextappointment )) <$days_to_lost_followup) as p1
-					   SET p.current_status = '$state[$active]' ";
+					   SET p.current_status = '$state[$active]', p.status_change_date = CURDATE()";
 			}
 			
 			/*Change Active to PEP End*/
@@ -515,7 +515,7 @@ class auto_management extends MY_Controller {
 					   WHERE (DATEDIFF(CURDATE(),date_enrolled))>=$days_to_pep_end 
 					   AND rst.name LIKE '%$pep%' 
 					   AND ps.Name NOT LIKE '%$pep%') as p1
-					   SET p.current_status = '$state[$pep]' ";
+					   SET p.current_status = '$state[$pep]', p.status_change_date = CURDATE()";
 			}
 			
 			/*Change PEP End to Active*/
@@ -527,7 +527,7 @@ class auto_management extends MY_Controller {
 					   WHERE (DATEDIFF(CURDATE(),date_enrolled))<$days_to_pep_end 
 					   AND rst.name LIKE '%$pep%' 
 					   AND ps.Name NOT LIKE '%$active%') as p1
-					   SET p.current_status = '$state[$active]' ";
+					   SET p.current_status = '$state[$active]', p.status_change_date = CURDATE()";
 			}
 			
 			/*Change Active to PMTCT End(children)*/
@@ -540,7 +540,7 @@ class auto_management extends MY_Controller {
 					   AND (DATEDIFF(CURDATE(),dob)) <$adult_days
 					   AND rst.name LIKE  '%$pmtct%'
 					   AND ps.Name NOT LIKE  '%$pmtct%') as p1
-					   SET p.current_status = '$state[$pmtct]'";
+					   SET p.current_status = '$state[$pmtct]', p.status_change_date = CURDATE()";
 			}
 			
 			/*Change PMTCT End to Active(Adults)*/
@@ -553,7 +553,7 @@ class auto_management extends MY_Controller {
 					   AND (DATEDIFF(CURDATE(),dob)) >=$adult_days 
 					   AND rst.name LIKE '%$pmtct%'
 					   AND ps.Name LIKE '%$pmtct%') as p1
-					   SET p.current_status = '$state[$active]'";
+					   SET p.current_status = '$state[$active]', p.status_change_date = CURDATE()";
 			}
 			
 			foreach ($sql as $i => $q) {
@@ -581,14 +581,8 @@ class auto_management extends MY_Controller {
                   SET p.start_regimen_date='' 
                   WHERE rst.name LIKE '%oi%'
                   AND p.start_regimen_date IS NOT NULL";
-        //Update status_change_date for lost_to_follow_up patients
-        $fixes[]="UPDATE patient p,
-				 (SELECT p.id, INTERVAL 180 DAY + p.nextappointment AS choosen_date
-				  FROM patient p
-				  LEFT JOIN patient_status ps ON ps.id = p.current_status
-				  WHERE ps.Name LIKE  '%lost%') as test 
-				 SET p.status_change_date=test.choosen_date
-				 WHERE p.id=test.id";
+        //Update status_change_date for lost_to_follow_up patients @180
+        $fixes[]="UPDATE patient p,(SELECT p.id,CASE WHEN p.nextappointment != '' THEN INTERVAL 180 DAY + p.nextappointment ELSE CASE WHEN p.start_regimen_date != '' THEN INTERVAL 180 DAY + p.start_regimen_date ELSE INTERVAL 180 DAY + p.date_enrolled END END AS choosen_date FROM patient p LEFT JOIN patient_status ps ON ps.id = p.current_status WHERE ps.Name LIKE '%lost%' AND p.status_change_date = '') as test SET p.status_change_date=test.choosen_date WHERE p.id=test.id";
 	    //Update patients without service lines ie Pep end status should have pep as a service line
         $fixes[]="UPDATE patient p
 			 	  LEFT JOIN patient_status ps ON ps.id=p.current_status,
