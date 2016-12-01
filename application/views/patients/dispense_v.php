@@ -356,7 +356,7 @@ var patient_iqcare=false;
                 data: {"id":id},
                 dataType: "json",
                 success: function(data) {
-                    console.log(data);
+                    bootbox.alert("<h4>Notice!</h4>\n\<center>"+data+"</center>");
                 }
             });
         
