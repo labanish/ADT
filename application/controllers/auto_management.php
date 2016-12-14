@@ -655,19 +655,22 @@ class auto_management extends MY_Controller {
 		} else {
 			$data = json_decode($json_data, TRUE); 
 			$lab_data=$data['posts'];
-			foreach($lab_data as $lab){
-				foreach($lab as $tests){
-				   	$ccc_no = trim($tests['Patient']);
-				   	$result = $tests['Result'];
-				    $date_tested = $tests['DateTested'];
-				    $justification = $tests['Justification'];
-					//An array to store patient viral Load data
-					$sql = "CALL proc_check_viralload(?, ?, ?, ?)";
-					$parameters = array($ccc_no, $date_tested, $result, $justification);
-					$this->db->query($sql, $parameters);
-               }
+			$message="Viral Load Download Failed!<br/>";
+			if(!empty($lab_data)){
+				foreach($lab_data as $lab){
+					foreach($lab as $tests){
+					   	$ccc_no = trim($tests['Patient']);
+					   	$result = $tests['Result'];
+					    $date_tested = $tests['DateTested'];
+					    $justification = $tests['Justification'];
+						//An array to store patient viral Load data
+						$sql = "CALL proc_check_viralload(?, ?, ?, ?)";
+						$parameters = array($ccc_no, $date_tested, $result, $justification);
+						$this->db->query($sql, $parameters);
+	               }
+				}
+		    	$message="Viral Load Download Success!<br/>";
 			}
-		    $message="Viral Load Download Success!<br/>";
 		}
 
 		return $message;

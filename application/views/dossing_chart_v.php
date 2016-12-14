@@ -1,40 +1,41 @@
 <script>
 //load pediatric drugs and dose when the add button is clicked 
 	$(document).ready(function() {
-		$('#client_form1').on('click',function(e){
-			//GET DRUGS
-			var request=$.ajax({
-			url: "dossing_chart/get_drugs",
-			type: 'POST',
-			    dataType: "json",
-			    success: function(datas) {
-					for(var i=0;i<datas.length; i++){
-						var ids=datas[i]['id'];
-						var drugs= datas[i]['drug'];
-						$('#drug').append($('<option>', {
-							value: ids,
-							text: drugs
-							}));
-					}	
-			    }
-			});
-			//GET DOSE
-			var request=$.ajax({
-			url: "dossing_chart/get_dose",
-			type: 'POST',
-			    dataType: "json",
-			    success: function(datas) {
-					for(var i=0;i<datas.length; i++){
-						var ids=datas[i]['id'];
-						var doses= datas[i]['Name'];
-						$('#dose').append($('<option>', {
-							value: ids,
-							text: doses
-							}));
-					}	
-			    }
-			});
+		//GET DRUGS
+		var request=$.ajax({
+		url: "dossing_chart/get_drugs",
+		type: 'POST',
+		    dataType: "json",
+		    success: function(datas) {
+		    	$('#drug').empty();
+				for(var i=0;i<datas.length; i++){
+					var ids=datas[i]['id'];
+					var drugs= datas[i]['drug'];
+					$('#drug').append($('<option>', {
+						value: ids,
+						text: drugs
+						}));
+				}	
+		    }
 		});
+		//GET DOSE
+		var request=$.ajax({
+		url: "dossing_chart/get_dose",
+		type: 'POST',
+		    dataType: "json",
+		    success: function(datas) {
+		    	$('#dose').empty();
+				for(var i=0;i<datas.length; i++){
+					var ids=datas[i]['id'];
+					var doses= datas[i]['Name'];
+					$('#dose').append($('<option>', {
+						value: ids,
+						text: doses
+						}));
+				}	
+		    }
+		});
+
 		//edit dose info
 		$('.edit_user').on('click',function(e){
 			e.preventDefault();
@@ -185,7 +186,7 @@
 			</label>
 			<label>
 			<strong class="label">Drug</strong>
-			<select name="drug[]" multiple id="drug">
+			<select name="drug[]" multiple id="drug" style="width:100%;">
 			</select>
 			<label>
 			<strong class="label">Dose</strong>
@@ -222,7 +223,7 @@
 			</label>
 			<label>
 			<strong class="label">Drug</strong>
-			<select name="drugs" id="drugs">
+			<select name="drugs" id="drugs" style="width:100%;">
 			</select>
 			<label>
 			<strong class="label">Dose</strong>
