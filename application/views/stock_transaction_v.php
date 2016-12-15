@@ -166,8 +166,8 @@
 						$("#btn_print").css("display","inline");
 					}
 					
-					//In case of dispensed to patients,adjustments(-),returns,losses,expiries, hide destination
-					if(trans_type.indexOf('dispensed')!= -1 || (trans_type.indexOf('adjustment')!= -1 && trans_effect==0) ||  trans_type.indexOf('loss')!= -1 || trans_type.indexOf('expir') != -1){
+					//In case of dispensed to patients,adjustments,returns,losses,expiries, hide destination
+					if(trans_type.indexOf('dispensed')!= -1 || trans_type.indexOf('adjustment')!= -1 ||  trans_type.indexOf('loss')!= -1 || trans_type.indexOf('expir') != -1){
 						$(".t_destination").css("display","none");
 						$(".t_source").css("display","none");
 					}
@@ -408,9 +408,10 @@
 				if(trans_type.indexOf('adjustment')!= -1 && trans_effect==1){
 					row.closest("tr").find(".b_list").css("display","block");
 					row.closest("tr").find("#batch_1").css("display","none");
+					row.closest("tr").find("#batch_2").css("display","none"); //Fix for expiry date showing in batch list
 					getBatchList(selected_drug,stock_type,row);
 				}else{
-					row.closest("tr").find("#batch_1").css("display","block");
+					row.closest("tr").find("#batch_2").css("display","block");
 					row.closest("tr").find(".b_list").css("display","none");
 					var selected_drug=$(this).val();
 					loadDrugDetails(selected_drug,row);
@@ -1044,7 +1045,6 @@
 	    	$.each(data,function(key,value){
 	    		row.closest("tr").find("#unit").val(value.Name);
 	    		row.closest("tr").find("#pack_size").val(value.pack_size);
-	    		//alert(value.drug);
 	    		row.closest("tr").find(".batchselect").append("<option value='"+value.batch_number+"'>"+value.batch_number+"</option> ");
 	    		
 	    	});
@@ -1107,12 +1107,12 @@
 	    	$.each(data,function(key,value){
 	    		row.closest("tr").find(".expiry").val(value.expiry_date);
 	    		row.closest("tr").find(".quantity_available ").val(value.balance);
-                        var month=today_month+1;
+                        var month=today_month;
                         var t_date=new Date(today_year,month,today_date);
                         var e_date=new Date(value.expiry_date);
                         var diff = e_date.getTime() - t_date.getTime();
                         var months = Math.floor(diff/(1000 * 60 * 60 * 24*30));
-                        
+
                         if(e_date<t_date){
                            bootbox.alert("<h4>Expiry Notice</h4>\n\<hr/><center>The drug being transacted has expired! </center>" );
                            $("#btn_submit").attr("disabled","disabled");
