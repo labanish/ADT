@@ -1136,10 +1136,10 @@
 	  var row = $('#drugs_table tr:last');
 	  //default options
 	  row.find(".unit").val("");
-          row.find(".pack_size").val("");
-	  row.find(".batch option").remove();
+      row.find(".pack_size").val("");
 	  row.find(".batch").val("");
-          row.find("#date_0").val("");
+	  row.find(".batch option").remove();
+      row.find("#date_0").val("");
 	  row.find("#packs_1").val("");
 	  row.find("#quantity_1").val("");
 	  row.find("#available_quantity").val("");
