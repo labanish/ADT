@@ -1,0 +1,20 @@
+.ui-dialog{
+   position:fixed;
+}
+
+#dispensing_history {
+	letter-spacing:0px;
+	zoom:0.85;	
+	max-width: 100% !important;
+}
+
+#dispensing_history td, #dispensing_history tr, #dispensing_history th {
+	max-width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+thead {
+    background: #999;
+}
