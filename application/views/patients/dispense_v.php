@@ -279,9 +279,9 @@
                             <input type="text" name="expiry[]" name="expiry" class="expiry input-small" id="expiry_date" readonly="" size="15"/>
                         </td>
                         <td class="dose_col">
-                            <select name="dose[]" class="next_pill input-small dose  span2"></select></td>
-                            <!-- <input  name="dose[]" list="dose" id="doselist" class="input-small next_pill dose icondose"> -->
-                            <!-- <datalist id="dose" class="dose"><select name="dose1[]" class="dose"></select></datalist> -->
+                           <!-- <select name="dose[]" class="next_pill input-small dose  span2"></select></td>-->
+                            <input  name="dose[]" list="dose" id="doselist" class="input-small next_pill dose icondose"> 
+                            <datalist id="dose" class="dose"><select name="dose1[]" class="dose"></select></datalist> 
                         </td>
                         <td>
                             <input type="text" name="pill_count[]" class="pill_count input-small" readonly="readonly" />
