@@ -294,6 +294,12 @@
 								<li>
 									<a href="#" class="settings/listing/regimen_service_type" title="Service Management" id="index">Regimen Service Type</a>
 								</li>
+								<li>
+									<a href="#" class="order_settings/listing/sync_regimen" title="Order Regimen Management">Regimens Order</a>
+								</li>
+								<li>
+									<a href="#" class="order_settings/listing/sync_regimen_category" title="Order Regimen Category Management">Regimen Category Order</a>
+								</li>
 							</ul>
 						</li>
 						<li class="divider-vertical"></li>
@@ -333,6 +339,12 @@
 								<li>
 									<a href="#" class="drug_stock_balance_sync/view_balance" title="Drug Balances Management">Drug Running Balance</a>
 								</li>
+								<li>
+									<a href="#" class="dossing_chart" title="Drug Balances Management">Pediatric Dossing Chart</a>
+								</li>
+								<li>
+									<a href="#" class="order_settings/listing/sync_drug" title="Order Drug Management">Drugs Order</a>
+								</li>
 							</ul>
 						</li>
 						<li class="divider-vertical"></li>
@@ -349,8 +361,11 @@
 									<a href="#" class="client_management" title="Patient Source Management">Facility Patient Sources</a>
 								</li>
 								<li>
-									<a href="#" class="client_support" title="Facility Supporters Management">Facility Supporters</a>
+									<a href="#" class="order_settings/listing/sync_facility" title="Order Facility Management">Facility Order</a>
 								</li>
+								<!--<li>
+									<a href="#" class="client_support" title="Facility Supporters Management">Facility Supporters</a>
+								</li>-->
 							</ul>
 						</li>
 						<li class="divider-vertical"></li>
@@ -383,24 +398,15 @@
 								</li>
 							</ul>
 						</li>
-						<li class="divider-vertical"></li>
+						<!--<li class="divider-vertical"></li>
 						<li class="dropdown">
 							<a class="dropdown-toggle" role="button" data-toggle="dropdown" id="dLabel" href="#">Order<b class="caret"></b></a>
 							<ul class="dropdown-menu setting_menus" role="menu" aria-labelledby="dLabel">
-								<li>
-									<a href="#" class="order_settings/listing/sync_drug" title="Order Drug Management">Order Drugs</a>
-								</li>
-								<li>
-									<a href="#" class="order_settings/listing/sync_regimen" title="Order Regimen Management">Order Regimens</a>
-								</li>
-								<li>
-									<a href="#" class="order_settings/listing/sync_regimen_category" title="Order Regimen Category Management">Order Regimen Category</a>
-								</li>
-								<li>
-									<a href="#" class="order_settings/listing/sync_facility" title="Order Facility Management">Order Facility</a>
-								</li>
+								
+								
+								
 							</ul>
-						</li>
+						</li>-->
 					</ul>
 				</div>
 			</div>

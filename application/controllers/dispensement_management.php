@@ -66,6 +66,18 @@ class Dispensement_Management extends MY_Controller {
 		}
 		echo json_encode($iqcare_data);
 	}
+	public function get_patient_details(){
+		$record_no = $this -> input -> post('record_no');
+		$facility_code = $this -> session -> userdata('facility');
+		$sql = "select ps.name as patient_source,p.patient_number_ccc,FLOOR(DATEDIFF(CURDATE(),p.dob)/365) as age from patient p 
+				LEFT JOIN patient_source ps ON ps.id = p.source
+				where p.id='$record_no' and facility_code='$facility_code'
+				";
+		$query = $this -> db -> query($sql);
+		$results = $query -> result_array();
+		echo json_encode($results);
+
+	}
 	public function dispense($record_no) {
 		$facility_code = $this -> session -> userdata('facility');
                 
@@ -87,7 +99,6 @@ class Dispensement_Management extends MY_Controller {
 			$patient_no = $results[0]['patient_number_ccc'];
 			$age=@$results[0]['age'];
 			$data['results'] = $results;
-	
 		}
 
 		/*************/
@@ -175,7 +186,7 @@ class Dispensement_Management extends MY_Controller {
 //die();
 	}
 
-        public function getBrands() {
+    public function getBrands() {
 		$drug_id = $this -> input -> post("selected_drug");
 		$get_drugs_sql = $this -> db -> query("SELECT DISTINCT id,brand FROM brand WHERE drug_id='" . $drug_id . "' AND brand!=''");
 		$get_drugs_array = $get_drugs_sql -> result_array();
@@ -186,6 +197,19 @@ class Dispensement_Management extends MY_Controller {
 		$get_doses_sql = $this -> db -> query("SELECT id,Name,value,frequency FROM dose");
 		$get_doses_array = $get_doses_sql -> result_array();
 		echo json_encode($get_doses_array);
+	}
+
+	public function getDrugDose($drug_id) {
+		$get_doses_sql = $this -> db -> query("SELECT id,dose FROM drugcode where id='$drug_id'");
+		$get_doses_array = $get_doses_sql -> result_array();
+		echo json_encode($get_doses_array);
+	}
+	public function getFacililtyAge(){
+		$facility_code = $this -> session -> userdata('facility');
+		$get_adult_age_sql = $this -> db -> query("SELECT adult_age FROM facilities where facilitycode='$facility_code'");
+		$get_adult_age_array = $get_adult_age_sql -> result_array();
+		//echo $facility_code;
+		echo json_encode($get_adult_age_array);
 	}
 
 //function to return drugs on the sync_drugs
@@ -606,18 +630,17 @@ class Dispensement_Management extends MY_Controller {
 		$facility_name=$this->input->post("print_facility_name");
 		$facility_phone=$this->input->post("print_facility_phone");
 		$str="";
-		
 		$this -> load -> library('mpdf');
 
 		//MPDF Config
 		$mode = 'utf-8';
-		$format = array(80,90);
-		$default_font_size = '11';
-		$default_font = 'Helvetica';
-		$margin_left = '5';
-		$margin_right = '5';
+		$format = array(88.9,38.1);
+		$default_font_size = '9';
+		$default_font = 'Segoe UI';
+		$margin_left = '2';
+		$margin_right = '2';
 		$margin_top = '4';
-		$margin_bottom = '4';
+		$margin_bottom = '2';
 		$margin_header = '';
 		$margin_footer = '';
 		$orientation = 'P';
@@ -629,45 +652,44 @@ class Dispensement_Management extends MY_Controller {
 			foreach($check_if_print as $counter=>$check_print){
 				//selected to print
 				if($check_print){
-	               //count no. to print
-	               $count=1;
-				   
-	               while($count<=$no_to_print[$counter]){
-	               	     $this -> mpdf -> addPage();
-	               	     $str='<table border="1"  style="border-collapse:collapse;font-size:11px;">';
-						 $str.='<tr>';
-						 $str.='<td colspan="2">Drugname: <b>'.strtoupper($drug_name[$counter]).'</b></td>';
-						 $str.='<td>Qty: <b>'.$qty[$counter].'</b></td>';
-						 $str.='</tr>';
-						 $str.='<tr>';
-						 $str.='<td colspan="3">Tablets/Capsules: ';
-						 $str.='<b>'.$dose_value[$counter].'</b> to be taken <b>'.$dose_frequency[$counter].'</b> times a day after every <b>'.$dose_hours[$counter].'</b> hours</td>';
-						 $str.='</tr>';
-						 $str.='<tr>';
-						 $str.='<td colspan="3">Before/After Meals: ';
-						 $str.='<b>'.$drug_instructions[$counter].'</b></td>';
-						 $str.='</tr>';
-						 $str.='<tr>';
-						 $str.='<td>Patient Name: <b>'.$patient_name.'</b> </td><td> Pharmacy :<b>'.$pharmacy_name[$counter].'</b> </td> <td>Date:<b>'.$dispensing_date.'</b></td>';
-						 $str.='</tr>';
-						 $str.='<tr>';
-						 $str.='<td colspan="3" style="text-align:center;">Keep all medicines in a cold dry place out of reach of children.</td></tr>';
-						 $str.='<tr><td colspan="2">Facility Name: <b>'.$this->session->userdata("facility_name").'</b></td><td> Facility Phone: <b>'.$this->session->userdata("facility_phone").'</b>';
-						 $str.='</td>';
-						 $str.='</tr>';
-						 $str.='</table>';
-						 //write to page
-						 $this -> mpdf -> WriteHTML($str);
-						 $count++;
-					}
-	            }
-			}
+					//count no. to print
+					$count=1;
+					while($count<=$no_to_print[$counter]){
+						$this -> mpdf -> addPage();
+						$str='<table border="1"  style="border-collapse:collapse;font-size:9px;">';
+						$str.='<tr>';
+						$str.='<td colspan="2">Drugname: <b>'.strtoupper($drug_name[$counter]).'</b></td>';
+						$str.='<td>Qty: <b>'.$qty[$counter].'</b></td>';
+						$str.='</tr>';
+						$str.='<tr>';
+						$str.='<td colspan="3">Tablets/Capsules: ';
+						$str.='<b>'.$dose_value[$counter].'</b> to be taken <b>'.$dose_frequency[$counter].'</b> times a day after every <b>'.$dose_hours[$counter].'</b> hours</td>';
+						$str.='</tr>';
+						$str.='<tr>';
+						$str.='<td colspan="3">Before/After Meals: ';
+						$str.='<b>'.$drug_instructions[$counter].'</b></td>';
+						$str.='</tr>';
+						$str.='<tr>';
+						$str.='<td>Patient Name: <b>'.$patient_name.'</b> </td><td> Pharmacy :<b>'.$pharmacy_name[$counter].'</b> </td> <td>Date:<b>'.$dispensing_date.'</b></td>';
+						$str.='</tr>';
+						$str.='<tr>';
+						$str.='<td colspan="3" style="text-align:center;">Keep all medicines in a cold dry place out of reach of children.</td></tr>';
+						$str.='<tr><td colspan="2">Facility Name: <b>'.$this->session->userdata("facility_name").'</b></td><td> Facility Phone: <b>'.$this->session->userdata("facility_phone").'</b>';
+						$str.='</td>';
+						$str.='</tr>';
+						$str.='</table>';
+						//write to page
+						$this -> mpdf -> WriteHTML($str);
+						$count++;
+					} //end while
+				}//end if
+			} //end foreach
 			$file_name='Export/'.$patient_name.'(Labels).pdf';
 			$this -> mpdf -> Output($file_name, 'F');
 			echo base_url().$file_name;
-	    }else{
-	    	echo 0;
-	    }
+		}else{
+			echo 0;
+		}
 	}
 
 	public function getInstructions($drug_id){

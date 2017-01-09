@@ -1,0 +1,67 @@
+#patient_listing th, #top_enrollments_panel th, .listing_table th, .dataTable th, .table_order_details th, .regimen-table th {
+	border: 1px solid white;
+	border-bottom:1px solid #000;
+	background: #4e4e4e;
+	color:white;
+}
+
+.table_order_details,.regimen-table
+{
+	background:#eee;
+}
+.comments{
+	margin-top:5%;
+	padding:2%;
+}
+#patient_listing th:first-child, .listing th:first-child,.dataTable th:first-child {
+	border-left: 1px solid #999;
+}
+#patient_listing th:lastchild,.dataTable th:last-child,listing th:last-child {
+	border-right: 1px solid #999;
+}
+.dataTable tr:hover,.listing_table tr:hover, .male tr:nth-child(odd), .female tr:nth-child(odd), #missed_doses tbody tr:nth-child(even), #pill_count tbody tr:nth-child(even), #appointment_listing tbody tr:nth-child(even),
+.table_order_details tr:hover {
+	background: #989898  !important;
+}
+.hovered td{
+	background-color:#989898 ! important;
+}
+#patient_listing td+ td,.listing_table td+ td,.dataTable td+ td  {
+	text-align: left;
+}
+.listing_table{
+	margin:0 auto;
+	width:100%;
+}
+.listing_table td+ td{
+	text-align:center;
+}
+#patient_listing {
+	width: 100%;
+	border: solid 1px #999;
+}
+#patient_listing .tfoot,tfoot {
+	background: #999;
+}
+.category_title {
+	background: #353535;
+	color: white;
+	text-align: center;
+}
+.subcategory_title {
+	border-bottom: 1px solid #999;
+}
+.male, .female {
+	border: 1px solid #999;
+	margin: 1em 0 0.5em 0;
+}
+#start_date{
+	width:150px;
+}
+#end_date{
+	width:150px;
+}
+.ui-datepicker{
+	font-size:1em;
+}
+
