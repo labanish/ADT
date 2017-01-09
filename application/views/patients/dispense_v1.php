@@ -414,6 +414,7 @@ var patient_iqcare=false;
         //Add listener to the 'days_to_next' field so that the date picker can reflect the correct number of days!
         $("#days_to_next").change(function() {
             var days = $("#days_to_next").attr("value");
+
             if(days > 0){
             var base_date = new Date();
             var appointment_date = $("#next_appointment_date");
@@ -815,7 +816,6 @@ if(patient_iqcare==false){
     
     //Dynamically change the list of drugs once a current regimen is selected
     $("#current_regimen").change(function() {
-        
         var selected_regimen = $(this).val();
         //Check if the current regimen is OI Medicine and if not, hide the indication field
         var _url = "<?php echo base_url() . 'dispensement_management/getDrugsRegimens'; ?>";
@@ -883,6 +883,8 @@ if(patient_iqcare==false){
         var row = $(this);
         var selected_drug = $(this).val();
         var patient_no = $("#patient").val();
+        //var days = $("#days_to_next").val();
+        console.log(patient_no);
       
 
         //Check if patient allergic to selected drug
@@ -1208,7 +1210,7 @@ if(patient_iqcare==false){
             return this.value == val;
         }).data('dose_freq');
         //formula(duration*dose_value*dose_frequency)
-        console.log(dose_va);
+
         var qty_disp = duration * dose_val * dose_freq;
         row.closest("tr").find(".qty_disp").val(qty_disp);
         alert_qty_check = true;
@@ -1706,6 +1708,16 @@ var link ="<?php echo base_url();?>dispensement_management/getPreviouslyDispense
     function checkDaysLate(appointment_date){//Check how many days the patient is late
         var diffDays = 0;
         var dispensing_date = $.datepicker.parseDate('yy-mm-dd',$("#dispensing_date").val());
+        var appointment_date = $.datepicker.parseDate('yy-mm-dd',appointment_date);
+        if(appointment_date != null){
+            var timeDiff = dispensing_date.getTime() - appointment_date.getTime();
+            var diffDays = Math.floor(timeDiff / (1000 * 3600 * 24));
+        }
+        return diffDays;
+    }
+    function checkDaysToAppointment(){
+        //var diffDays = 0;
+        var days = $("#days_to_next").val());
         var appointment_date = $.datepicker.parseDate('yy-mm-dd',appointment_date);
         if(appointment_date != null){
             var timeDiff = dispensing_date.getTime() - appointment_date.getTime();
