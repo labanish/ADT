@@ -1071,7 +1071,25 @@ if(patient_iqcare==false){
                                 _class='selected';     
                             }                                          
                         }else{
-                            row.closest("tr").find(".duration").val(value.duration);
+                            var days_duration = $("#days_to_next").val();
+                            if(days_duration==""){
+                                row.closest("tr").find(".duration").val(value.duration);
+                            }else{
+                                row.closest("tr").find(".duration").val(days_duration);
+                            }
+                            console.log(days_duration);
+                             // if($("#days_to_next").val() == " ")
+                             //    {
+                                     
+                             //         row.closest("tr").find(".duration").val(value.duration);
+                                     
+                             //    }
+                             //    else{
+                             //        var days = $("#days_to_next").val();
+                             //        row.closest("tr").find(".duration").val(days);
+                             //    }
+    
+                            //row.closest("tr").find(".duration").val(value.duration);
                             row.closest("tr").find(".qty_disp").val(value.quantity); 
                             row.closest("tr").find(".dose").val(value.dose); 
                         }
@@ -1205,40 +1223,42 @@ if(patient_iqcare==false){
 
     //function to calculate qty_dispensed based on dosage and duration
     $(".duration").on('keyup', function() {
-        duration();
+        
+       duration();
     });
     //-------------------------------- CHANGE EVENT END ----------------------------------
     
     
     //-------------------------------- ADD, REMOVE, RESET ROW -------------------------------------------
-    //fucntion to change quantity
-    function duration(){
-   
-        var duration = $('.duration').val();
-        console.log(1);
+    //fucntion to change quantity based on the duration 
+    function duration_quantity(){
+        
+       var row = $(this);
+        var duration = $('.duration`').val();
         if(duration>0){
-        var val = row.closest("tr").find('#doselist').val();
-        var dose_val = duration.closest("tr").find('.dose option').filter(function() {
+        var val = $('.duration').closest("tr").find('#doselist').val();
+        var dose_val = $('.duration').closest("tr").find('.dose option').filter(function() {
             return this.value == val;
         }).data('dose_val');
-        var dose_freq = row.closest("tr").find('.dose option').filter(function() {
+        var dose_freq = $('.duration').closest("tr").find('.dose option').filter(function() {
             return this.value == val;
         }).data('dose_freq');
         //formula(duration*dose_value*dose_frequency)
         
         var qty_disp = duration * dose_val * dose_freq;
-        row.closest("tr").find(".qty_disp").val(qty_disp);
+        $('.duration').closest("tr").find(".qty_disp").val(qty_disp);
         alert_qty_check = true;
-        $(".qty_disp").trigger('keyup',[row]);
+        //$(".qty_disp").trigger('keyup',[$('.duration')]);
         
-            row.closest("tr").find(".duration").css("background-color", "white");
-            row.closest("tr").find(".duration").removeClass("input_error");
+            $('.duration').closest("tr").find(".duration").css("background-color", "white");
+            $('.duration').closest("tr").find(".duration").removeClass("input_error");
         }else {
              bootbox.alert("<h4>Notice!</h4>\n\<hr/><center>Duration cannot be negative or empty</center>"); 
-            row.closest("tr").find(".duration").css("background-color", "red");
-            row.closest("tr").find(".duration").addClass("input_error");
+            $('.duration').closest("tr").find(".duration").css("background-color", "red");
+            $('.duration').closest("tr").find(".duration").addClass("input_error");
             $(".qty_disp").val("0");
-        }
+        } 
+
     }
     //function to add drug row in table 
     $(".add").click(function() {
@@ -1728,17 +1748,17 @@ var link ="<?php echo base_url();?>dispensement_management/getPreviouslyDispense
         return diffDays;
     }
 
-    /*
+    
     //function to check the next appointment date to populate duration
        function checkAppointment(){
         if($("#days_to_next").val()!= " ")
         {
              var days = $("#days_to_next").val();
              $("#days_to_next").val();
-             console.log(days);
+             
         }
     
-    }*/
+    }
     //function to calculate adherence rate(%)
     function getAdherenceRate(){
         $("#adherence").attr("value", " ");
