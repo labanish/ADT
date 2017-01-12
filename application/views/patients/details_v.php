@@ -99,7 +99,7 @@
 						</select>
 					</div>
 				</div>
-				<div class="row-fluid parent">
+				<div class="row-fluid parent" style="display:none" id="parent">
 					<label>Match to parent/guardian in ccc?</label>
 					<input type="text" class="span8" name="parent" id="parent">
 				</div>
