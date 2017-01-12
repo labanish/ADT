@@ -286,6 +286,9 @@
 									<a href="#" class="regimen_management" title="Regimen Management" id="index">Regimens</a>
 								</li>
 								<li>
+									<a href="#" class="settings/listing/regimen_category" title="Regimen Category Management" id="index">Regimen Category</a>
+								</li>
+								<li>
 									<a href="#" class="regimen_drug_management" title="Regimen Drug Management" id="index">Regimen Drugs</a>
 								</li>
 								<li>
@@ -311,6 +314,9 @@
 								</li>
 								<li>
 									<a href="#" class="drugcode_management" title="Drug Code Management">Drug Codes</a>
+								</li>
+								<li>
+									<a href="#" class="settings/listing/drug_unit" title="Drug Units Management">Drug Units</a>
 								</li>
 								<li>
 									<a href="#" class="drug_stock_balance_sync/setConsumption" title="Drug Consumption">Drug Consumption</a>

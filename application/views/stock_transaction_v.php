@@ -99,6 +99,8 @@
 		
 		//Transaction type change
 		$("#select_transtype").change(function(){
+			$("#drugs_table tr:gt(1)").remove();
+			reset_table_rows();			
 			 $(".send_email").css("display","none");
 			 $("#btn_print").css("display","none");
 			batch_type = 0;
@@ -166,8 +168,8 @@
 						$("#btn_print").css("display","inline");
 					}
 					
-					//In case of dispensed to patients,adjustments(-),returns,losses,expiries, hide destination
-					if(trans_type.indexOf('dispensed')!= -1 || (trans_type.indexOf('adjustment')!= -1 && trans_effect==0) ||  trans_type.indexOf('loss')!= -1 || trans_type.indexOf('expir') != -1){
+					//In case of dispensed to patients,adjustments,returns,losses,expiries, hide destination
+					if(trans_type.indexOf('dispensed')!= -1 || trans_type.indexOf('adjustment')!= -1 ||  trans_type.indexOf('loss')!= -1 || trans_type.indexOf('expir') != -1){
 						$(".t_destination").css("display","none");
 						$(".t_source").css("display","none");
 					}
@@ -408,9 +410,10 @@
 				if(trans_type.indexOf('adjustment')!= -1 && trans_effect==1){
 					row.closest("tr").find(".b_list").css("display","block");
 					row.closest("tr").find("#batch_1").css("display","none");
+					row.closest("tr").find("#batch_2").css("display","none"); //Fix for expiry date showing in batch list
 					getBatchList(selected_drug,stock_type,row);
 				}else{
-					row.closest("tr").find("#batch_1").css("display","block");
+					row.closest("tr").find("#batch_2").css("display","block");
 					row.closest("tr").find(".b_list").css("display","none");
 					var selected_drug=$(this).val();
 					loadDrugDetails(selected_drug,row);
@@ -528,7 +531,7 @@
 		});
 		
 		$(".add").click(function() {
-			var last_row=$('#drugs_table tr:last');
+			var last_row=$('#drugs_table tbody tr:last');
 			var drug_selected=last_row.find(".drug").val();
 			var quantity_entered=last_row.find(".quantity").val();
 			if(last_row.find(".quantity").hasClass("stock_add_form_input_error")){
@@ -611,7 +614,6 @@
 			return false;
 		});
 		
-		
 		//Button Print Issued transaction
 		$("#btn_print").click(function(){
 			var total_rows = $("#drugs_table >tbody tr").length;
@@ -661,6 +663,7 @@
 		
 		//Save transaction details
 		$("#btn_submit").click(function(){
+
 			//Timestamp
 			var time_stamp="<?php echo date('U');?>";
 			var all_drugs_supplied=1;
@@ -848,8 +851,14 @@
 				var get_stock_type=stock_type;
 				var get_user=user;
 			
+				if(reference_number.value == ''){
+					    bootbox.alert("<h4>Ref. / Order Number Required</h4>\n\<hr/><center>Please enter the reference_number! </center>" );
+					    $("#btn_submit").prop("disabled",false);
+					}
+				else{
+
 				//var emailaddress=dump["email_address"];
-				$("#btn_submit").attr("disabled","disabled");
+				$("#btn_submit").prop("disabled",false);
 				var request=$.ajax({
 			     url: _url,
 			     type: 'post',
@@ -913,6 +922,11 @@
 						
 					}
 			    });
+
+
+				}
+
+				
 			  
 			};
 			
@@ -1032,7 +1046,6 @@
 	    	$.each(data,function(key,value){
 	    		row.closest("tr").find("#unit").val(value.Name);
 	    		row.closest("tr").find("#pack_size").val(value.pack_size);
-	    		//alert(value.drug);
 	    		row.closest("tr").find(".batchselect").append("<option value='"+value.batch_number+"'>"+value.batch_number+"</option> ");
 	    		
 	    	});
@@ -1095,12 +1108,12 @@
 	    	$.each(data,function(key,value){
 	    		row.closest("tr").find(".expiry").val(value.expiry_date);
 	    		row.closest("tr").find(".quantity_available ").val(value.balance);
-                        var month=today_month+1;
+                        var month=today_month;
                         var t_date=new Date(today_year,month,today_date);
                         var e_date=new Date(value.expiry_date);
                         var diff = e_date.getTime() - t_date.getTime();
                         var months = Math.floor(diff/(1000 * 60 * 60 * 24*30));
-                        
+
                         if(e_date<t_date){
                            bootbox.alert("<h4>Expiry Notice</h4>\n\<hr/><center>The drug being transacted has expired! </center>" );
                            $("#btn_submit").attr("disabled","disabled");
@@ -1123,9 +1136,10 @@
 	  var row = $('#drugs_table tr:last');
 	  //default options
 	  row.find(".unit").val("");
-          row.find(".pack_size").val("");
+      row.find(".pack_size").val("");
+	  row.find(".batch").val("");
 	  row.find(".batch option").remove();
-          row.find("#date_0").val("");
+      row.find("#date_0").val("");
 	  row.find("#packs_1").val("");
 	  row.find("#quantity_1").val("");
 	  row.find("#available_quantity").val("");
@@ -1418,7 +1432,7 @@
 						</td>
 					</tr>
 					<tr><th>Ref. /Order No</th></tr>
-					<tr><td><input type="text" name="reference_number" id="reference_number" class="input-large" /></td></tr>
+					<tr><td><input type="text" name="reference_number" id="reference_number" required="" class="input-large" /></td></tr>
 					<tr class="t_source"><th>Source</th></tr>
 					<tr class="t_source"><td>
 						<select name="source" id="select_source" class="input-large">

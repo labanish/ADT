@@ -61,8 +61,14 @@ class dossing_chart extends MY_Controller {
 		$sql="select d.id,d.drug
 			  from drugcode d 
 			  inner join regimen_drug rd on d.id=rd.drugcode
-			  WHERE rd.regimen=5 or rd.regimen=6 or rd.regimen=7 or rd.regimen=9 or rd.regimen=10 
-			  or rd.regimen=13 or rd.regimen=14";
+			  inner join regimen r on r.id = rd.regimen
+			  WHERE (r.regimen_code LIKE '%CF%'
+			  OR r.regimen_code LIKE '%PC%'
+			  OR r.regimen_code LIKE '%CS%'
+			  OR r.regimen_code LIKE '%CT%'
+			  OR r.regimen_code LIKE '%OC%')
+			  AND rd.active = '1'
+			  GROUP BY d.id";
 		$query = $this -> db -> query($sql);
 		$data = $query -> result_array();
 		echo json_encode($data);
@@ -71,7 +77,8 @@ class dossing_chart extends MY_Controller {
 	//function to get doses from dose table 
 	public function get_dose(){
 		$sql="select id, Name
-			  from dose";
+			  from dose
+			  where Active = '1'";
 		$query = $this -> db -> query($sql);
 		$data = $query -> result_array();
 		echo json_encode($data);

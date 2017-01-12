@@ -1195,7 +1195,7 @@ if(patient_iqcare==false){
             row.closest("tr").find(".qty_disp").removeClass("input_error");
         }
         }else{
-            bootbox.alert("<h4>Notice!</h4>\n\<hr/><center>The default quantity to be dispensed is set to negative or empty</center>");
+           // bootbox.alert("<h4>Notice!</h4>\n\<hr/><center>The default quantity to be dispensed is set to negative or empty</center>");
             row.closest("tr").find(".qty_disp").css("background-color", "red");
             row.closest("tr").find(".qty_disp").addClass("input_error");
         }
@@ -1211,11 +1211,20 @@ if(patient_iqcare==false){
 
     //function to calculate qty_dispensed based on dosage and duration
     $(".duration").on('keyup', function() {
-        var row = $(this);
-        var duration = $(this).val();
+        duration();
+    });
+    //-------------------------------- CHANGE EVENT END ----------------------------------
+    
+    
+    //-------------------------------- ADD, REMOVE, RESET ROW -------------------------------------------
+    //fucntion to change quantity
+    function duration(){
+   
+        var duration = $('.duration').val();
+        console.log(1);
         if(duration>0){
         var val = row.closest("tr").find('#doselist').val();
-        var dose_val = row.closest("tr").find('.dose option').filter(function() {
+        var dose_val = duration.closest("tr").find('.dose option').filter(function() {
             return this.value == val;
         }).data('dose_val');
         var dose_freq = row.closest("tr").find('.dose option').filter(function() {
@@ -1237,11 +1246,7 @@ if(patient_iqcare==false){
             row.closest("tr").find(".duration").addClass("input_error");
             $(".qty_disp").val("0");
         }
-    });
-    //-------------------------------- CHANGE EVENT END ----------------------------------
-    
-    
-    //-------------------------------- ADD, REMOVE, RESET ROW -------------------------------------------
+    }
     //function to add drug row in table 
     $(".add").click(function() {
         routine_check=0;
