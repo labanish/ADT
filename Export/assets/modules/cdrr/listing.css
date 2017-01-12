@@ -1,0 +1,17 @@
+select{
+   width:auto ! important;
+}
+#cdrr_listing {
+	letter-spacing:0px;
+	zoom:0.85;	
+	max-width: 100% !important;
+}
+.table-bordered input {
+	width:10em ! important;
+}
+#cdrr_listing td, #cdrr_listing tr, #cdrr_listing th {
+	max-width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
