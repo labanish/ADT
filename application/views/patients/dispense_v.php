@@ -873,7 +873,7 @@ if(patient_iqcare==false){
         }
           var days_duration = $("#days_to_next").val();
                             if(days_duration==""){
-                                row.closest("tr").find(".duration").val(value.duration);
+                                $(".duration").val(days_duration);
                                 duration_quantity(); 
 
                             }    });
@@ -903,6 +903,7 @@ if(patient_iqcare==false){
             }
         });
         request.done(function(data) {
+            //console.log(data);
             //If patient is allergic to selected drug,alert user
             if (data == 1) {
                 bootbox.alert("<h4>Allergy Alert!</h4>\n\<hr/><center>This patient is allergic to "+drug_name+"</center>");
@@ -917,7 +918,7 @@ if(patient_iqcare==false){
                 }
             } else {
                 if(typeof previous_dispensed_data !=="undefined"){
-                    $.each(previous_dispensed_data, function(i, v) {
+                    $.each(loadMyPreviousDispensedDrugs, function(i, v) {
                         var prev_drug_id = v['drug_id'];
                         var prev_drug_qty = v['mos'];
                         var prev_qty = v['quantity'];
@@ -1078,6 +1079,7 @@ if(patient_iqcare==false){
                         }else{
                             var days_duration = $("#days_to_next").val();
                             if(days_duration==""){
+
                                 row.closest("tr").find(".duration").val(value.duration);
                                 duration_quantity(); 
 
@@ -1258,7 +1260,7 @@ if(patient_iqcare==false){
             $('.duration').closest("tr").find(".duration").css("background-color", "white");
             $('.duration').closest("tr").find(".duration").removeClass("input_error");
         }else {
-             bootbox.alert("<h4>Notice!</h4>\n\<hr/><center>Duration cannot be negative or empty</center>"); 
+             //bootbox.alert("<h4>Notice!</h4>\n\<hr/><center>Duration cannot be negative or empty</center>"); 
             $('.duration').closest("tr").find(".duration").css("background-color", "red");
             $('.duration').closest("tr").find(".duration").addClass("input_error");
             $(".qty_disp").val("0");
