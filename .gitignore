@@ -35,4 +35,5 @@ SCCS
 _$*
 /nbproject/private/
 application/cache/
+application/views/sections/link.php
 application/config/database.php
