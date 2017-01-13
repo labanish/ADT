@@ -369,10 +369,11 @@ class User_Management extends MY_Controller {
 						             'Email_Address' => $logged_in -> Email_Address, 
 						             'Phone_Number' => $phone, 
 						             'facility' => $logged_in -> Facility_Code, 
-						             'facility_id' => $facility_details[0]['id'], 
+						             'facility_id' => $facility_details[0]['id'],
 						             'county' => $facility_details[0]['county'],
 						             'facility_phone' => $facility_details[0]['phone'],
-						             'facility_sms_consent'=>$facility_details[0]['map']
+						             'facility_sms_consent'=>$facility_details[0]['map'],
+						             'lost_to_follow_up' => $facility_details[0]['lost_to_follow_up'], 
 						             );
 					$this -> session -> set_userdata($session_data);
 					$user = $this -> session -> userdata('user_id');

@@ -451,7 +451,8 @@ class auto_management extends MY_Controller {
 	}
 
 	public function updatePatientData() {
-		$days_to_lost_followup = 180;
+		$days_to_lost_followup = $this -> session -> userdata('lost_to_follow_up');
+		//$days_to_lost_followup = 180;
 		$days_to_pep_end = 30;
 		$days_in_year = date("z", mktime(0, 0, 0, 12, 31, date('Y'))) + 1;
 		$adult_age = 12;
