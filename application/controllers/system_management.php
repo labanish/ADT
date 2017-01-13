@@ -26,7 +26,6 @@ class System_management extends MY_Controller {
 		foreach($files as $file){ // iterate files
 		  if(is_file($file))
 		    unlink($file); // delete file
-		
 		}
 
 		// Clear cache Details
