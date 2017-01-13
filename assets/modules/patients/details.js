@@ -74,8 +74,7 @@ $(function(){
 		$("#viral_load_details").dialog("open");
 	});
 	//
-	$(document).ready(function(){
-		
+$(document).ajaxStop(function(){ 
 		var link ="<?php echo base_url();?>dispensement_management/getFacililtyAge";
             var request = $.ajax({
               url: link,
@@ -83,14 +82,16 @@ $(function(){
               dataType: "json"
         	});
             request.done(function(datas){ 
-            	console.log(1);
                var adult_age=datas[0].adult_age;
-               var age = $("#age").val();
+               var age = $("#age").val();            
                if(age < adult_age){
 				$("#parent").show();
                }
-                    }
-		});
+               else{
+               	$("#tbphase_view").hide();
+               }
+                    });
+        });
     //Show Patient Summary
 	$("#patient_info").on('click',function() {
 		//Load Spinner

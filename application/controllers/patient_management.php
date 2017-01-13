@@ -2019,7 +2019,7 @@ class Patient_Management extends MY_Controller {
             }
 
         }
-    echo json_encode($output);
+   // echo json_encode($output);
     }
 
 }
