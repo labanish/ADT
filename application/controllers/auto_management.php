@@ -451,8 +451,14 @@ class auto_management extends MY_Controller {
 	}
 
 	public function updatePatientData() {
-		$days_to_lost_followup = $this -> session -> userdata('lost_to_follow_up');
-		//$days_to_lost_followup = 180;
+		$days_to_lost_followup=180; //Default lost to follow up
+		$facilitycode = $this -> session -> userdata('facility');
+		$sql1="SELECT lost_to_follow_up from facilities where facilitycode ='$facilitycode'";
+		$query=$this->db->query($sql1);
+		$lost_to_follow_up=$query->result_array();
+		foreach ($lost_to_follow_up as $lost_to_follow) {
+			$days_to_lost_followup = $lost_to_follow['lost_to_follow_up'];
+		}
 		$days_to_pep_end = 30;
 		$days_in_year = date("z", mktime(0, 0, 0, 12, 31, date('Y'))) + 1;
 		$adult_age = 12;

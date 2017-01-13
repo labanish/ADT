@@ -373,7 +373,7 @@ class User_Management extends MY_Controller {
 						             'county' => $facility_details[0]['county'],
 						             'facility_phone' => $facility_details[0]['phone'],
 						             'facility_sms_consent'=>$facility_details[0]['map'],
-						             'lost_to_follow_up' => $facility_details[0]['lost_to_follow_up'], 
+						             //'lost_to_follow_up' => $facility_details[0]['lost_to_follow_up'], 
 						             );
 					$this -> session -> set_userdata($session_data);
 					$user = $this -> session -> userdata('user_id');
