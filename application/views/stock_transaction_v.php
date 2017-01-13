@@ -99,9 +99,12 @@
 		
 		//Transaction type change
 		$("#select_transtype").change(function(){
-			$("#drugs_table tr:gt(1)").remove();
+			$("#drugs_table tr:gt(1)").remove();			
 			reset_table_rows();			
 			 $(".send_email").css("display","none");
+			 $(".batchselect").val("");
+			 $("#reference_number").val("");
+			 
 			 $("#btn_print").css("display","none");
 			batch_type = 0;
 			is_batch_load = false;
