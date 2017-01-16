@@ -21,12 +21,12 @@ class System_management extends MY_Controller {
 	public function load_assets() {
 
 		// Clear cache Details
-
+		/*
 		$files = glob('assets/cache/*'); // get all file names in Cache
 		foreach($files as $file){ // iterate files
 		  if(is_file($file))
 		    unlink($file); // delete file
-		}
+		}*/
 
 		// Clear cache Details
 

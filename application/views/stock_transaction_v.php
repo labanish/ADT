@@ -102,8 +102,11 @@
 			$("#drugs_table tr:gt(1)").remove();			
 			reset_table_rows();			
 			 $(".send_email").css("display","none");
+			 $(".batchselect").find("option:gt(0)").remove();
 			 $(".batchselect").val("");
 			 $("#reference_number").val("");
+			 $("#select_destination").val("");
+			 $("#select_source").val("");
 			 
 			 $("#btn_print").css("display","none");
 			batch_type = 0;
@@ -148,7 +151,7 @@
 					//Renitialize drugs table 
 					reinitializeDrugs(stock_type,trans_type);
 					
-					//If transaction if returns to, get only drugs that are in stock		
+					//If transaction is returns to, get only drugs that are in stock		
 					if(trans_type.indexOf('returns')!= -1 && trans_effect==0){
 						//Get drugs that have a balance
 						loadDrugs(stock_type);
@@ -416,7 +419,7 @@
 					row.closest("tr").find("#batch_2").css("display","none"); //Fix for expiry date showing in batch list
 					getBatchList(selected_drug,stock_type,row);
 				}else{
-					row.closest("tr").find("#batch_2").css("display","block");
+					row.closest("tr").find("#batch_1").css("display","block");
 					row.closest("tr").find(".b_list").css("display","none");
 					var selected_drug=$(this).val();
 					loadDrugDetails(selected_drug,row);

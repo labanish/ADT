@@ -109,9 +109,8 @@ class Facility_Management extends MY_Controller {
 		else {
 			$sql="SELECT * FROM Facilities where facilitycode='$source'";
    			$query = $this -> db -> query($sql);
-
-			$facilities = $query -> result_array();
-			$data['facilities'] = Facilities::getCurrentFacility($source);
+			$data['facilities'] = $query -> result_array();
+			//$data['facilities'] = Facilities::getCurrentFacility($source);
 			$this -> load -> view("facility_user_v", $data);
 
 		}

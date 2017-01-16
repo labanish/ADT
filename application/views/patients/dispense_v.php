@@ -871,12 +871,14 @@ if(patient_iqcare==false){
             $("#regimen_change_reason_container").hide();
             $("#regimen_change_reason").val("");
         }
-          var days_duration = $("#days_to_next").val();
-                            if(days_duration==""){
-                                $(".duration").val(days_duration);
-                                duration_quantity(); 
 
-                            }    });
+        var days_duration = $("#days_to_next").val();
+        if(days_duration != ""){
+            $(".duration").val(days_duration);
+            duration_quantity($(this)); 
+        }    
+
+    });
     
     //drug change event
     $(".drug").change(function() {
@@ -1081,13 +1083,13 @@ if(patient_iqcare==false){
                             if(days_duration==""){
 
                                 row.closest("tr").find(".duration").val(value.duration);
-                                duration_quantity(); 
+                                duration_quantity($(this)); 
 
                             }else{
                                 row.closest("tr").find(".duration").val(days_duration);
                             }
                             row.closest("tr").find(".dose").val(value.dose);
-                            duration_quantity(); 
+                            duration_quantity($(this)); 
 
 
                         }
@@ -1219,18 +1221,22 @@ if(patient_iqcare==false){
         var dose_val = row.closest("tr").find(".dose option:selected").attr("dose_val");
         var dose_freq = row.closest("tr").find(".dose option:selected").attr("dose_freq");
     });
+
     $(".duration").on('keyup', function() {
-        
-       duration_quantity();
+       duration_quantity($(this));
     });
+
+    $(".dose").on('input', function() {
+       duration_quantity($(this));
+    });
+
     $("#days_to_next").on('change', function(){
         var days_duration = $("#days_to_next").val();
         if(days_duration!=""){
             $(".duration").val(days_duration);
-               //duration_quantity(); 
-
+            $(".duration").trigger('keyup');
         }
-       duration_quantity();
+       //duration_quantity($(this));
     });
     //function to calculate qty_dispensed based on dosage and duration
 
@@ -1239,31 +1245,26 @@ if(patient_iqcare==false){
     
     //-------------------------------- ADD, REMOVE, RESET ROW -------------------------------------------
     //fucntion to change quantity based on the duration 
-    function duration_quantity(){
+    function duration_quantity(row){
+        var duration = row.closest("tr").find(".duration").val();
+        if(duration > 0){
+            var val = row.closest("tr").find('#doselist').val();
+            var dose_val = row.closest("tr").find('.dose option').filter(function() {
+                return this.value == val;
+            }).data('dose_val');
+            var dose_freq = row.closest("tr").find('.dose option').filter(function() {
+                return this.value == val;
+            }).data('dose_freq');
         
-               var duration = $('.duration').val();
-        if(duration>0){
-        var val = $('.duration').closest("tr").find('#doselist').val();
-        var dose_val = $('.duration').closest("tr").find('.dose option').filter(function() {
-            return this.value == val;
-        }).data('dose_val');
-        var dose_freq = $('.duration').closest("tr").find('.dose option').filter(function() {
-            return this.value == val;
-        }).data('dose_freq');
-        //formula(duration*dose_value*dose_frequency)
+            var qty_disp = duration * dose_val * dose_freq;
+            row.closest("tr").find(".qty_disp").val(qty_disp);
         
-        var qty_disp = duration * dose_val * dose_freq;
-        $('.duration').closest("tr").find(".qty_disp").val(qty_disp);
-        alert_qty_check = true;
-        //$(".qty_disp").trigger('keyup',[$('.duration')]);
-        
-            $('.duration').closest("tr").find(".duration").css("background-color", "white");
-            $('.duration').closest("tr").find(".duration").removeClass("input_error");
+            row.closest("tr").find(".duration").css("background-color", "white");
+            row.closest("tr").find(".duration").removeClass("input_error");
         }else {
-             //bootbox.alert("<h4>Notice!</h4>\n\<hr/><center>Duration cannot be negative or empty</center>"); 
-            $('.duration').closest("tr").find(".duration").css("background-color", "red");
-            $('.duration').closest("tr").find(".duration").addClass("input_error");
-            $(".qty_disp").val("0");
+            row.closest("tr").find(".duration").css("background-color", "red");
+            row.closest("tr").find(".duration").addClass("input_error");
+            row.closest("tr").find(".qty_disp").val("0");
         } 
 
     }

@@ -372,9 +372,15 @@ class User_Management extends MY_Controller {
 						             'facility_id' => $facility_details[0]['id'],
 						             'county' => $facility_details[0]['county'],
 						             'facility_phone' => $facility_details[0]['phone'],
-						             'facility_sms_consent'=>$facility_details[0]['map'],
-						             //'lost_to_follow_up' => $facility_details[0]['lost_to_follow_up'], 
+						             'facility_sms_consent'=>$facility_details[0]['map']
 						             );
+					//Check if value exists
+					if(@$facility_details[0]['lost_to_follow_up'] !== NULL){
+						$session_data['lost_to_follow_up'] = $facility_details[0]['lost_to_follow_up'];
+					}else{
+						$session_data['lost_to_follow_up'] = 180;
+					}
+
 					$this -> session -> set_userdata($session_data);
 					$user = $this -> session -> userdata('user_id');
 					$sql = "update access_log set access_type='Logout' where user_id='$user'";

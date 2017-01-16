@@ -451,14 +451,7 @@ class auto_management extends MY_Controller {
 	}
 
 	public function updatePatientData() {
-		$days_to_lost_followup=180; //Default lost to follow up
-		$facilitycode = $this -> session -> userdata('facility');
-		$sql1="SELECT lost_to_follow_up from facilities where facilitycode ='$facilitycode'";
-		$query=$this->db->query($sql1);
-		$lost_to_follow_up=$query->result_array();
-		foreach ($lost_to_follow_up as $lost_to_follow) {
-			$days_to_lost_followup = $lost_to_follow['lost_to_follow_up'];
-		}
+		$days_to_lost_followup=$this -> session -> userdata('lost_to_follow_up');//Default lost to follow up
 		$days_to_pep_end = 30;
 		$days_in_year = date("z", mktime(0, 0, 0, 12, 31, date('Y'))) + 1;
 		$adult_age = 12;
@@ -580,6 +573,7 @@ class auto_management extends MY_Controller {
 	}
 
 	public function updateFixes(){
+		$days_to_lost_followup = $this -> session -> userdata('lost_to_follow_up');//Default lost to follow up
 		//Rename the prophylaxis cotrimoxazole
         $fixes[]="UPDATE drug_prophylaxis
         	      SET name='cotrimoxazole'
@@ -591,7 +585,7 @@ class auto_management extends MY_Controller {
                   WHERE rst.name LIKE '%oi%'
                   AND p.start_regimen_date IS NOT NULL";
         //Update status_change_date for lost_to_follow_up patients @180
-        $fixes[]="UPDATE patient p,(SELECT p.id,CASE WHEN p.nextappointment != '' THEN INTERVAL 180 DAY + p.nextappointment ELSE CASE WHEN p.start_regimen_date != '' THEN INTERVAL 180 DAY + p.start_regimen_date ELSE INTERVAL 180 DAY + p.date_enrolled END END AS choosen_date FROM patient p LEFT JOIN patient_status ps ON ps.id = p.current_status WHERE ps.Name LIKE '%lost%' AND p.status_change_date = '') as test SET p.status_change_date=test.choosen_date WHERE p.id=test.id";
+        $fixes[]="UPDATE patient p,(SELECT p.id,CASE WHEN p.nextappointment != '' THEN INTERVAL $days_to_lost_followup DAY + p.nextappointment ELSE CASE WHEN p.start_regimen_date != '' THEN INTERVAL $days_to_lost_followup DAY + p.start_regimen_date ELSE INTERVAL $days_to_lost_followup DAY + p.date_enrolled END END AS choosen_date FROM patient p LEFT JOIN patient_status ps ON ps.id = p.current_status WHERE ps.Name LIKE '%lost%' AND p.status_change_date = '') as test SET p.status_change_date=test.choosen_date WHERE p.id=test.id";
 	    //Update patients without service lines ie Pep end status should have pep as a service line
         $fixes[]="UPDATE patient p
 			 	  LEFT JOIN patient_status ps ON ps.id=p.current_status,
@@ -858,6 +852,7 @@ class auto_management extends MY_Controller {
     }
     //function to update dose on patient visit from id to dose name 
    public function update_dose_name(){
+   	$message = '';
    		$sql="SELECT id, Name FROM dose";
    		$query = $this -> db -> query($sql);
 		$doses = $query -> result_array();
@@ -866,7 +861,10 @@ class auto_management extends MY_Controller {
 			$dose_name=$dose['Name'];
 			$sql1="UPDATE patient_visit set dose='$dose_name' where dose='$dose_id' ";
    			$query1 = $this -> db -> query($sql1);
+   			$message = 'Updated Dose Records in Visits ('.$this-> db -> affected_rows().')';
 		}
+
+		return $message;
 
    }
     public function update_system_version(){
