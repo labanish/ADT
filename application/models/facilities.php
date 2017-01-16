@@ -19,6 +19,7 @@ class Facilities extends Doctrine_Record {
 		$this -> hasColumn('service_pep', 'int', 2);
 		$this -> hasColumn('supplied_by', 'int', 2);
 		$this -> hasColumn('map', 'int', 11);
+		$this -> hasColumn('lost_to_follow_up', 'int', 11);
 	}
 
 	public function setUp() {
@@ -83,8 +84,12 @@ class Facilities extends Doctrine_Record {
 	}
 
 	public function getCurrentFacility($id) {
-		$query = Doctrine_Query::create() -> select("*") -> from("Facilities") -> where("facilitycode = '$id'");
+		$query = Doctrine_Query::create() -> select("*") -> from("facilities") -> where("facilitycode = '$id'");
 		$facility = $query -> execute(array(), Doctrine::HYDRATE_ARRAY);
+			/*$sql="SELECT * FROM Facilities where facilitycode='$id'";
+   			$query = $this -> db -> query($sql);
+
+			$facility = $query -> result_array();*/
 		return $facility;
 	}
 

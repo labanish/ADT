@@ -1,4 +1,5 @@
 <?php
+
 	foreach($facilities as $facility){
 		
 	}
@@ -99,6 +100,10 @@ $("#sms_map").val("<?php echo $facility['map'];?>");
 								<tr><td><strong class="label">Maximum Patients Per Weekend</strong></td>
 									<td><input type="text" name="weekend_max" id="weekend_max" class="input-small" value="<?php echo @$facility['weekend_max'];?>"></td>
 								</tr>
+										<tr><td><strong class="label">Lost to follow_up days</strong></td>
+								<td><input type="text" name="lost_to_follow_up" id="lost_to_follow_up" class="input-small" style="color:green" value="<?php echo @$facility['lost_to_follow_up'];?>" >
+									</td>
+								</tr>
 								<tr><td><strong class="label">Facility Type</strong></td>
 									<td><select class="input-xlarge" id="facility_type" name="facility_type">
 											<?php foreach($facility_types as $facility_type){?>
@@ -107,6 +112,7 @@ $("#sms_map").val("<?php echo $facility['map'];?>");
 										</select>
 									</td>
 								</tr>
+							
 								<tr><td><strong class="label">District</strong></td>
 									<td><select class="input-xlarge" id="district" name="district">
 											<?php foreach($districts as $district){?>

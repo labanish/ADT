@@ -99,7 +99,12 @@
 		
 		//Transaction type change
 		$("#select_transtype").change(function(){
+			$("#drugs_table tr:gt(1)").remove();			
+			reset_table_rows();			
 			 $(".send_email").css("display","none");
+			 $(".batchselect").val("");
+			 $("#reference_number").val("");
+			 
 			 $("#btn_print").css("display","none");
 			batch_type = 0;
 			is_batch_load = false;
@@ -529,7 +534,7 @@
 		});
 		
 		$(".add").click(function() {
-			var last_row=$('#drugs_table tr:last');
+			var last_row=$('#drugs_table tbody tr:last');
 			var drug_selected=last_row.find(".drug").val();
 			var quantity_entered=last_row.find(".quantity").val();
 			if(last_row.find(".quantity").hasClass("stock_add_form_input_error")){
@@ -611,7 +616,6 @@
 	
 			return false;
 		});
-		
 		
 		//Button Print Issued transaction
 		$("#btn_print").click(function(){
@@ -1135,9 +1139,10 @@
 	  var row = $('#drugs_table tr:last');
 	  //default options
 	  row.find(".unit").val("");
-          row.find(".pack_size").val("");
+      row.find(".pack_size").val("");
+	  row.find(".batch").val("");
 	  row.find(".batch option").remove();
-          row.find("#date_0").val("");
+      row.find("#date_0").val("");
 	  row.find("#packs_1").val("");
 	  row.find("#quantity_1").val("");
 	  row.find("#available_quantity").val("");

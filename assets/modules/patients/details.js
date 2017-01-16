@@ -73,7 +73,25 @@ $(function(){
 		getViralLoad();
 		$("#viral_load_details").dialog("open");
 	});
-
+	//
+$(document).ajaxStop(function(){ 
+		var link ="<?php echo base_url();?>dispensement_management/getFacililtyAge";
+            var request = $.ajax({
+              url: link,
+              type: 'post',
+              dataType: "json"
+        	});
+            request.done(function(datas){ 
+               var adult_age=datas[0].adult_age;
+               var age = $("#age").val();            
+               if(age < adult_age){
+				$("#parent").show();
+               }
+               else{
+               	$("#tbphase_view").hide();
+               }
+                    });
+        });
     //Show Patient Summary
 	$("#patient_info").on('click',function() {
 		//Load Spinner

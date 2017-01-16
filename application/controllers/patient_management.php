@@ -1947,12 +1947,79 @@ class Patient_Management extends MY_Controller {
     public function get_peadiatric_dose(){
         $weight = $this ->input ->post('weight');
         $drug_id = $this ->input ->post('drug_id');
-        $sql="select do.id,Name,frequency from dossing_chart d
+        $sql="select do.id,Name,value,frequency from dossing_chart d
               inner join dose do on do.id=d.dose_id
               where min_weight <= '$weight' and max_weight >= '$weight' and drug_id='$drug_id' and is_active = '1'";
         $query = $this -> db -> query($sql);
         $data = $query -> row();
         echo json_encode($data);
+    }
+    //get the viral _load_information
+    public function get_viral_load_info(){
+        $output= " ";
+        $patient_id  = $this ->input ->post('id');
+        $sql="select patient_number_ccc,result,DATEDIFF(NOW(), test_date) as test_date_diff,
+              DATEDIFF(NOW(), start_regimen_date) as start_regimen_date_diff
+              from patient_viral_load pv inner join patient p on p.patient_number_ccc=pv.patient_ccc_number
+              where p.id=916 order by test_date DESC limit 1";
+        $query = $this -> db -> query($sql);
+        $datas = $query -> result_array();
+        //if the query returns and empty result set
+        foreach ($datas as $data) {
+            if (empty($data)) 
+            {
+                $start_regimen_date_diff= $data['start_regimen_date_diff'];
+                //if new patient
+                if($start_regimen_date_diff < 180)
+                {
+                    $output="This patient needs to do viral Load test before "+$start_regimen_date_diff+" days from today";
+                }
+                // no patient_viral load info and 180 days has passed.
+                else
+                {
+                    $output="This patient requires a viral load test as there is no viral load Information and 6 months has passed from the date of start regimen";
+                }  
+            }
+            //if query returns result
+            else
+            {
+                $result=$data['result'];
+                $test_date_diff=$data['test_date_diff'];
+                //if LDL
+                if($result=='< LDL copies/ml')
+                {
+                   if($test_date_diff < 365)
+                   {
+                    $output="This patient needs to do viral Load test before ".$test_date_diff." days from today";
+                    
+                   }
+                   else
+                   {
+                        $output="This patient needs to do viral Load test urgently as one year has elapsed";
+                   }
+                }
+                //else viral is more than 1000
+                else if($result > 1000)
+                {
+                    if($test_date_diff < 90)
+                    {
+                        $output="This patient needs to do viral Load test before "+$test_date_diff+" days from today";
+                    }
+                    else
+                    {
+                       $output="This patient needs to do viral Load test as 90 days has passed";
+                    }
+
+                }
+                //else viral load is less than 1000
+                else
+                {
+                    $output="This patient viral load is"+$result+"which is bellow 1000";
+                }
+            }
+
+        }
+   // echo json_encode($output);
     }
 
 }

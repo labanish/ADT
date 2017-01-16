@@ -55,6 +55,8 @@ class auto_management extends MY_Controller {
 			$message .= $this->setBatchBalance();
 			//function to create mirth_sync_db
 			$message .= $this->mirth_adt_db();
+			//fucntion to update patient visit dose from id to name
+			$message .= $this->update_dose_name();
 			//function to update hash value of system to nascop
 			//$message .= $this->update_system_version();
             //function to download guidelines from nascop
@@ -449,7 +451,14 @@ class auto_management extends MY_Controller {
 	}
 
 	public function updatePatientData() {
-		$days_to_lost_followup = 180;
+		$days_to_lost_followup=180; //Default lost to follow up
+		$facilitycode = $this -> session -> userdata('facility');
+		$sql1="SELECT lost_to_follow_up from facilities where facilitycode ='$facilitycode'";
+		$query=$this->db->query($sql1);
+		$lost_to_follow_up=$query->result_array();
+		foreach ($lost_to_follow_up as $lost_to_follow) {
+			$days_to_lost_followup = $lost_to_follow['lost_to_follow_up'];
+		}
 		$days_to_pep_end = 30;
 		$days_in_year = date("z", mktime(0, 0, 0, 12, 31, date('Y'))) + 1;
 		$adult_age = 12;
@@ -847,7 +856,19 @@ class auto_management extends MY_Controller {
 	        }
         }
     }
-   
+    //function to update dose on patient visit from id to dose name 
+   public function update_dose_name(){
+   		$sql="SELECT id, Name FROM dose";
+   		$query = $this -> db -> query($sql);
+		$doses = $query -> result_array();
+		foreach ($doses as $dose) {
+			$dose_id= $dose['id'];
+			$dose_name=$dose['Name'];
+			$sql1="UPDATE patient_visit set dose='$dose_name' where dose='$dose_id' ";
+   			$query1 = $this -> db -> query($sql1);
+		}
+
+   }
     public function update_system_version(){
 		$url = $this -> nascop_url . "sync/gitlog";
 		$facility_code = $this -> session -> userdata("facility");
