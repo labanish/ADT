@@ -2726,7 +2726,7 @@ class report_management extends MY_Controller {
 				WHERE pv.visit_date 
 				BETWEEN '$from' 
 				AND '$to'";
-
+		
 		$query = $this -> db -> query($sql);
 		$results = $query -> result_array();
 		$row_string = "<table border='1'   class='dataTables'>
@@ -2756,10 +2756,17 @@ class report_management extends MY_Controller {
 				$supported_by = $result['client_support'];
 				$patient_name = $result['patient_name'];
 				$age = $result['current_age'];
-				$gender = $result['sex'];
+				$gender = $result['sex'];				
 				$appointments = $result['appointment_adherence'];
 				$appointments = str_replace(">","",$appointments);
 				$appointments = str_replace("=","",$appointments);
+				if(strpos($appointments, "-")!==false){
+					$pos = strpos($appointments, "-");
+					$val1 = substr($appointments, 0,$pos);
+					$val2 = substr($appointments,$pos+1);
+					$sum = intval($val1)+intval($val2);
+					$appointments = $sum / 2;					
+				}
 				$dispensing_date = date('d-M-Y', strtotime($result['visit_date']));
 				$regimen_desc = "<b>" . $result['regimen'] . "</b>";
 				$weight = $result['current_weight'];
@@ -2777,6 +2784,7 @@ class report_management extends MY_Controller {
 		} else {
 			//$row_string .= "<tr><td colspan='6'>No Data Available</td></tr>";
 		}
+		
 		$row_string .= "</tbody></table>";
 		$data['from'] = date('d-M-Y', strtotime($from));
 		$data['to'] = date('d-M-Y', strtotime($to));
