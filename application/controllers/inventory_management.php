@@ -151,6 +151,7 @@ class Inventory_Management extends MY_Controller {
 		//CCC Store Name
 		$ccc = CCC_store_service_point::getCCC($ccc_id);
 		$ccc_name = $ccc['Name'];
+
 		$pack_size = 0;
 		//get drug information
         $drug=Drugcode::getDrug($drug_id,$ccc_id);
@@ -190,11 +191,13 @@ class Inventory_Management extends MY_Controller {
 			$transaction_type = Transaction_Type::getTransactionType('issue',0);
 			$transaction_type = $transaction_type['id'];
 		}
-		$consumption = Drug_Stock_Movement::getDrugConsumption($drug_id, $facility_code,$ccc_id,$transaction_type);
 
+		$consumption = Drug_Stock_Movement::getDrugConsumption($drug_id, $facility_code,$ccc_id,$transaction_type);
 		foreach ($consumption as $value) {
 			$three_months_consumption += $value['total_out'];
 		}
+
+		// echo "<pre>";print_r($data);die;
 		//3 Months consumption using facility orders
 		$data['maximum_consumption'] = number_format($three_months_consumption);
 		$data['avg_consumption'] = number_format(($three_months_consumption) / 3);
@@ -209,10 +212,12 @@ class Inventory_Management extends MY_Controller {
 		$data['store'] = $ccc_name;
 		$data['drug_id'] = $drug_id;
 		$data['content_view']='bin_card_v';
+
 		$this->base_params($data);
 	}
 
 	public function getDrugTransactions($drug_id='4',$ccc_id='2'){
+		ini_set("memory_limit", -1);
 		$iDisplayStart = $this -> input -> get_post('iDisplayStart', true);
 		$iDisplayLength = $this -> input -> get_post('iDisplayLength', true);
 		$iSortCol_0 = $this -> input -> get_post('iSortCol_0', false);
@@ -327,7 +332,6 @@ class Inventory_Management extends MY_Controller {
 		$this -> db -> where("ds.ccc_store_sp", $ccc_id);
 		$total = $this -> db -> get();
 		$iTotal = count($total -> result_array());
-
 		// Output
 		$output = array('sEcho' => intval($sEcho), 
 			            'iTotalRecords' => $iTotal, 
@@ -374,6 +378,7 @@ class Inventory_Management extends MY_Controller {
 			$row[] = $drug_transaction -> Amount;
 			$output['aaData'][] = $row;
 		}
+		// echo "<pre>";print_r($output);die;
 		echo json_encode($output,JSON_PRETTY_PRINT);
 	}
 	
