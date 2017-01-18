@@ -914,17 +914,17 @@ if(patient_iqcare==false){
                     row.closest('tr').find(".drug").val(0);
                     row.closest('tr').find(".drug").trigger("change");
                 }
-            } else {
+            } else {                
                 if(typeof previous_dispensed_data !=="undefined"){
-                    $.each(loadMyPreviousDispensedDrugs, function(i, v) {
-                        var prev_drug_id = v['drug_id'];
-                        var prev_drug_qty = v['mos'];
-                        var prev_qty = v['quantity'];
-                        var prev_date = v['dispensing_date'];
-                        var prev_value = v['value'];
-                        var prev_frequency = v['frequency'];
-                        if (v['pill_count'] != "") {
-                            var prev_pill_count = v['pill_count'];//Previous pill count will be used to calculate expected pill count
+                    for (var i = 0; i < previous_dispensed_data.length; i++) {
+                        var prev_drug_id = previous_dispensed_data[i]['drug_id'];
+                        var prev_drug_qty = previous_dispensed_data[i]['mos'];
+                        var prev_qty = previous_dispensed_data[i]['quantity'];
+                        var prev_date = previous_dispensed_data[i]['dispensing_date'];
+                        var prev_value = previous_dispensed_data[i]['value'];
+                        var prev_frequency = previous_dispensed_data[i]['frequency'];
+                        if (previous_dispensed_data[i]['pill_count'] != "") {
+                            var prev_pill_count = previous_dispensed_data[i]['pill_count'];//Previous pill count will be used to calculate expected pill count
                         } else {
                             var prev_pill_count = 0;//Previous pill count will be used to calculate expected pill count 
                         }
@@ -951,7 +951,47 @@ if(patient_iqcare==false){
                             row.closest("tr").find(".pill_count").val(prev_drug_qty);
                             return false;
                         }
-                    });
+                        // console.log(previous_dispensed_data[i]);return false;
+                    };
+                    // return false;
+                    // console.log(previous_dispensed_data);
+                    // $.each(loadMyPreviousDispensedDrugs, function(i, v) {
+                    //     console.log(v);
+                    //     var prev_drug_id = v['drug_id'];
+                    //     var prev_drug_qty = v['mos'];
+                    //     var prev_qty = v['quantity'];
+                    //     var prev_date = v['dispensing_date'];
+                    //     var prev_value = v['value'];
+                    //     var prev_frequency = v['frequency'];
+                    //     if (v['pill_count'] != "") {
+                    //         var prev_pill_count = v['pill_count'];//Previous pill count will be used to calculate expected pill count
+                    //     } else {
+                    //         var prev_pill_count = 0;//Previous pill count will be used to calculate expected pill count 
+                    //     }
+                    //     //If drug was previously dispensed
+                    //     if (selected_drug == prev_drug_id) {
+                    //         var base_date = new Date();
+                    //         var today = new Date(base_date.getFullYear(), base_date.getMonth(), base_date.getDate());
+                    //         var today_timestamp = today.getTime();
+                    //         var one_day = 1000 * 60 * 60 * 24;
+                    //         var appointment_timestamp = Date.parse(prev_date);
+                    //         var difference = today_timestamp - appointment_timestamp;
+                    //         var days_difference = difference / one_day;
+                    //         if (days_difference > 0) {
+                    //             days_difference = days_difference.toFixed(0);
+                    //         } else {
+                    //             days_difference = 0;
+                    //         }
+                    //         var group_A = (prev_qty - prev_pill_count);
+                    //         var group_B = (days_difference * (prev_value * prev_frequency))
+                    //         var prev_drug_qty = (group_A - group_B);
+                    //         if (prev_drug_qty < 0) {
+                    //             prev_drug_qty = 0;
+                    //         }
+                    //         row.closest("tr").find(".pill_count").val(prev_drug_qty);
+                    //         return false;
+                    //     }
+                    // });
                     
                 }
                 var dose = "";
