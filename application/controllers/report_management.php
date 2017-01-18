@@ -956,9 +956,9 @@ class report_management extends MY_Controller {
 	public function enrolled_in_care($selected_period = "") {
 		//Variables
 		$period = explode('-', $selected_period);
-		$year = $period[1];
-		$month = date('m', strtotime($period[0]));
-		$today = date('Y-m-d', strtotime("01-$selected_period"));
+		$year = date('Y', strtotime($selected_period));
+		$month = date('m', strtotime($selected_period));
+		$today = date('Y-m-d', strtotime("$selected_period"));
 		$below_one_year = 0;
 		$male_below_fifteen_years = 0;
 		$female_below_fifteen_years = 0;
@@ -974,6 +974,7 @@ class report_management extends MY_Controller {
 		        AND active='1'";
 		$query = $this -> db -> query($sql);
 		$results = $query -> result_array();
+
 		if ($results) {
 			$below_one_year = $results[0]['total'];
 		}
