@@ -217,6 +217,7 @@ class Inventory_Management extends MY_Controller {
 	}
 
 	public function getDrugTransactions($drug_id='4',$ccc_id='2'){
+		/*Added Limit as there are issues*/
 		ini_set("memory_limit", -1);
 		$iDisplayStart = $this -> input -> get_post('iDisplayStart', true);
 		$iDisplayLength = $this -> input -> get_post('iDisplayLength', true);
@@ -378,7 +379,6 @@ class Inventory_Management extends MY_Controller {
 			$row[] = $drug_transaction -> Amount;
 			$output['aaData'][] = $row;
 		}
-		// echo "<pre>";print_r($output);die;
 		echo json_encode($output,JSON_PRETTY_PRINT);
 	}
 	
