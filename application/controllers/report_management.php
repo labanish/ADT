@@ -3708,13 +3708,18 @@ class report_management extends MY_Controller {
 		$tot_drugs = $this -> db -> get();
 		$iTotal = count($tot_drugs -> result_array());
 
+		//echo "<pre>";print_r($rResult->result_array());die;
 		// Output
-		$output = array('sEcho' => intval($sEcho), 'iTotalRecords' => $iTotal, 'iTotalDisplayRecords' => $iFilteredTotal, 'aaData' => array());
-
+		$output = array('sEcho' => intval($sEcho), 'iTotalRecords' => $iTotal, 'iTotalDisplayRecords' => $iFilteredTotal, 'aaData' => array());		
 		foreach ($rResult->result_array() as $aRow) {
+			/*json is sensitive on ' so we need to replace the drugs with ' to have /
+			Victoria Wasonga
+			*/
+			$aRow['drug'] = str_replace("'", "\'", $aRow['drug']);
 			$sql = "select '" . $aRow['drug'] . "' as drug_name,'" . $aRow['pack_size'] . "' as pack_size,'" . $aRow['name'] . "' as unit, month(DATE(d_c.period)) as month,d_c.amount as total_consumed 
 					from drug_cons_balance d_c 
 					where d_c.drug_id='" . $aRow['id'] . "' and d_c.period LIKE '%" . $year . "%' and facility='" . $facility_code . "' order by d_c.period asc";
+
 			$drug_details_sql = $this -> db -> query($sql);
 			$sql_array = $drug_details_sql -> result_array();
 			$drug_consumption = array();
@@ -3759,7 +3764,7 @@ class report_management extends MY_Controller {
 				}
 			}
 			$output['aaData'][] = $row;
-		}
+		}		
 		echo json_encode($output);
 	}
 

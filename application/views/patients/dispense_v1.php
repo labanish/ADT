@@ -948,7 +948,8 @@ if(patient_iqcare==false){
                             if (prev_drug_qty < 0) {
                                 prev_drug_qty = 0;
                             }
-                            row.closest("tr").find(".pill_count").val(prev_drug_qty);
+                            //row.closest("tr").find(".pill_count").val(prev_drug_qty);
+                            row.closest("tr").find(".pill_count").val("prev_drug_qty");
                             return false;
                         }
                     });
@@ -1223,6 +1224,17 @@ if(patient_iqcare==false){
             row.closest("tr").find(".duration").css("background-color", "red");
             row.closest("tr").find(".duration").addClass("input_error");
         }
+    });
+ //next pill count change event
+    $(".dose").change(function() {
+        var row = $(this);
+        var qty_disp = row.closest("tr").find(".qty_disp").val();
+        var dose_val = row.closest("tr").find(".dose option:selected").attr("dose_val");
+        var dose_freq = row.closest("tr").find(".dose option:selected").attr("dose_freq");
+        //getPillCount(qty_disp, dose_freq, dose_val);
+        
+        //console.log(getPillCount(qty_disp, dose_freq, dose_val));
+
     });
     //-------------------------------- CHANGE EVENT END ----------------------------------
     
