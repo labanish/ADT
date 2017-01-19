@@ -1022,7 +1022,7 @@ class report_management extends MY_Controller {
 		$data = array();
 		$data['J13'] = $below_one_year;
 		$data['J14'] = $male_below_fifteen_years;
-		$data['L15'] = $female_below_fifteen_years;
+		$data['L14'] = $female_below_fifteen_years;
 		$data['J15'] = $male_above_fifteen_years;
 		$data['L15'] = $female_above_fifteen_years;
 		return $data;
@@ -4649,7 +4649,8 @@ class report_management extends MY_Controller {
 					    WHERE YEAR(p.date_enrolled)='$year' 
 					    AND MONTH(p.date_enrolled)='$month'
 					    AND rst.name LIKE '%$service%'
-					    AND p.facility_code='$facility_code'";
+					    AND p.facility_code='$facility_code'
+					    AND p.active = '1'";
 				$query = $this -> db -> query($sql);
 				$results = $query -> result_array();
 				if($results){
