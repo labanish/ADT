@@ -1,6 +1,10 @@
 <script>
 //load pediatric drugs and dose when the add button is clicked 
 	$(document).ready(function() {
+		/*Prevent Double Click*/
+		$('input_form').submit(function(){
+		  	$(this).find(':submit').attr('disabled','disabled');
+		});
 		//GET DRUGS
 		var request=$.ajax({
 		url: "dossing_chart/get_drugs",

@@ -3724,7 +3724,7 @@ class report_management extends MY_Controller {
 			/*json is sensitive on ' so we need to replace the drugs with ' to have /
 			Victoria Wasonga
 			*/
-			$aRow['drug'] = str_replace("'", "\'", $aRow['drug']);
+			$aRow['drug'] = addslashes($aRow['drug']);
 			$sql = "select '" . $aRow['drug'] . "' as drug_name,'" . $aRow['pack_size'] . "' as pack_size,'" . $aRow['name'] . "' as unit, month(DATE(d_c.period)) as month,d_c.amount as total_consumed 
 					from drug_cons_balance d_c 
 					where d_c.drug_id='" . $aRow['id'] . "' and d_c.period LIKE '%" . $year . "%' and facility='" . $facility_code . "' order by d_c.period asc";

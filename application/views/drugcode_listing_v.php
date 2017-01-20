@@ -85,6 +85,9 @@
 </style>
 <script type="text/javascript">
 	$(document).ready(function() {
+		$('entry_form').submit(function(){
+		  	$(this).find(':submit').attr('disabled','disabled');
+		});
 		$(".setting_table").find("tr :first").css("width","380px");
 		//This loop goes through each table row in the page and applies the necessary modifications
 		$.each($(".table_row"), function(i, v) {

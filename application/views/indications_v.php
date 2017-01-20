@@ -32,7 +32,10 @@
 </style>
 <script type="text/javascript">
 	$(document).ready(function() {
-		
+		/*Prevent Double Click*/
+		$('input_form').submit(function(){
+		  	$(this).find(':submit').attr('disabled','disabled');
+		});
 		$(".setting_table").find("tr :first").css("min-width","230px");
 		
 		//This loop goes through each table row in the page and applies the necessary modifications

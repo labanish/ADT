@@ -1,17 +1,4 @@
-Skip to content
-Personal Open source Business Explore
-Sign upSign inPricingBlogSupport
-This repository
-Search
- Watch 1  Star 0  Fork 12 KevinMarete/ADT
-forked from OmondiKevin/ADT
- Code  Pull requests 0  Projects 0  Pulse  Graphs
-Branch: master Find file Copy pathADT/application/views/patients/dispense_v.php
-5a4d911  2 days ago
-@KevinMarete KevinMarete # ADT Version 3.1 - Pre Release Update 1.0
-2 contributors @victoriawasonga @KevinMarete
-RawBlameHistory     
-1976 lines (1798 sloc)  94.6 KB
+
 
 
 
@@ -871,11 +858,11 @@ if(patient_iqcare==false){
             $("#regimen_change_reason_container").hide();
             $("#regimen_change_reason").val("");
         }
-        var days_duration = $("#days_to_next").val();
+        /*var days_duration = $("#days_to_next").val();
         if(days_duration != ""){
             $(".duration").val(days_duration);
             duration_quantity($(this)); 
-        }    
+        }  */  
     });
     
     //drug change event
@@ -936,13 +923,17 @@ if(patient_iqcare==false){
                             var one_day = 1000 * 60 * 60 * 24;
                             var appointment_timestamp = Date.parse(prev_date);
                             var difference = today_timestamp - appointment_timestamp;
-                            var days_difference = difference / one_day;
+                            var days_difference = Math.round(difference / one_day);
                             if (days_difference > 0) {
                                 days_difference = days_difference.toFixed(0);
                             } else {
                                 days_difference = 0;
                             }
-                            var group_A = (prev_qty - prev_pill_count);
+                            /*
+                            * Group A - sum of the number of drugs dispensed to patient previously and drugs brought back by patient
+                            * Group B - number of drugs patient is expected to have consumed so far
+                            */
+                            var group_A = (parseInt(prev_qty) + parseInt(prev_pill_count));
                             var group_B = (days_difference * (prev_value * prev_frequency))
                             var prev_drug_qty = (group_A - group_B);
                             if (prev_drug_qty < 0) {
@@ -1108,16 +1099,19 @@ if(patient_iqcare==false){
                                 _class='selected';     
                             }                                          
                         }else{
-                            var days_duration = $("#days_to_next").val();
+                           /* var days_duration = $("#days_to_next").val();
                             if(days_duration==""){
                                 row.closest("tr").find(".duration").val(value.duration);
                                 duration_quantity($(this)); 
                             }else{
                                 row.closest("tr").find(".duration").val(days_duration);
-                            }
+                            }*/
                             row.closest("tr").find(".dose").val(value.dose);
-                            duration_quantity($(this)); 
+                            //duration_quantity($(this)); 
+                              row.closest("tr").find(".duration").val(value.duration);
+                            
                         }
+                      
                         row.closest("tr").find(".unit").val(value.Name);
                         row.closest("tr").find(".batch").append("<option "+_class+" value='" + value.batch_number + "'>" + value.batch_number + "</option> ");
                         row.closest("tr").find(".comment").val(value.comment);
@@ -1245,14 +1239,14 @@ if(patient_iqcare==false){
     $(".dose").on('input', function() {
        duration_quantity($(this));
     });
-    $("#days_to_next").on('change', function(){
+    /*$("#days_to_next").on('change', function(){
         var days_duration = $("#days_to_next").val();
         if(days_duration!=""){
             $(".duration").val(days_duration);
             $(".duration").trigger('keyup');
         }
        //duration_quantity($(this));
-    });
+    });*/
     //function to calculate qty_dispensed based on dosage and duration
     //-------------------------------- CHANGE EVENT END ----------------------------------
     
@@ -1955,5 +1949,3 @@ var link ="<?php echo base_url();?>dispensement_management/getPreviouslyDispense
         }); 
     }
 </script>
-Contact GitHub API Training Shop Blog About
-© 2017 GitHub, Inc. Terms Privacy Security Status Help
