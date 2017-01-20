@@ -18,8 +18,8 @@ class auto_management extends MY_Controller {
         // $this->ftp_url='41.89.6.210';
 	}
 
-	// Testing Data
-	// public function delete_dubs(){
+// To clean the sync_regimen_category table incase of the duplicates
+	// public function delete_dulicates(){
 	// 	$sql = "SELECT count(id) as counts, id, new_id,Name from sync_regimen_category group by id,Name having counts>1";
 	// 	$result_raw = $this->db->query($sql)->result_array();
 	// 	foreach ($result_raw as $key => $value) {
@@ -27,10 +27,7 @@ class auto_management extends MY_Controller {
 	// 		$id = $value['id'];
 	// 		$name = $value['Name'];
 	// 		$sql_inner = "delete from sync_regimen_category where id='$id' and Name = '$name' and new_id !='$new_id'";
-	// 		// echo "$sql_inner";die;
 	// 		$this->db->query($sql_inner);
-
-	// 	}
 
 	// }
 	
@@ -74,6 +71,8 @@ class auto_management extends MY_Controller {
 			$message .= $this->mirth_adt_db();
 			//fucntion to update patient visit dose from id to name
 			$message .= $this->update_dose_name();
+			// To clean the sync_regimen_category table incase of the duplicates
+			// $message .= $this->delete_dulicates();
 			//function to update hash value of system to nascop
 			//$message .= $this->update_system_version();
             //function to download guidelines from nascop
