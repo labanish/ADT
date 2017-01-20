@@ -1,7 +1,3 @@
-
-
-
-
 <style>
     .content{
         padding:10em 1% 5% 1%;
