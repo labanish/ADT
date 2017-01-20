@@ -17,6 +17,23 @@ class auto_management extends MY_Controller {
         // off Campus access {should be active at facility level}
         // $this->ftp_url='41.89.6.210';
 	}
+
+	// Testing Data
+	// public function delete_dubs(){
+	// 	$sql = "SELECT count(id) as counts, id, new_id,Name from sync_regimen_category group by id,Name having counts>1";
+	// 	$result_raw = $this->db->query($sql)->result_array();
+	// 	foreach ($result_raw as $key => $value) {
+	// 		$new_id = $value['new_id'];
+	// 		$id = $value['id'];
+	// 		$name = $value['Name'];
+	// 		$sql_inner = "delete from sync_regimen_category where id='$id' and Name = '$name' and new_id !='$new_id'";
+	// 		// echo "$sql_inner";die;
+	// 		$this->db->query($sql_inner);
+
+	// 	}
+
+	// }
+	
 	public function index($manual=FALSE){
 		$message ="";
 		$today = (int)date('Ymd');

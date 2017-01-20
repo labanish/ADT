@@ -987,7 +987,7 @@ class report_management extends MY_Controller {
 		        AND DATEDIFF('$today',dob)>=365 
 		        AND DATEDIFF('$today',dob)<(365*15) 
 		        AND active='1' group by gender";
-		$query = $this -> db -> query($sql);
+		$query = $this -> db-> query($sql);
 		$results = $query -> result_array();
 		if ($results) {
 			foreach ($results as $result) {

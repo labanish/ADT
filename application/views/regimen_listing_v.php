@@ -191,6 +191,7 @@
 			$("#md_bulk_mapping").css("width","60%");
 			$("#md_bulk_mapping").css("margin-left","-30%");
 			$("#tbl_bulk_mapping tbody > tr >td >select").remove();
+			$("#tbl_bulk_mapping tbody > tr").remove();
 			
 			//get Non mapped regimens
 			$.ajax({
@@ -198,7 +199,7 @@
 	                type: 'GET', 
 	                dataType:'json',
 	                data: { 'param': '0' },      
-	                success: function(data) {	
+	                success: function(data) {		                	
 	                	var counter = 0; 
 	                	var total_regimen = data.non_mapped_regimen.length;
 	                	var total_sync = data.sync_regimen.length;
@@ -212,7 +213,7 @@
 			
 		});
 		
-		
+		$
 		
 		//This loop goes through each table row in the page and applies the necessary modifications
 		$.each($(".table_row"), function(i, v) {
