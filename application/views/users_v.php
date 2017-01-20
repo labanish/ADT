@@ -23,6 +23,10 @@
 	}
 
 	$(document).ready(function() {
+		/*Prevent Double Click*/
+		$('input_form').submit(function(){
+		  	$(this).find(':submit').attr('disabled','disabled');
+		});
 		$('#user_form').on('show', function(){
         	triggetmultiselect();
    		 });

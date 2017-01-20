@@ -31,6 +31,10 @@
 <script type="text/javascript">
 	$(document).ready(function(){
 		$("#drugid").multiselect().multiselectfilter();
+		/*Prevent Double Click*/
+		$('input_form').submit(function(){
+		  	$(this).find(':submit').attr('disabled','disabled');
+		});
 	});
 	//process drugs form drug multiselect
 	function process_drugs(){  
