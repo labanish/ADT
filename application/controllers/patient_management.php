@@ -1957,6 +1957,7 @@ class Patient_Management extends MY_Controller {
     //get the viral _load_information
     public function get_viral_load_info(){
         $output= " ";
+        $viral_load_test_days = 180;
         $patient_id  = $this ->input ->post('id');
         $sql="select patient_number_ccc,result,DATEDIFF(NOW(), test_date) as test_date_diff,
               DATEDIFF(NOW(), start_regimen_date) as start_regimen_date_diff
@@ -1970,11 +1971,11 @@ class Patient_Management extends MY_Controller {
             {
                 $start_regimen_date_diff= $data['start_regimen_date_diff'];
                 //if new patient
-                if($start_regimen_date_diff < 180)
+                if($start_regimen_date_diff < $viral_load_test_days)
                 {
                     $output="This patient needs to do viral Load test before "+$start_regimen_date_diff+" days from today";
                 }
-                // no patient_viral load info and 180 days has passed.
+                // no patient_viral load info and viral_load_test_days days has passed.
                 else
                 {
                     $output="This patient requires a viral load test as there is no viral load Information and 6 months has passed from the date of start regimen";
