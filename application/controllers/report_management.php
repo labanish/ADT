@@ -7325,19 +7325,87 @@ class report_management extends MY_Controller {
     }
     // function for the differentiated Package of Care
 
-    public function differenciated_package_of_care(){
-    	$six_months_app = date('Y-m-d',strtotime('+ 6 months'));
+    public function differenciated_package_of_care($start_date){    	
+    	$date = date('Y-m-d', strtotime($start_date));
+    	$six_months_app = date('Y-m-d',strtotime('+ 6 months',strtotime($date)));    	
     	$viralcount = 1000;
+    	$row_string .= "<table border='1' class='dataTables'>
+			<thead>
+				<tr>
+					<th> </th>
+					<th>Male</th>
+                   <th>Female</th>
+				</tr>
+			</thead>";
+		$count_all_male = 0;$count_all_female = 0;
+		$count_less_male = 0;$count_more_male = 0;
+		$count_less_female = 0;$count_more_female = 0;
+
+		$row_string .= "<tr><td> > $viralcount cp/ml</td>";
+		$sql_more="SELECT g.name, COUNT(p.gender) AS count, pv.result FROM patient p,patient_viral_load pv,
+    				gender g WHERE 	p.nextappointment >= '$six_months_app'  AND p.patient_number_ccc = pv.patient_ccc_number
+        			AND pv.result >'$viralcount'  AND g.id = p.gender GROUP BY p.gender";		
+		$query = $this ->db ->query($sql_more);
+		$result_more = $query->result_array();	
+		
+		if (count($result_more)>0) {
+			foreach ($result_more as $result) {
+				$gender_all = $result['name'];				
+				if($gender_all=='Male'){
+					$count = ($result['count']=='') ? 0 : $result['count'];				
+					$count_more_male +=$count;					
+				}
+				if($gender_all=='Female'){
+					$count = ($result['count']=='') ? 0 : $result['count'];				
+					$count_more_female +=$count;				
+				}
+			}
+		}else{
+			$row_string .= "<td>$count_more_male</<td><td>$count_more_female</td>";
+		}
+		$row_string .= "<td>$count_more_male</<td><td>$count_more_female</td>";
+		$row_string .= "</tr><tr><td>< 1000 cp/ml</td>";
     	$sql_less = "SELECT g.name, COUNT(p.gender) AS count, pv.result FROM patient p,patient_viral_load pv,
     				gender g WHERE 	p.nextappointment >= '$six_months_app'  AND p.patient_number_ccc = pv.patient_ccc_number
         			AND pv.result <='$viralcount'  AND g.id = p.gender GROUP BY p.gender";
-        $sql_more = "SELECT g.name, COUNT(p.gender) AS count, pv.result FROM patient p,patient_viral_load pv,
-    				gender g WHERE 	p.nextappointment >= '$six_months_app'  AND p.patient_number_ccc = pv.patient_ccc_number
-        			AND pv.result >'$viralcount'  AND g.id = p.gender GROUP BY p.gender";
+        $query = $this ->db ->query($sql_less);
+		$result_less = $query->result_array();
+		
+		if (count($result_less)>0) {
+			foreach ($result_less as $result) {
+				$gender_all = $result['name'];				
+				if($gender_all=='Male'){
+					$count = ($result['count']=='') ? 0 : $result['count'];				
+					$count_less_male +=$count;					
+				}
+				if($gender_all=='Female'){
+					$count = ($result['count']=='') ? 0 : $result['count'];				
+					$count_less_female +=$count;					
+				}
+			}
+		}else{
+			$row_string .= "<td>$count_less_male</<td><td>$count_less_female</td>";
+		}
+		$row_string .= "<td>$count_less_male</<td><td>$count_less_female</td>";
+		$row_string .= "</tr><tr><td>On Long appointment ≥ 180 Days</td>";		
+		$count_all_male = $count_less_male + $count_more_male;
+		$count_all_female = $count_less_female + $count_more_female;
+		$row_string .= "<td>$count_all_male</<td><td>$count_all_female</td>";
+		$row_string .= "</tr></tbody></table>";
+		$data['overall_total'] = $count_all_male+$count_all_female;
+		$data['from'] = $date;
+		$data['to'] = $six_months_app;
+		$data['dyn_table'] = $row_string;		
+		$data['title'] = "webADT | Reports";
+		$data['hide_side_menu'] = 1;
+		$data['banner_text'] = "Facility Reports";
+		$data['selected_report_type_link'] = "differenciated_package_of_care";
+		$data['selected_report_type'] = "Patients on differenciated Package of care";
+		$data['report_title'] = "Differenciated Package of care";
+		$data['facility_name'] = $this -> session -> userdata('facility_name');
+		$data['content_view'] = 'reports/differenciated_package_of_care_v';
+		$this -> load -> view('template', $data);
 
-        
-
-        
     }
 	public function base_params($data) {
 		$data['reports'] = true;
