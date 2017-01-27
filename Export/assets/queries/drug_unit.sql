@@ -1,1 +1,0 @@
-ALTER TABLE `drug_unit` ADD `Active` varchar(2) NOT NULL DEFAULT '1'//
