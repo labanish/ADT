@@ -7323,6 +7323,22 @@ class report_management extends MY_Controller {
 		$data['content_view']='guidelines_listing_v';
 	    $this -> base_params($data);
     }
+    // function for the differentiated Package of Care
+
+    public function differenciated_package_of_care(){
+    	$six_months_app = date('Y-m-d',strtotime('+ 6 months'));
+    	$viralcount = 1000;
+    	$sql_less = "SELECT g.name, COUNT(p.gender) AS count, pv.result FROM patient p,patient_viral_load pv,
+    				gender g WHERE 	p.nextappointment >= '$six_months_app'  AND p.patient_number_ccc = pv.patient_ccc_number
+        			AND pv.result <='$viralcount'  AND g.id = p.gender GROUP BY p.gender";
+        $sql_more = "SELECT g.name, COUNT(p.gender) AS count, pv.result FROM patient p,patient_viral_load pv,
+    				gender g WHERE 	p.nextappointment >= '$six_months_app'  AND p.patient_number_ccc = pv.patient_ccc_number
+        			AND pv.result >'$viralcount'  AND g.id = p.gender GROUP BY p.gender";
+
+        
+
+        
+    }
 	public function base_params($data) {
 		$data['reports'] = true;
 		$data['title'] = "webADT | Reports";
