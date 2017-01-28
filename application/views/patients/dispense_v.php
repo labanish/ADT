@@ -345,15 +345,17 @@ var patient_iqcare=false;
     $(document).ready(function(){
         var loopcounter = 0;
         //iqcare flag
-         var id="<?php echo $patient_id; ?>";
-          var link = "<?php echo base_url() . 'patient_management/get_viral_load_info'; ?>";
+         var patient_id="<?php echo $patient_id; ?>";
+         var base_url="<?php echo base_url();?>";
+          var link = base_url + "patient_management/get_viral_load_info/" + patient_id;
         var request_viral_load=$.ajax({
                 url: link,
                 type: 'POST',
-                data: {"id":id},
                 dataType: "json",
                 success: function(data) {
-                    bootbox.alert("<h4>Notice!</h4>\n\<center>"+data+"</center>");
+                   if(data!=0){
+                     bootbox.alert(data);
+                   }
                 }
             });
         
