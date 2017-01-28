@@ -1962,7 +1962,7 @@ class Patient_Management extends MY_Controller {
         $max_days_to_LDL_test=365;
         $max_days_for_greater_1000_test=90;
         $sql="select patient_number_ccc,test_date,result,DATEDIFF(NOW(), test_date) as test_date_diff, DATEDIFF(NOW(), start_regimen_date) as 
-              start_regimen_date_diff from patient_viral_load pv left join patient p on p.patient_number_ccc=pv.patient_ccc_number 
+              start_regimen_date_diff from patient pv left join patient_viral_load p on p.patient_number_ccc=pv.patient_ccc_number 
               where p.id=$patient_id order by test_date DESC limit 1";
         $query = $this -> db -> query($sql);
         $datas = $query -> result_array();
