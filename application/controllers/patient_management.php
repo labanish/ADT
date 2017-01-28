@@ -1960,10 +1960,11 @@ class Patient_Management extends MY_Controller {
         $patient_id  = $this ->input ->post('id');
         $sql="select patient_number_ccc,result,DATEDIFF(NOW(), test_date) as test_date_diff,
               DATEDIFF(NOW(), start_regimen_date) as start_regimen_date_diff
-              from patient_viral_load pv inner join patient p on p.patient_number_ccc=pv.patient_ccc_number
+              from patient_viral_load pv left join patient p on p.patient_number_ccc=pv.patient_ccc_number
               where p.id=916 order by test_date DESC limit 1";
         $query = $this -> db -> query($sql);
         $datas = $query -> result_array();
+        echo "<pre>";print_r($datas); die();
         //if the query returns and empty result set
         foreach ($datas as $data) {
             if (empty($data)) 
