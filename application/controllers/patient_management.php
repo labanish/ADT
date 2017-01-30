@@ -1938,11 +1938,20 @@ class Patient_Management extends MY_Controller {
         echo json_encode($data,JSON_PRETTY_PRINT);
     }
 
-    public function get_patient_details(){
-        $patient_id = $this ->input ->post('patient_id');
+    public function get_patient_details($patient_id=null,$type=null){
+        if(!isset($patient_id)){
+            $patient_id = $this ->input ->post('patient_id');    
+        }
+        
         $query = patient::get_patient_details($patient_id);
-        echo json_encode($query);
+        if(isset($type)){
+            return $query;
+        }else{
+            echo json_encode($query);
+        }
     }
+
+    
     //to get the dose for a child patient
     public function get_peadiatric_dose(){
         $weight = $this ->input ->post('weight');
@@ -1956,16 +1965,19 @@ class Patient_Management extends MY_Controller {
     }
     //get the viral _load_information
     public function get_viral_load_info($patient_id){
+        $patient_details = $this->get_patient_details($patient_id,'array');      
+        
+        $patient_ccc = $patient_details['Patient_Number_CCC'];
+        
         $msg=0;
         $max_days_from_enrolled=180;
         $max_days_to_notification=10;
         $max_days_to_LDL_test=365;
         $max_days_for_greater_1000_test=90;
-        $sql="select patient_number_ccc,test_date,result,DATEDIFF(NOW(), test_date) as test_date_diff, DATEDIFF(NOW(), start_regimen_date) as 
-              start_regimen_date_diff from patient pv left join patient_viral_load p on p.patient_number_ccc=pv.patient_ccc_number 
-              where p.id=$patient_id order by test_date DESC limit 1";
+        $sql="SELECT p.patient_number_ccc,pv.result,pv.test_date,DATEDIFF(NOW(), test_date) AS test_date_diff, DATEDIFF(NOW(), start_regimen_date) AS start_regimen_date_diff FROM patient p left JOIN  patient_viral_load pv ON p.patient_number_ccc = pv.patient_ccc_number  and p.patient_number_ccc = '$patient_ccc' 
+            Where p.patient_number_ccc = '$patient_ccc' group by p.patient_number_ccc order by test_date desc";
         $query = $this -> db -> query($sql);
-        $datas = $query -> result_array();
+        $datas = $query -> result_array();        
         foreach ($datas as $data) {
             $viral_load_test_date=$data['test_date'];
             //if patient has no viral_load_test date
@@ -1993,7 +2005,7 @@ class Patient_Management extends MY_Controller {
                 {
                    if($test_date_diff < $max_days_to_LDL_test && (($max_days_to_LDL_test-$test_date_diff)<=$max_days_to_notification ))
                    {
-                    $msg="This patient needs to do viral Load test before ".$test_date_diff." days from today";
+                    $msg="This patient needs to do viral Load test before ".$max_days_to_LDL_test-$test_date_diff." days from today";
                     
                    }
                    else if($test_date_diff > $max_days_to_LDL_test)
@@ -2006,7 +2018,8 @@ class Patient_Management extends MY_Controller {
                 {
                     if($test_date_diff <$max_days_for_greater_1000_test && (($max_days_for_greater_1000_test-$test_date_diff)<=$max_days_to_notification))
                     {
-                        $msg="This patient needs to do viral Load test before "+$test_date_diff+" days from today";
+                        $diff=$max_days_for_greater_1000_test-$test_date_diff;
+                        $msg="This patient needs to do viral Load test  ".$diff." days from today";
                     }
                     else if($test_date_diff > $max_days_for_greate_100_test)
                     {
