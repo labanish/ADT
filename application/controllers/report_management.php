@@ -7360,8 +7360,6 @@ class report_management extends MY_Controller {
 					$count_more_female +=$count;				
 				}
 			}
-		}else{
-			$row_string .= "<td>$count_more_male</<td><td>$count_more_female</td>";
 		}
 		$row_string .= "<td>$count_more_male</<td><td>$count_more_female</td>";
 		$row_string .= "</tr><tr><td>< 1000 cp/ml</td>";
@@ -7383,8 +7381,6 @@ class report_management extends MY_Controller {
 					$count_less_female +=$count;					
 				}
 			}
-		}else{
-			$row_string .= "<td>$count_less_male</<td><td>$count_less_female</td>";
 		}
 		$row_string .= "<td>$count_less_male</<td><td>$count_less_female</td>";
 		$row_string .= "</tr><tr><td>On Long appointment ≥ 180 Days</td>";		
