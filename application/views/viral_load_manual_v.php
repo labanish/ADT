@@ -75,7 +75,7 @@
 	      		echo validation_errors('<p class="error">', '</p>');
 			?>
 				<a href="#client_form" role="button" id="new_client" class="btn" data-toggle="modal"><i class="icon-plus icon-black"></i>Add Patient Viral Load</a>
-				<a href="#file_form" role="button" id="new_client" class="btn" data-toggle="modal"><i class="icon-plus icon-black"></i>Upload CSV</a>
+				<!--<a href="#file_form" role="button" id="new_client" class="btn" data-toggle="modal"><i class="icon-plus icon-black"></i>Upload CSV</a>-->
 			<?php
 				echo @$viral_result;
 	        ?>

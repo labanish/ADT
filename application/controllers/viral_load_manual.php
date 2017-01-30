@@ -76,35 +76,10 @@ class viral_load_manual extends MY_Controller {
 		//Filter datatable
 		redirect("settings_management");
 	}
-	public function file_upload(){
-		//$file = $FILES['file']['tmp_name'];
-		$fp = fopen($_FILES['file']['tmp_name'],'r') or die("can't open file");
-		while($csv_line = fgetcsv($fp,1024)) 
-		{
-		for ($i = 0, $j = count($csv_line); $i < $j; $i++) 
-		{
+	/*public function file_upload(){
 
-		$insert_csv = array();
-		$insert_csv['Patient Number CCC'] = $csv_line[0];
-		$insert_csv['Test Date'] = $csv_line[1];
-		$insert_csv['Result'] = $csv_line[2];
-		$insert_csv['Justification'] = $csv_line[3];
-	
-		}
-
-		$data = array(
-		'patient_ccc_number' => $insert_csv['Patient Number CCC'] ,
-		'test_date' => $insert_csv['Test Date '],
-		'result' => $insert_csv['Result'],
-		'justification' => $insert_csv['Justification']);
-		   $this->db->insert('patient_viral_load', $data); 
-				
-		  }
-		               fclose($fp) or die("can't close file");
-		   $this -> session -> set_userdata('msg_success', $this -> input -> post('classification_name') . ' was Added');
-			$this -> session -> set_flashdata('filter_datatable', $this -> input -> post('classification_name'));
-				
-	}
+		
+			}*/
 	private function _submit_validate() {
 		// validation rules
 		$this -> form_validation -> set_rules('patient_ccc_number', 'Patient CCC Number', 'trim|required|min_length[2]|max_length[100]');
