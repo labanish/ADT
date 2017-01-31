@@ -29,6 +29,12 @@ class Patient_Management extends MY_Controller {
         $this -> load ->view("patient_merging_v",$data);
     }
 
+    public function get_Last_vl_result($ccc_number){
+        $sql = "SELECT * FROM patient_viral_load WHERE patient_ccc_number = '$ccc_number' ORDER BY test_date DESC LIMIT 1";
+        $results = $this->db->query($sql)->result_array();
+        echo json_encode($results);
+    }
+
     public function details() {
         $data['content_view'] = "patient_details_v";
         $data['hide_side_menu'] = 1;
@@ -183,7 +189,7 @@ class Patient_Management extends MY_Controller {
         $iTotal = count($tot_patients -> result_array());
 
         // Output
-        $output = array('sEcho' => intval($sEcho), 'iTotalRecords' => $iTotal, 'iTotalDisplayRecords' => $iFilteredTotal, 'aaData' => array());
+        $msg = array('sEcho' => intval($sEcho), 'iTotalRecords' => $iTotal, 'iTotalDisplayRecords' => $iFilteredTotal, 'aaData' => array());
 
         foreach ($rResult->result_array() as $aRow) {
             $row = array();
@@ -255,9 +261,9 @@ class Patient_Management extends MY_Controller {
                 $row[] = $link;
             }
 
-            $output['aaData'][] = $row;
+            $msg['aaData'][] = $row;
         }
-        echo json_encode($output,JSON_PRETTY_PRINT);
+        echo json_encode($msg,JSON_PRETTY_PRINT);
     }
 
     public function extract_illness($illness_list = "") {
@@ -1357,7 +1363,7 @@ class Patient_Management extends MY_Controller {
         $iTotal = count($total -> result_array());
 
         // Output
-        $output = array('sEcho' => intval($sEcho),
+        $msg = array('sEcho' => intval($sEcho),
             'iTotalRecords' => $iTotal,
             'iTotalDisplayRecords' => $iFilteredTotal,
             'aaData' => array());
@@ -1376,9 +1382,9 @@ class Patient_Management extends MY_Controller {
             $patient_name=$patient -> first_name." ".$patient -> other_name." ".$patient -> last_name;
             $row[] =str_replace("  "," ", $patient_name);
             $row[] =$links;
-            $output['aaData'][] = $row;
+            $msg['aaData'][] = $row;
         }
-        echo json_encode($output,JSON_PRETTY_PRINT);
+        echo json_encode($msg,JSON_PRETTY_PRINT);
     }
 
     public function merge(){
@@ -1811,7 +1817,7 @@ class Patient_Management extends MY_Controller {
         $iTotal = count($total -> result_array());
 
         // Output
-        $output = array(
+        $msg = array(
             'sEcho' => intval($sEcho),
             'iTotalRecords' => $iTotal,
             'iTotalDisplayRecords' => $iFilteredTotal,
@@ -1828,10 +1834,10 @@ class Patient_Management extends MY_Controller {
                     $data[] = $value;
                 }
             }
-            $output['aaData'][] = $data;
+            $msg['aaData'][] = $data;
         }
 
-        echo json_encode($output,JSON_PRETTY_PRINT);
+        echo json_encode($msg,JSON_PRETTY_PRINT);
     }
 
     public function get_other_chronic($illnesses){
@@ -1938,11 +1944,20 @@ class Patient_Management extends MY_Controller {
         echo json_encode($data,JSON_PRETTY_PRINT);
     }
 
-    public function get_patient_details(){
-        $patient_id = $this ->input ->post('patient_id');
+    public function get_patient_details($patient_id=null,$type=null){
+        if(!isset($patient_id)){
+            $patient_id = $this ->input ->post('patient_id');    
+        }
+        
         $query = patient::get_patient_details($patient_id);
-        echo json_encode($query);
+        if(isset($type)){
+            return $query;
+        }else{
+            echo json_encode($query);
+        }
     }
+
+    
     //to get the dose for a child patient
     public function get_peadiatric_dose(){
         $weight = $this ->input ->post('weight');
@@ -1955,32 +1970,38 @@ class Patient_Management extends MY_Controller {
         echo json_encode($data);
     }
     //get the viral _load_information
-    public function get_viral_load_info(){
-        $output= " ";
-        $patient_id  = $this ->input ->post('id');
-        $sql="select patient_number_ccc,result,DATEDIFF(NOW(), test_date) as test_date_diff,
-              DATEDIFF(NOW(), start_regimen_date) as start_regimen_date_diff
-              from patient_viral_load pv inner join patient p on p.patient_number_ccc=pv.patient_ccc_number
-              where p.id=916 order by test_date DESC limit 1";
+    public function get_viral_load_info($patient_id){
+        $patient_details = $this->get_patient_details($patient_id,'array');      
+        
+        $patient_ccc = $patient_details['Patient_Number_CCC'];
+        
+        $msg=0;
+        $max_days_from_enrolled=180;
+        $max_days_to_notification=10;
+        $max_days_to_LDL_test=365;
+        $max_days_for_greater_1000_test=90;
+        $sql="SELECT p.patient_number_ccc,pv.result,pv.test_date,DATEDIFF(NOW(), test_date) AS test_date_diff, DATEDIFF(NOW(), start_regimen_date) AS start_regimen_date_diff FROM patient p left JOIN  patient_viral_load pv ON p.patient_number_ccc = pv.patient_ccc_number  and p.patient_number_ccc = '$patient_ccc' 
+            Where p.patient_number_ccc = '$patient_ccc' group by p.patient_number_ccc order by test_date desc";
         $query = $this -> db -> query($sql);
-        $datas = $query -> result_array();
-        //if the query returns and empty result set
+        $datas = $query -> result_array();        
         foreach ($datas as $data) {
-            if (empty($data)) 
-            {
+            $viral_load_test_date=$data['test_date'];
+            //if patient has no viral_load_test date
+            if (empty($viral_load_test_date)) 
+            {   //check the viral load test date 
                 $start_regimen_date_diff= $data['start_regimen_date_diff'];
-                //if new patient
-                if($start_regimen_date_diff < 180)
+                //if patient is enrolled in care and there is  ten or less days to viral load test date
+                if($start_regimen_date_diff < $max_days_from_enrolled && (($max_days_from_enrolled-$start_regimen_date_diff)<=$max_days_to_notification))
                 {
-                    $output="This patient needs to do viral Load test before "+$start_regimen_date_diff+" days from today";
+                    $msg="This patient needs to do viral Load test before "+$start_regimen_date_diff+" days from today";
                 }
                 // no patient_viral load info and 180 days has passed.
-                else
+                else if($start_regimen_date_diff > $max_days_from_enrolled)
                 {
-                    $output="This patient requires a viral load test as there is no viral load Information and 6 months has passed from the date of start regimen";
+                    $msg="This patient requires a viral load test as there is no viral load Information and 6 months has passed from the date of start regimen";
                 }  
             }
-            //if query returns result
+            //if patient has viral load test date
             else
             {
                 $result=$data['result'];
@@ -1988,38 +2009,34 @@ class Patient_Management extends MY_Controller {
                 //if LDL
                 if($result=='< LDL copies/ml')
                 {
-                   if($test_date_diff < 365)
+                   if($test_date_diff < $max_days_to_LDL_test && (($max_days_to_LDL_test-$test_date_diff)<=$max_days_to_notification ))
                    {
-                    $output="This patient needs to do viral Load test before ".$test_date_diff." days from today";
+                    $msg="This patient needs to do viral Load test before ".$max_days_to_LDL_test-$test_date_diff." days from today";
                     
                    }
-                   else
+                   else if($test_date_diff > $max_days_to_LDL_test)
                    {
-                        $output="This patient needs to do viral Load test urgently as one year has elapsed";
+                        $msg="This patient needs to do viral Load test urgently as one year has elapsed from the last test";
                    }
                 }
                 //else viral is more than 1000
                 else if($result > 1000)
                 {
-                    if($test_date_diff < 90)
+                    if($test_date_diff <$max_days_for_greater_1000_test && (($max_days_for_greater_1000_test-$test_date_diff)<=$max_days_to_notification))
                     {
-                        $output="This patient needs to do viral Load test before "+$test_date_diff+" days from today";
+                        $diff=$max_days_for_greater_1000_test-$test_date_diff;
+                        $msg="This patient needs to do viral Load test  ".$diff." days from today";
                     }
-                    else
+                    else if($test_date_diff > $max_days_for_greate_100_test)
                     {
-                       $output="This patient needs to do viral Load test as 90 days has passed";
+                       $msg="This patient needs to do viral Load test as 90 days has passed";
                     }
 
-                }
-                //else viral load is less than 1000
-                else
-                {
-                    $output="This patient viral load is"+$result+"which is bellow 1000";
                 }
             }
 
         }
-   // echo json_encode($output);
+    echo json_encode($msg);
     }
 
 }

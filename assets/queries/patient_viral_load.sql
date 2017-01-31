@@ -4,4 +4,4 @@ CREATE TABLE IF NOT EXISTS patient_viral_load(
   result varchar(30),
   justification TEXT
 )//
-
+ALTER TABLE patient_viral_load ADD id int NOT NULL AUTO_INCREMENT primary key//

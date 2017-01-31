@@ -1,6 +1,9 @@
 <script>
 	$(document).ready(function() {
-
+		/*Prevent Double Click*/
+		$('input_form').submit(function(){
+		  	$(this).find(':submit').attr('disabled','disabled');
+		});
 		$('.edit_user').live('click',function(event){
 			event.preventDefault();
 			$("#generic_id").val(this.id);

@@ -7,6 +7,10 @@
 			$("#edit_classification_name").val(this.name);
 			//$("#edit_form").dialog("open");
 		});
+		/*Prevent Double Click*/
+		$('input_form').submit(function(){
+		  	$(this).find(':submit').attr('disabled','disabled');
+		});
 	
 	});
 

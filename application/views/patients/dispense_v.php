@@ -1,6 +1,3 @@
-
-
-
 <style>
     .content{
         padding:10em 1% 5% 1%;
@@ -348,19 +345,20 @@ var patient_iqcare=false;
     $(document).ready(function(){
         var loopcounter = 0;
         //iqcare flag
-         var id="<?php echo $patient_id; ?>";
-          var link = "<?php echo base_url() . 'patient_management/get_viral_load_info'; ?>";
+        var patient_id="<?php echo $patient_id; ?>";
+        var base_url="<?php echo base_url();?>";
+        var link = base_url + "patient_management/get_viral_load_info/" + patient_id;
         var request_viral_load=$.ajax({
                 url: link,
                 type: 'POST',
-                data: {"id":id},
                 dataType: "json",
                 success: function(data) {
-                    bootbox.alert("<h4>Notice!</h4>\n\<center>"+data+"</center>");
+                   if(data!=0){
+                        bootbox.alert("<h4>ViralLoad Alert!</h4>" + data);
+                   }
                 }
             });
         
-
         //Run after all are done
         $(document).ajaxStop(function(){ 
             if(loopcounter == 0){
@@ -368,7 +366,6 @@ var patient_iqcare=false;
                 getPharmacyOrder("<?php echo $patient_id; ?>")
             }
         });
-
         /* -------------------------- Dispensing date, date picker settings and checks -------------------------*/
         //Attach date picker for date of dispensing
         $("#dispensing_date").datepicker({
@@ -393,7 +390,6 @@ var patient_iqcare=false;
                 $("#days_count").attr("value", diffDays);
             }
         });
-
         //Add datepicker for the next appointment date
         $("#next_appointment_date").datepicker({
             changeMonth: true,
@@ -517,13 +513,11 @@ var patient_iqcare=false;
             //STOP default action
             e.preventDefault(); 
         });
-
         //print drug labels functions
         $('#print_btn').on('click', function() {
             $("#open_print_label").dialog("open");
             $("#selectall").attr("checked", false);
             var label_str = '<table id="tbl_printer" class="table table-condensed table-hover"><tbody>';
-
             var _class = '';
             $("#tbl-dispensing-drugs > tbody > tr").each(function(i, v) {
                 if ((i + 1) % 2 == 0) {
@@ -548,7 +542,6 @@ var patient_iqcare=false;
                     var qty = row.find(".qty_disp ").val();
                     var dose_hours = (24 / (dose_value * dose_frequency));
                     var patient_name = $('#patient_details').val();
-
                     //get instructions
                     var base_url = "<?php echo base_url(); ?>";
                     var link = base_url + "dispensement_management/getInstructions/" + drug_id;
@@ -654,7 +647,6 @@ var patient_iqcare=false;
             //insertafter
             label_str += '</tbody></table></div>';
             $(label_str).insertAfter(".label_selectall");
-
             //function to select individual
             $(".label_checker").on('click', function() {
                 cb = $(this);
@@ -739,7 +731,6 @@ var patient_iqcare=false;
             $("#ccc_store_id").css('border','solid 3px red');
             return;
         }
-
 //load previously dispensed drugs
 //loadMyPreviousDispensedDrugs();
         //reset drug tables
@@ -807,7 +798,6 @@ if(patient_iqcare==false){
                 
             }
         }
-
         //adherence rate
         getAdherenceRate();
     }
@@ -838,11 +828,8 @@ if(patient_iqcare==false){
         request.fail(function(jqXHR, textStatus) {
             bootbox.alert("<h4>Drug Details Alert</h4>\n\<hr/>\n\<center>Could not retrieve drug details : </center>" + textStatus);
         });
-
-
         var regimen = $("#current_regimen option:selected").attr("value");
         var last_regimen = $("#last_regimen").attr("value");
-
         if (last_regimen != 0) {
             if ($("#last_regimen_disp").val().toLowerCase().indexOf("oi") == -1) {
                 //contains oi
@@ -853,7 +840,6 @@ if(patient_iqcare==false){
                     $("#regimen_change_reason").removeClass("validate[required]");
                     $("#regimen_change_reason_container").hide();
                     $("#regimen_change_reason").val("");
-
                     if(purpose_visit == 'routine refill'){
                         routine_check=1;
                         //append visits
@@ -861,7 +847,6 @@ if(patient_iqcare==false){
                             total_visits = (previous_dispensed_data.length) -1;
                             var count = 0;
                             getRoutineDrugs(previous_dispensed_data,total_visits,count); 
-
                         }
                         
                     }
@@ -871,12 +856,6 @@ if(patient_iqcare==false){
             $("#regimen_change_reason_container").hide();
             $("#regimen_change_reason").val("");
         }
-
-        var days_duration = $("#days_to_next").val();
-        if(days_duration != ""){
-            $(".duration").val(days_duration);
-            duration_quantity($(this)); 
-        }    
 
     });
     
@@ -891,8 +870,6 @@ if(patient_iqcare==false){
         var selected_drug = $(this).val();
         var patient_no = $("#patient").val();
         
-
-
         //Check if patient allergic to selected drug
         var _url = "<?php echo base_url() . 'dispensement_management/drugAllergies'; ?>";
         var request = $.ajax({
@@ -905,7 +882,6 @@ if(patient_iqcare==false){
             }
         });
         request.done(function(data) {
-            //console.log(data);
             //If patient is allergic to selected drug,alert user
             if (data == 1) {
                 bootbox.alert("<h4>Allergy Alert!</h4>\n\<hr/><center>This patient is allergic to "+drug_name+"</center>");
@@ -918,21 +894,20 @@ if(patient_iqcare==false){
                     row.closest('tr').find(".drug").val(0);
                     row.closest('tr').find(".drug").trigger("change");
                 }
-            } else {
+            } else {                
                 if(typeof previous_dispensed_data !=="undefined"){
-                    $.each(loadMyPreviousDispensedDrugs, function(i, v) {
-                        var prev_drug_id = v['drug_id'];
-                        var prev_drug_qty = v['mos'];
-                        var prev_qty = v['quantity'];
-                        var prev_date = v['dispensing_date'];
-                        var prev_value = v['value'];
-                        var prev_frequency = v['frequency'];
-                        if (v['pill_count'] != "") {
-                            var prev_pill_count = v['pill_count'];//Previous pill count will be used to calculate expected pill count
+                    for (var i = 0; i < previous_dispensed_data.length; i++) {
+                        var prev_drug_id = previous_dispensed_data[i]['drug_id'];
+                        var prev_drug_qty = previous_dispensed_data[i]['mos'];
+                        var prev_qty = previous_dispensed_data[i]['quantity'];
+                        var prev_date = previous_dispensed_data[i]['dispensing_date'];
+                        var prev_value = previous_dispensed_data[i]['value'];
+                        var prev_frequency = previous_dispensed_data[i]['frequency'];
+                        if (previous_dispensed_data[i]['pill_count'] != "") {
+                            var prev_pill_count = previous_dispensed_data[i]['pill_count'];//Previous pill count will be used to calculate expected pill count
                         } else {
                             var prev_pill_count = 0;//Previous pill count will be used to calculate expected pill count 
                         }
-
                         //If drug was previously dispensed
                         if (selected_drug == prev_drug_id) {
                             var base_date = new Date();
@@ -941,31 +916,29 @@ if(patient_iqcare==false){
                             var one_day = 1000 * 60 * 60 * 24;
                             var appointment_timestamp = Date.parse(prev_date);
                             var difference = today_timestamp - appointment_timestamp;
-                            var days_difference = difference / one_day;
+                            var days_difference = Math.round(difference / one_day);
                             if (days_difference > 0) {
                                 days_difference = days_difference.toFixed(0);
                             } else {
                                 days_difference = 0;
                             }
-
-                            var group_A = (prev_qty - prev_pill_count);
+                            /*
+                            * Group A - sum of the number of drugs dispensed to patient previously and drugs brought back by patient
+                            * Group B - number of drugs patient is expected to have consumed so far
+                            */
+                            var group_A = (parseInt(prev_qty) + parseInt(prev_pill_count));
                             var group_B = (days_difference * (prev_value * prev_frequency))
                             var prev_drug_qty = (group_A - group_B);
-
                             if (prev_drug_qty < 0) {
                                 prev_drug_qty = 0;
                             }
                             row.closest("tr").find(".pill_count").val(prev_drug_qty);
-                            return false;
                         }
-                    });
-                    
+                    };
                 }
-
                 var dose = "";
                 //Get batches that have not yet expired and have stock balance
                 var _url = "<?php echo base_url() . 'inventory_management/getBacthes'; ?>";
-
                 var request = $.ajax({
                     url: _url,
                     type: 'post',
@@ -999,7 +972,6 @@ if(patient_iqcare==false){
                         request.done(function(datas){ 
                         var adult_age=datas[0].adult_age;
                         //if patient is a child 
-
                         if (age < adult_age) {
                             var url_dose = "<?php echo base_url() . 'dispensement_management/getDoses'; ?>";
                             //Get doses
@@ -1023,11 +995,8 @@ if(patient_iqcare==false){
                                     row.closest("tr").find(".dose option").remove();
                                     $.each(data, function(key, value) {
                                         if(dose==value.Name){
- row.closest("tr").find(".dose").append("<option value='" + value.Name + "'  data-dose_val='" + value.value + "' data-dose_freq='" + value.frequency + "' >" + value.Name + "</option> ");
-                                            //row.closest("tr").find(".dose").append($("<option selected=\"selected\" value='"+ value.id+"'>"+value.Name+"</option>"));
-                                            // row.closest("tr").find(".dose").append($("<option selected=\"selected\" value='"+ value.id+"'>"+value.Name+"</option>"));
+                                            row.closest("tr").find(".dose").append("<option value='" + value.Name + "'  data-dose_val='" + value.value + "' data-dose_freq='" + value.frequency + "' >" + value.Name + "</option> ");
                                         }else{
-                                            //row.closest("tr").find(".dose").append($("<option value='"+ value.id+"'>"+value.Name+"</option>"));
                                              row.closest("tr").find(".dose").append("<option value='" + value.Name + "'  data-dose_val='" + value.value + "' data-dose_freq='" + value.frequency + "' >" + value.Name + "</option> ");
                                         }
                                     });
@@ -1055,11 +1024,9 @@ if(patient_iqcare==false){
                                     row.closest("tr").find(".dose option").remove();
                                     $.each(data, function(key, value) {
                                         if(current_dose==value.Name){
-                                             row.closest("tr").find(".dose").append("<option value='" + value.Name + "'  data-dose_val='" + value.value + "' data-dose_freq='" + value.frequency + "' >" + value.Name + "</option> ");
-                                            //row.closest("tr").find(".dose").append($("<option selected=\"selected\" value='"+ value.id+"'>"+value.Name+"</option>"));
+                                            row.closest("tr").find(".dose").append("<option value='" + value.Name + "'  data-dose_val='" + value.value + "' data-dose_freq='" + value.frequency + "' >" + value.Name + "</option> ");
                                         }else{
-                                             row.closest("tr").find(".dose").append("<option value='" + value.Name + "'  data-dose_val='" + value.value + "' data-dose_freq='" + value.frequency + "' >" + value.Name + "</option> ");
-                                            //row.closest("tr").find(".dose").append($("<option value='"+ value.id+"'>"+value.Name+"</option>"));
+                                            row.closest("tr").find(".dose").append("<option value='" + value.Name + "'  data-dose_val='" + value.value + "' data-dose_freq='" + value.frequency + "' >" + value.Name + "</option> ");
                                         }
                                     });
                                 });
@@ -1067,7 +1034,6 @@ if(patient_iqcare==false){
                         } 
                          });
                     });
-
                     // end of doses
                     row.closest("tr").find(".batch option").remove();
                     row.closest("tr").find(".batch").append($("<option value='0'>Select</option>"));
@@ -1079,27 +1045,16 @@ if(patient_iqcare==false){
                                 _class='selected';     
                             }                                          
                         }else{
-                            var days_duration = $("#days_to_next").val();
-                            if(days_duration==""){
-
-                                row.closest("tr").find(".duration").val(value.duration);
-                                duration_quantity($(this)); 
-
-                            }else{
-                                row.closest("tr").find(".duration").val(days_duration);
-                            }
                             row.closest("tr").find(".dose").val(value.dose);
-                            duration_quantity($(this)); 
-
-
+                            row.closest("tr").find(".duration").val(value.duration);
+                            row.closest("tr").find(".qty_disp ").val(value.quantity); //Fix for not showing quantity when not routine refill
                         }
-
+                      
                         row.closest("tr").find(".unit").val(value.Name);
                         row.closest("tr").find(".batch").append("<option "+_class+" value='" + value.batch_number + "'>" + value.batch_number + "</option> ");
                         row.closest("tr").find(".comment").val(value.comment);
                         dose = value.dose;
                     });
-
                       
                     //Get brands
                     var new_url = "<?php echo base_url() . 'dispensement_management/getBrands'; ?>";
@@ -1115,12 +1070,10 @@ if(patient_iqcare==false){
                         $.each(data, function(key, value) {
                             row.closest("tr").find(".brand").append("<option value='" + value.id + "'>" + value.brand + "</option> ");
                         });
-
                     });
                     request_brand.fail(function(jqXHR, textStatus) {
                         boottbox.alert("<h4>Brands Notice</h4>\n\<hr/><center>Could not retrieve the list of brands :</center> " + textStatus);
                     });
-
                     //Get indications(opportunistic infections)
                     var url_indication = "<?php echo base_url() . 'dispensement_management/getIndications'; ?>";
                     var request_dose = $.ajax({
@@ -1139,7 +1092,6 @@ if(patient_iqcare==false){
                             row.closest("tr").find(".indication").append("<option value='" + value.Indication + "'>" + value.Indication + " | " + value.Name + "</option> ");
                         });
                     });
-
                 });
                 request.fail(function(jqXHR, textStatus) {
                     bootbox.alert("<h4>Indication Alert</h4>\n\<hr/><center>Could not retrieve the list of batches : </center>" + textStatus);
@@ -1148,7 +1100,6 @@ if(patient_iqcare==false){
                 //trigger batch changes
                 row.closest("tr").find(".batch").trigger("change");
             }
-
         });
     });
     
@@ -1173,8 +1124,9 @@ if(patient_iqcare==false){
             });
             request.done(function(data) {
                 row.closest("tr").find(".expiry").val(data[0].expiry_date);
-                row.closest("tr").find(".soh ").val(data[0].balance);   
-                $(".qty_disp").trigger('keyup',[row]);  
+                row.closest("tr").find(".soh ").val(data[0].balance);  
+                duration_quantity(row); //Auto-calculate what should be displayed
+                $(".qty_disp").trigger('keyup',[row]); 
             });
             request.fail(function(jqXHR, textStatus) {
                 bootbox.alert("<h4>Batch Details Alert</h4>\n\<hr/><center>Could not retrieve batch details : </center>" + textStatus);
@@ -1213,7 +1165,6 @@ if(patient_iqcare==false){
             row.closest("tr").find(".qty_disp").addClass("input_error");
         }
     });
-
     //next pill count change event
     $(".next_pill").change(function() {
         var row = $(this);
@@ -1221,30 +1172,14 @@ if(patient_iqcare==false){
         var dose_val = row.closest("tr").find(".dose option:selected").attr("dose_val");
         var dose_freq = row.closest("tr").find(".dose option:selected").attr("dose_freq");
     });
-
     $(".duration").on('keyup', function() {
        duration_quantity($(this));
     });
-
     $(".dose").on('input', function() {
        duration_quantity($(this));
     });
 
-    $("#days_to_next").on('change', function(){
-        var days_duration = $("#days_to_next").val();
-        if(days_duration!=""){
-            $(".duration").val(days_duration);
-            $(".duration").trigger('keyup');
-        }
-       //duration_quantity($(this));
-    });
-    //function to calculate qty_dispensed based on dosage and duration
-
-    //-------------------------------- CHANGE EVENT END ----------------------------------
-    
-    
-    //-------------------------------- ADD, REMOVE, RESET ROW -------------------------------------------
-    //fucntion to change quantity based on the duration 
+    //function to change quantity based on the duration 
     function duration_quantity(row){
         var duration = row.closest("tr").find(".duration").val();
         if(duration > 0){
@@ -1257,7 +1192,9 @@ if(patient_iqcare==false){
             }).data('dose_freq');
         
             var qty_disp = duration * dose_val * dose_freq;
-            row.closest("tr").find(".qty_disp").val(qty_disp);
+            if(!isNaN(qty_disp)) {
+                row.closest("tr").find(".qty_disp").val(qty_disp);
+            }
         
             row.closest("tr").find(".duration").css("background-color", "white");
             row.closest("tr").find(".duration").removeClass("input_error");
@@ -1266,8 +1203,8 @@ if(patient_iqcare==false){
             row.closest("tr").find(".duration").addClass("input_error");
             row.closest("tr").find(".qty_disp").val("0");
         } 
-
     }
+
     //function to add drug row in table 
     $(".add").click(function() {
         routine_check=0;
@@ -1277,7 +1214,6 @@ if(patient_iqcare==false){
         if (last_row.find(".qty_disp").hasClass("input_error")) {
             bootbox.alert("<h4>Excess Quantity Alert</h4>\n\<hr/><center>Error !Quantity dispensed is greater than qty available!</center>");
         }
-
         else if (drug_selected == 0) {
             bootbox.alert("<h4>Drug Alert</h4>\n\<hr/><center>You have not selected a drug!</center>");
         }
@@ -1289,7 +1225,6 @@ if(patient_iqcare==false){
             var drug_row = cloned_object.attr("drug_row");
             var next_drug_row = parseInt(drug_row) + 1;
             var row_element = cloned_object;
-
             //Second thing, retrieve the respective containers in the row where the drug is
             row_element.find(".unit").attr("value", "");
             row_element.find(".batch").empty();
@@ -1298,13 +1233,11 @@ if(patient_iqcare==false){
             var expiry_date = row_element.find(".expiry").attr("value", "");
             expiry_date.attr("id", expiry_id);
             var expiry_selector = "#" + expiry_id;
-
             $(expiry_selector).datepicker({
                 defaultDate: new Date(),
                 changeYear: true,
                 changeMonth: true
             });
-
             row_element.find(".dose").attr("value", "");
             row_element.find(".duration").attr("value", "");
             row_element.find(".qty_disp").attr("value", "");
@@ -1320,10 +1253,8 @@ if(patient_iqcare==false){
             cloned_object.attr("drug_row", next_drug_row);
             cloned_object.insertAfter('#tbl-dispensing-drugs tr:last');
             showFirstRemove();
-
             return false;
         }
-
     });
     
     function clearForm(form) {
@@ -1352,7 +1283,6 @@ if(patient_iqcare==false){
             } 
       });
     };
-
     //function to remove drug row in table 
     $(".remove").click(function() {
            var rows=$("#tbl-dispensing-drugs > tbody").find("tr").length;
@@ -1402,7 +1332,6 @@ if(patient_iqcare==false){
         });
         return dump;
     }
-
     function retrieveFormValues_Array(name) {
         var dump = new Array();
         var counter = 0;
@@ -1426,7 +1355,6 @@ if(patient_iqcare==false){
                 return saveData();      
             }
     }
-
     //Function to post data to the server
     function saveData(){
         $("#btn_submit").attr("readonly","readonly");
@@ -1439,7 +1367,6 @@ if(patient_iqcare==false){
             
             var last_row = $(this);
             var drug_name = last_row.find(".drug option:selected").text();
-
             if(last_row.find(".drug").val()==0){
                 msg+='There is no commodity selected<br/>';
             }
@@ -1463,13 +1390,11 @@ if(patient_iqcare==false){
             }
         
         });
-
         //Show Bootbox
         if(msg !=''){
            bootbox.alert("<h4>Alert!</h4>\n\<hr/><center>"+msg+"</center>");
            return;
         }
-
         
         var rowCount = $('#drugs_table>tbody tr').length;
         return true;
@@ -1505,7 +1430,6 @@ if(patient_iqcare==false){
     }
     
     function loadOtherDetails(patient_ccc){
-
         //Load Non adherence reasons, regimen change reasons previously dispensed drugs
         var link ="<?php echo base_url();?>dispensement_management/get_other_dispensing_details";
         var request = $.ajax({
@@ -1590,7 +1514,6 @@ if(patient_iqcare==false){
                 bootbox.alert("<h4>Regimens Details Alert</h4>\n\<hr/>\n\<center>Could not retrieve regimens details : </center>" + textStatus);
             });
     }
-
     function checkIfPregnant(pregnancy_status,patient_ccc){
         if(pregnancy_status=='1'){
             bootbox.confirm("<h4>Pregnancy confirmation</h4>\n\<hr/><center>Is patient still pregnant?</center>","No", "Yes",
@@ -1612,7 +1535,6 @@ if(patient_iqcare==false){
     
     function checkIfHasTb(tb_status,patient_ccc){
         if(tb_status=='1'){
-
                     bootbox.confirm("<h4>TB confirmation</h4>\n\<hr/><center>Is patient still having TB?</center>","No", "Yes",
                     function(res){
                         if(res===false){//If answer is no, update tbstatus
@@ -1626,11 +1548,9 @@ if(patient_iqcare==false){
                             });
                         }
                     });
-
         }
     }
     /*********TESTING FUNCTION*********/
-
     function loadMyPreviousDispensedDrugs(){
 var link ="<?php echo base_url();?>dispensement_management/getPreviouslyDispensedDrugs";
                     var request = $.ajax({
@@ -1656,13 +1576,8 @@ var link ="<?php echo base_url();?>dispensement_management/getPreviouslyDispense
                                 $("#last_visit_data tbody").append("<tr><td>"+v.drug+"</td><td>"+v.quantity+"</td></tr>");
                             });
                         });
-
-
     }
 /***********************************/
-
-
-
     
     function checkIfDispensed(last_visit_date,dispensing_date){//check if patient has already been dispensed drugs for current dispensing date
         if (last_visit_date) {
@@ -1755,7 +1670,6 @@ var link ="<?php echo base_url();?>dispensement_management/getPreviouslyDispense
         }
         return diffDays;
     }
-
     
     //function to check the next appointment date to populate duration
        function checkAppointment(){
@@ -1771,10 +1685,8 @@ var link ="<?php echo base_url();?>dispensement_management/getPreviouslyDispense
     function getAdherenceRate(){
         $("#adherence").attr("value", " ");
         $("#adherence").removeAttr("readonly");
-
         var purpose_of_visit = $("#purpose option:selected").val();
         var day_percentage = 0;
-
         if(purpose_of_visit.toLowerCase().indexOf("routine") == -1 || purpose_of_visit.toLowerCase().indexOf("pmtct") == -1) {
             if(typeof previous_dispensing_date !=="undefined" && appointment_date!=="undefined"){
                 var dispensing_date = $.datepicker.parseDate('yy-mm-dd', $("#dispensing_date").val());//Current dispensing date
@@ -1825,9 +1737,7 @@ var link ="<?php echo base_url();?>dispensement_management/getPreviouslyDispense
                     if (parseInt(data[0].total_appointments) > parseInt(data[0].weekday_max)) {
                         bootbox.alert("<h4>Excess Appointments</h4>\n\<hr/><center>Maximum Appointments for Weekday Reached</center>");
                     }
-
                 }
-
                 $("#scheduled_patients").append(html);
                 $('#scheduled_patients').show();
             }
@@ -1858,7 +1768,6 @@ var link ="<?php echo base_url();?>dispensement_management/getPreviouslyDispense
             return pill_count;
         }
     }
-
     function getActualPillCount(days_issued, dose_qty, dose_frequency, prev_pill_count, prev_qty) {
         var error_message = "";
         if (!dose_qty) {
@@ -1899,14 +1808,12 @@ var link ="<?php echo base_url();?>dispensement_management/getPreviouslyDispense
         $(".missed_pills ").val('');
         $(".qty_disp").css("background-color", "white");
         $(".qty_disp").removeClass("input_error");
-
     }
     
     function storeSession(ccc_id){
         var url = "<?php echo base_url().'dispensement_management/save_session'; ?>"
         $.post(url,{'session_name':'ccc_store_id','session_value':ccc_id});
     }
-
     function getPharmacyOrder(patient_id){
         var orderurl = "<?php echo base_url();?>"+'dispensement_management/get_pharmacy_order/'+patient_id;
         $.getJSON(orderurl, function(data){
@@ -1932,7 +1839,6 @@ var link ="<?php echo base_url();?>dispensement_management/getPreviouslyDispense
                     //add order drug
                     current_row.find(".drug").val(data['orders']['items'][i]['drug_id']);
                     current_row.find(".batch option:eq(1)").attr('selected', true);
-
                     //get batches that have not yet expired and have stock balance
                     var stock_type = $('#ccc_store_id').val();
                     $.ajax({
@@ -1971,6 +1877,5 @@ var link ="<?php echo base_url();?>dispensement_management/getPreviouslyDispense
                 var patient_iqcare=true;
             }
         }); 
-
     }
 </script>

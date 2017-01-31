@@ -78,7 +78,7 @@
 					Government of Kenya &copy; <?php echo date('Y');?>.
 					All Rights Reserved
 					<br/><br/>
-						<strong>Web-ADT version 3.0.2</strong>
+						<strong>Web-ADT version 3.1</strong>
 					</div>
 				</div>
 				</div>
