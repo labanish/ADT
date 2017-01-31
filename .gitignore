@@ -34,3 +34,13 @@ RCSLOG
 SCCS
 _$*
 /nbproject/private/
+application/views/sections/link.php
+application/config/database.php
+
+# exclude everything
+assets/cache/*
+Export/*
+
+# exception to the rule
+!assets/cache/.gitkeep 
+!Export/.gitkeep

@@ -180,6 +180,7 @@
                                 });
 			}else{
 				bootbox.alert("<h4>Selection Alert</h4>\n\<hr/><center>You have not selected any drugs to enable</center>");
+				return false;
 			}
 			
 			
@@ -190,6 +191,7 @@
 			$("#md_bulk_mapping").css("width","60%");
 			$("#md_bulk_mapping").css("margin-left","-30%");
 			$("#tbl_bulk_mapping tbody > tr >td >select").remove();
+			$("#tbl_bulk_mapping tbody > tr").remove();
 			
 			//get Non mapped regimens
 			$.ajax({
@@ -197,7 +199,7 @@
 	                type: 'GET', 
 	                dataType:'json',
 	                data: { 'param': '0' },      
-	                success: function(data) {	
+	                success: function(data) {		                	
 	                	var counter = 0; 
 	                	var total_regimen = data.non_mapped_regimen.length;
 	                	var total_sync = data.sync_regimen.length;
@@ -211,7 +213,7 @@
 			
 		});
 		
-		
+		$
 		
 		//This loop goes through each table row in the page and applies the necessary modifications
 		$.each($(".table_row"), function(i, v) {
@@ -350,7 +352,7 @@
 			echo form_open('regimen_management/save', $attributes);
 		?>
 		<div class="modal-header">
-		    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+		    <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><font color="white">close</font></button>
 		    <h3 id="NewRegimen">Regimen details</h3>
 		</div>
 		<div class="modal-body">
@@ -360,17 +362,17 @@
 			<table>
 				<tr><td><strong class="label">Regimen Code</strong></td>
 					<td><input type="hidden" name="regimen_id" id="regimen_id" class="input" >
-						<input type="text" name="regimen_code" id="regimen_code" class="input-xlarge"></td>
+						<input type="text" name="regimen_code" id="regimen_code" class="input-xlarge" required=""></td>
 					
 				</tr>
 				<tr><td><strong class="label">Description</strong></td>
 					<td>
-						<input type="text" name="regimen_desc" id="regimen_desc" class="input-xlarge"></td>
+						<input type="text" name="regimen_desc" id="regimen_desc" class="input-xlarge" required=""></td>
 					
 				</tr>
 				<tr><td><strong class="label">Category</strong></td>
 					<td>
-						<select class="input-xlarge" id="category" name="category">
+						<select class="input-xlarge" id="category" name="category" required="">
 							<?php
 			foreach($regimen_categories as $regimen_category){
 							?>
@@ -387,7 +389,7 @@
 				<tr>
 					<td><strong class="label">Type of Service</strong></td>
 					<td>
-						<select class="input-xlarge" id="type_of_service" name="type_of_service">
+						<select class="input-xlarge" id="type_of_service" name="type_of_service" required="">
 							<?php 
 								foreach($regimen_service_types as $regimen_service_type){
 								if($access_level!="facility_administrator"){
@@ -453,33 +455,35 @@
 		</div>
 		<?php echo form_close(); ?>
 	</div>
-	
+
 	<div id="edit_form" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="EditRegimen" aria-hidden="true">
 		<?php
 		$attributes = array('class' => 'input_form');
 		echo form_open('regimen_management/update', $attributes);
 		echo validation_errors('<p class="error">', '</p>');
 		?>
+<!-- Modal for adding a new regimen to the database -->
 		<div class="modal-header">
-		    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+		    <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><font color="white">close</font></button>
 		    <h3 id="EditRegimen">Regimen details</h3>
 		</div>
 		<div class="modal-body">
-		
+
+<!--Generate the table for addding new reimen to the database  -->
 		<table id="regimen_edit_tbl">
 			<tr><td><strong class="label">Regimen Code</strong></td>
 				<td><input type="hidden" name="regimen_id" id="edit_regimen_id" class="input" >
-					<input type="text" name="regimen_code" id="edit_regimen_code" class="input-xlarge"></td>
+					<input type="text" name="regimen_code" id="edit_regimen_code" class="input-xlarge" required=""></td>
 				
 			</tr>
 			<tr><td><strong class="label">Description</strong></td>
 				<td>
-					<input type="text" name="regimen_desc" id="edit_regimen_desc" class="input-xlarge"></td>
+					<input type="text" name="regimen_desc" id="edit_regimen_desc" class="input-xlarge" required=""></td>
 				
 			</tr>
 			<tr><td><strong class="label">Category</strong></td>
 				<td>
-					<select class="input-xlarge" id="edit_category" name="category">
+					<select class="input-xlarge" id="edit_category" name="category" required="">
 						<?php
 		foreach($regimen_categories as $regimen_category){
 						?>
@@ -496,7 +500,7 @@
 			<tr>
 				<td><strong class="label">Type of Service</strong></td>
 				<td>
-					<select class="input-xlarge" id="edit_type_of_service" name="type_of_service">
+					<select class="input-xlarge" id="edit_type_of_service" name="type_of_service" required="">
 						<?php
 		foreach($regimen_service_types as $regimen_service_type){
 						?>
@@ -513,6 +517,7 @@
 			</tr>
 			<tr><td><strong class="label">Mapping</strong></td>
 				<td>
+		<!-- generate the drop down for selecting the mappings  -->
 				 <select class="input all_mappings" id="edit_regimen_mapping" name="regimen_mapping">
 					<option value='0'>-Select One--</option>
 					<?php
@@ -570,7 +575,7 @@
 				</td>	
 			</tr>
 		</table>
-		
+<!-- End of Modal, End of Table  -->
 		
 		</div>
 		<div class="modal-footer">
@@ -581,11 +586,11 @@
 		
 	</div>
 	
-	<!-- Modal for bulk regimen mapping -->
+<!-- Modal for bulk regimen mapping -->
 	<form id="fmBulkMapping" action="">
 		<div id="md_bulk_mapping" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="BulkMapping" aria-hidden="true">
 			<div class="modal-header">
-			    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+			    <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><font color="white">close</font></button>
 			    <h3 id="BulkMapping">Bulk regimen Mapping [ Regimens details ]</h3>
 			</div>
 			<div class="modal-body">
@@ -595,6 +600,9 @@
 						<tr><th style="width: 5%">#</th><th style="width:65%">Regimens</th><th>Sync Regimens</th></tr>
 					</thead>
 					<tbody>
+
+		<!-- the body of the Map regiments contents -->
+
 					</tbody>
 				</table>
 			</div>
@@ -605,7 +613,7 @@
 			</div>
 		</div>
 	</form>
-	<!-- Modal for bulk regimen mapping  End-->
+<!-- Modal for bulk regimen mapping  End-->
 		
 </div>
 
@@ -638,9 +646,10 @@
 			mappRegimens(counter,total,data);
 			
 		});
-		
-	})
-	
+			
+	});
+
+// function to create the map regimens table in the moodle
 	function appendRows(counter,total,data){
 		var name = data[counter]['Regimen_Desc'];
 		var code = data[counter]['Regimen_Code'];

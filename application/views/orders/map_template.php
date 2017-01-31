@@ -194,7 +194,7 @@ if ($facility_object -> service_pep == "1") {
 						</td>
 					</tr>
 					<tr>
-						<th>Reporting Period : </th><td>
+						<th>Period of Reporting: </th><td>
 						<input class="_green" name="reporting_period" id="reporting_period" type="text" placeholder="Click here to select period" readonly="readonly">
 						</td>
 						<input name="start_date" id="period_start" type="hidden">

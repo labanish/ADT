@@ -122,13 +122,13 @@
 					$("#age_in_months").attr("value", age_in_months);
 
 			});
-			
-			//Function to check if female is pregnant
-			$("#gender").change(function() {
+	
+			//Function to check if female is pregnant --not working---(vicky)
+		/*	$("#gender").change(function() {
 					var selected_value = $(this).attr("value");
                                         
 					//if female, display the prengancy selector
-					if(selected_value == 2 && $('age_in_years').val()>=8) {
+					if(selected_value == 2 && $('age_in_years').val()>=14) {
 						//If female show pregnant container
 						$('#pregnant_view').slideDown('slow', function() {
 
@@ -139,7 +139,7 @@
 
 						});
 					}
-			});
+			});*/
                         //if female is pregnant put them on pmtct service 
 			 $("#pregnant").change(function(){
                             var selected_value=$(this).attr("value");
@@ -491,11 +491,30 @@
 	            	return true;
 	            }
 	     }
+
+		//function to check if pregnant if female and above 14(vicky)
+		function showDiv(elem){
+			var gender = $("#gender option:selected").text().toLowerCase();
+			var dob = new Date(document.getElementById('dob').value);
+			var today = new Date();
+			var age_in_years = Math.floor((today - dob) / (365.25 * 24 * 60 * 60 * 1000));
+			var pregnantDiv = document.getElementById('pregnant_view');
+			var pregnant = $("#pregnant");
+
+			//Ensure is 'female' and age >= 14
+			if(age_in_years >= 14 && gender == 'female'){
+				pregnantDiv.style.display = "inline-block";
+			}else{
+				pregnantDiv.style.display = "none";
+				pregnant.val(0);
+			}
+		}
 		</script>
 
 	</head>
 
 	<body>
+
 		<div class="full-content" style="background:#80f26d">
 			<div id="sub_title" >
 				<a href="<?php  echo base_url().'patient_management ' ?>">Patient Listing </a> <i class=" icon-chevron-right"></i> <strong>Add Patients</strong>
@@ -571,10 +590,10 @@
 						</div>
 						<div class="max-row">
 							<div class="mid-row">
-								<label><span class='astericks'>*</span>Gender</label>
-								<select name="gender" id="gender" class="validate[required]">
-									<option value="">--Select--</option>
-									<?php
+								<label><span class='astericks'>*</span>Gender</label>				
+								<select name="gender" id="gender" onchange="showDiv(this)">
+								<option value="">--Select--</option>
+								<?php
 									foreach($genders as $gender){
 										echo "<option value='".$gender['id']."'>".$gender['name']."</option>";
 									}
@@ -926,6 +945,7 @@
 					</div>
 					
 				</div>
+
 
 			</form>
 		</div>

@@ -288,16 +288,56 @@ function getPeriodDrugBalance(count,start_date, facility_id, code,total,drugs,st
 			"stores":stores
 		},
 		success : function(data) {
-			$("#opening_balance_" + drug).attr("value", data.beginning_balance);
-			$("#received_in_period_" + drug).attr("value", data.received_from);
-			$("#dispensed_in_period_" + drug).attr("value", data.dispensed_to_patients);
-			$("#losses_in_period_" + drug).attr("value", data.losses);
-			$("#adjustments_in_period_" + drug).attr("value", data.adjustments);
-			$("#physical_in_period_" + drug).attr("value", data.physical_stock);
-			$("#expire_qty_" + drug).attr("value", data.expiry_qty);
+			var beg_bal = data.beginning_balance;
+			var pack_size = data.pack_size;
+			var mos = beg_bal/pack_size;
+			var up_mos = Math.ceil(parseInt (mos));
+			$("#opening_balance_" + drug).attr("value", up_mos);
+			// $("#opening_balance_" + drug).attr("value", data.beginning_balance);
+			var rec_bal = data.received_from;
+			var pack_size = data.pack_size;
+			var rec = rec_bal/pack_size;
+			var up_rec = Math.ceil(parseInt (rec));
+			$("#received_in_period_" + drug).attr("value", up_rec);
+
+			var dispence_pat = data.dispensed_to_patients;
+			var dispence = dispence_pat/pack_size;
+			var up_dispence = Math.ceil(parseInt (dispence));
+			$("#dispensed_in_period_" + drug).attr("value", up_dispence);
+
+			var losses = data.losses;
+			var losse = losses/pack_size;
+			var up_losses = Math.ceil(parseInt (losse));
+			$("#losses_in_period_" + drug).attr("value", up_losses);
+
+			var positive_adjustments = data.adjustments;
+			var pack_size = data.pack_size;
+			var positive_adjustment = positive_adjustments/pack_size;
+			var up_positive_adjustments = Math.ceil(parseInt (positive_adjustment));
+			$("#positive_adjustment_" + drug).attr("value", up_positive_adjustments);
+
+			var adjustments = data.adjustments_neg;
+			var adjustment = adjustments/pack_size;
+			var up_adjustments = Math.ceil(parseInt (adjustment));
+			$("#adjustments_in_period_" + drug).attr("value", up_adjustments);
+
+			var physical_stock = data.physical_stock;
+			var physical_stocks = physical_stock/pack_size;
+			var up_physical_stock = Math.ceil(parseInt (physical_stocks));
+			$("#physical_in_period_" + drug).attr("value", up_physical_stock);
+
+			var expiry_qty = data.expiry_qty;
+			var expiry_qtys = expiry_qty/pack_size;
+			var up_expiry_qty = Math.ceil(parseInt (expiry_qtys));
+			$("#expire_qty_" + drug).attr("value",up_expiry_qty);
+
 			$("#expire_period_" + drug).attr("value", data.expiry_month);
 			$("#out_of_stock_" + drug).attr("value", data.stock_out);
-			$("#resupply_" + drug).attr("value", data.resupply);
+
+			var resupply = data.resupply;
+			var resupplys = resupply/pack_size;
+			var up_resupply = Math.ceil(parseInt (resupplys));
+			$("#resupply_" + drug).attr("value", up_resupply);
 
 			if(code == "F-CDRR_packs") {
 				$("#dispensed_in_period_packs_" + drug).attr("value", data.dispensed_packs);

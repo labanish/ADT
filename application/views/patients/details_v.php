@@ -99,7 +99,8 @@
 						</select>
 					</div>
 				</div>
-				<div class="row-fluid parent">
+				<div class="row-fluid">
+					 <div class="control-group" style="display:none" id="parent">
 					<label>Match to parent/guardian in ccc?</label>
 					<input type="text" class="span8" name="parent" id="parent">
 				</div>
@@ -562,6 +563,7 @@
                     <tr>
                         <th>Date Tested</th>
                         <th>Result</th>
+                        <th>Justification</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -571,8 +573,10 @@
                 </tbody>
                 <tfoot>
                     <tr>
-                        <th>Date Tested</th>
+                     <th>Date Tested</th>
                         <th>Result</th>
+                        <th>Justification</th>
+                 
                     </tr>
                 </tfoot>
             </table>
@@ -584,3 +588,26 @@
 <script src="<?php echo base_url().'assets/modules/forms/forms.js'; ?>"></script>
 <script src="<?php echo base_url().'assets/modules/patients/details.js'; ?>"></script>
 
+<script type="text/javascript">
+
+$(document).ready(function(){
+	 $(document).ajaxStop(function(){ 
+		var link ="<?php echo base_url();?>dispensement_management/getFacililtyAge";
+            var request = $.ajax({
+              url: link,
+              type: 'post',
+              dataType: "json"
+        	});
+            request.done(function(datas){ 
+               var adult_age=datas[0].adult_age;
+               var age = $("#age").val();            
+               if(age < adult_age){
+				$("#parent").show();
+               }
+               else{
+               	$("#tbphase_view").hide();
+               }
+                    });
+        });
+		});
+</script>

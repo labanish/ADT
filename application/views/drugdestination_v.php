@@ -9,6 +9,10 @@
 </style>
 <script type="text/javascript">
 	$(document).ready(function() {
+		/*Prevent Double Click*/
+		$('input_form').submit(function(){
+		  	$(this).find(':submit').attr('disabled','disabled');
+		});
 		$(".setting_table").find("tr :first").css("min-width","300px");
 		//This loop goes through each table row in the page and applies the necessary modifications
 		$.each($(".table_row"), function(i, v) {
@@ -86,7 +90,7 @@
 		<div class="modal-body">	
 			<label>
 				<strong class="label">Drug Destination Name</strong>
-				<input type="text" name="source_name" id="source_name" class="input-xlarge" size="30">
+				<input type="text" name="source_name" id="source_name" class="input-xlarge" size="30" required="">
 			</label>
 			<!--
 			<label>
@@ -122,7 +126,7 @@
 			<label>
 				<strong class="label">Drug Destination Name</strong>
 				<input type="hidden" name="source_id" id="edit_source_id" class="input" size="30">
-				<input type="text" name="source_name" id="edit_source_name" class="input-xlarge">
+				<input type="text" name="source_name" id="edit_source_name" class="input-xlarge" required="">
 			</label>
 			<label>
 				<strong class="label">Is it a Main Pharmacy ?</strong>

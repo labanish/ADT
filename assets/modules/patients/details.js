@@ -73,7 +73,25 @@ $(function(){
 		getViralLoad();
 		$("#viral_load_details").dialog("open");
 	});
-
+	//
+$(document).ajaxStop(function(){ 
+		var link ="<?php echo base_url();?>dispensement_management/getFacililtyAge";
+            var request = $.ajax({
+              url: link,
+              type: 'post',
+              dataType: "json"
+        	});
+            request.done(function(datas){ 
+               var adult_age=datas[0].adult_age;
+               var age = $("#age").val();            
+               if(age < adult_age){
+				$("#parent").show();
+               }
+               else{
+               	$("#tbphase_view").hide();
+               }
+                    });
+        });
     //Show Patient Summary
 	$("#patient_info").on('click',function() {
 		//Load Spinner
@@ -82,8 +100,8 @@ $(function(){
 
 		//Open Modal
 		$("#patient_details").dialog("open");
-
-		$("#details_patient_number_ccc").text($("#patient_number_ccc").val());
+		var patient_number_ccc = $("#patient_number_ccc").val()
+		$("#details_patient_number_ccc").text(patient_number_ccc);
 		$("#details_first_name").text($("#first_name").val());
 		$("#details_last_name").text($("#last_name").val());
 		$("#details_gender").text($("#gender").text());
@@ -94,7 +112,7 @@ $(function(){
 		getDispensing();
 		getRegimenChange();
 		getAppointmentHistory();
-		get_viral_result($("#patient_number_ccc").val());
+		getViralResult(patient_number_ccc);
 	});
 
 });
@@ -209,41 +227,20 @@ function sanitizeForm(){
 
 function getViralLoad(){
  	var patient_no = $("#patient_number_ccc").val();
- 	var link = base_url +"assets/viral_load.json";
+ 	var link = base_url +"auto_management/get_viral_load/"+patient_no;
+ 	var table = '';
+ 	
+ 	$.getJSON(link, function(data){
+ 		if(data.length == 0){
+ 			table += '<tr><td colspan="3">No Data Available</td></tr>';
+ 		}
 
- 	$.getJSON( link ,function( data ){
-        var table='';
-        if(data.length !=0){
-        	patient_no = patient_no.toString().trim();
-	        viral_data = data[patient_no]; 
-            $.each(viral_data,function(i,v){
-                table+='<tr><td>'+v.date_tested+'</td><td>'+v.result+'</td></tr>';
-            });
-        }
-        $("#viral_load_data tbody").empty();
-    	$("#viral_load_data tbody").append(table);
+ 		$.each(data, function(i, vldata){
+ 			table += '<tr><td>'+vldata.test_date+'</td><td>'+vldata.result+'</td><td>'+vldata.justification+'</td></tr>';
+ 		});
+ 		$("#viral_load_data tbody").empty();
+ 		$("#viral_load_data tbody").append(table);
  	});
-
-}
-
-function get_viral_result(ccc_no){
-	ccc_no = ccc_no.toString().trim();
-	data_source=base_url+"assets/viral_load.json";
-	$("#viral_load_date").text('N/A');
-	$("#viral_load_result").text('N/A');
-	$.get(data_source,function(data){
-		if(data.length !=0){
-			data_length=data[ccc_no].length; 
-			if(data_length >0){
-				$.each(data[ccc_no],function(key,val) {
-				    if(key==(data_length-1)){  
-				    	$("#viral_load_date").text(val.date_tested);
-			            $("#viral_load_result").text(val.result);   
-			        }      
-			    });	
-			}
-		}
-	});
 }
  
 function getDispensing(){
@@ -287,4 +284,19 @@ function getAppointmentHistory(){
 	    	
 	    }
 	});
+
 }
+
+
+function getViralResult(ccc_no){
+	var data_source=base_url+"patient_management/get_Last_vl_result/"+ccc_no;
+	$("#viral_load_date").text('N/A');
+	$("#viral_load_result").text('N/A');
+	$.getJSON(data_source, function(data){
+		$.each(data, function(key, val) {
+			$("#viral_load_date").text(val.test_date);
+		    $("#viral_load_result").text(val.result)       
+		});	
+	});
+}
+             

@@ -337,132 +337,20 @@ class Facilitydashboard_Management extends MY_Controller {
 		echo $drug_display;
 	}
 
-	public function getPatientMasterList() {
-		ini_set("max_execution_time", "100000");
+	public function getPatientMasterList()
+	{	
 		ini_set("memory_limit", '2048M');
-		$adultage=$this -> session -> userdata('adult_age');
-		$facility_name=$this -> session -> userdata('facility_name');
-		//export patient transactions
-		$dir = "Export";
-		$objPHPExcel = new PHPExcel();
-		$objPHPExcel->setActiveSheetIndex(0);
-
-		/*Delete all files in export folder*/
-		if (is_dir($dir)) {
-			$files = scandir($dir);
-			foreach ($files as $object) {
-				if ($object != "." && $object != "..") {
-					unlink($dir . "/" . $object);
-				}
-			}
-		} else {
-			mkdir($dir);
-		}
-
-		$sql = "SELECT medical_record_number,
-		               patient_number_ccc,
-		               first_name,
-		               last_name,
-		               other_name,
-		               dob as Date_Of_Birth,
-		               ROUND(DATEDIFF(CURDATE(),dob)/360) as age,
-		               IF(ROUND(DATEDIFF(CURDATE(),dob)/360)>=$adultage,'Adult','Paediatric') as Patient_Category,
-		               pob,
-		               IF(gender=1,'MALE','FEMALE')as gender,
-		               IF(pregnant=1,'YES','NO')as pregnant,
-		               weight as Current_Weight,
-		               height as Current_height,
-		               sa as Current_BSA,
-		               p.phone as Phone_Number,
-		               physical as Physical_Address,
-		               alternate as Alternate_Address,
-		               other_illnesses,
-		               other_drugs,
-		               adr as Drug_Allergies,
-		               IF(tb=1,'YES','NO')as TB,
-		               IF(smoke=1,'YES','NO')as smoke,
-		               IF(alcohol=1,'YES','NO')as alcohol,
-		               date_enrolled,
-		               ps.name as Patient_source,
-		               s.Name as supported_by,
-		               rst.name as Service,
-		               r1.regimen_desc as Start_Regimen,
-		               start_regimen_date,
-		               pst.Name as Current_status,
-		               IF(sms_consent=1,'YES','NO') as SMS_Consent,
-		               fplan as Family_Planning,
-		               tbphase,
-		               startphase,
-		               endphase,
-		               IF(partner_status=1,'Concordant',IF(partner_status=2,'Discordant','')) as partner_status,
-		               status_change_date,
-		               IF(partner_type=1,'YES','NO') as Disclosure,
-		               support_group,
-		               r.regimen_desc as Current_Regimen,
-		               nextappointment,
-		               DATEDIFF(nextappointment,CURDATE()) AS Days_to_NextAppointment,
-		               start_height,
-		               start_weight,
-		               start_bsa,
-		               IF(p.transfer_from !='',f.name,'N/A') as Transfer_From,
-		               dp.name as Prophylaxis
-				FROM patient p
-				LEFT JOIN regimen r on r.id=p.current_regimen
-				LEFT JOIN regimen r1 on r1.id=p.start_regimen
-				LEFT JOIN patient_source ps on ps.id=p.source
-				LEFT JOIN supporter s on s.id=p.supported_by
-				LEFT JOIN regimen_service_type rst on rst.id=p.service
-				LEFT JOIN patient_status pst on pst.id=p.current_status
-				LEFT JOIN facilities f on f.facilitycode=p.transfer_from
-				LEFT JOIN drug_prophylaxis dp on dp.id=p.drug_prophylaxis
-				WHERE p.active='1'
-				ORDER BY p.id ASC";
-		$query = $this -> db -> query($sql);
-		$results = $query -> result_array();
-
-		//get columns
-		$column = array();
-		$letter = 'A';
-		while ($letter !== 'AAA') {
-		    $column[] = $letter++;
-		}
-        //set col and row indices
-		$col=0;
-		$row=0;
-        
-        //loop through patients
-        if($results){
-            foreach ($results as $counter=>$mydata) {
-            	$row++;
-            	$col=0;
-				foreach ($mydata as $index => $value) {
-					$position=$column[$col].$row;
-					if($row==1){
-						//first row
-						$index=strtoupper(str_replace("_"," ", $index));
-						$objPHPExcel -> getActiveSheet() -> SetCellValue($position, $index);
-					}else{
-						$objPHPExcel -> getActiveSheet() -> SetCellValue($position, $value);	
-					}
-					$col++;
-				}
-		    }
-        } 
-        
-        //Generate file
-		ob_start();
-		$timestamp=date('d-M-Y H-i-s a');
-		$original_filename = strtoupper($facility_name)." PATIENT MASTER LIST[".$timestamp."].csv";
-		$filename = $dir . "/" . urldecode($original_filename);
-
-		$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'CSV');
-        $objWriter->save($filename);
-		$objPHPExcel -> disconnectWorksheets();
-		unset($objPHPExcel);
-		if (file_exists($filename)) {
-			$filename = str_replace("#", "%23", $filename);
-			redirect($filename);
-		}      
-    }
+        $this->load->dbutil();
+        $this->load->helper('file');
+        $this->load->helper('download');
+        $delimiter = ",";
+        $newline = "\r\n";
+        $filename = "patient_master_list.csv";
+        $query = "SELECT * FROM vw_patient_list";
+        $results = $this->db->query($query);
+        $data = $this->dbutil->csv_from_result($results, $delimiter, $newline);
+        ob_clean();//Removes spaces
+        force_download($filename, $data);
+	}
 
 }

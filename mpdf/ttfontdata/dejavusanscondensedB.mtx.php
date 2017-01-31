@@ -1,10 +1,10 @@
 <?php
-$name='DejaVuSansCondensedBold';
+$name='DejaVuSansCondensed-Bold';
 $type='TTF';
 $desc=array (
   'Ascent' => 928,
   'Descent' => -236,
-  'CapHeight' => 928,
+  'CapHeight' => 729,
   'Flags' => 262148,
   'FontBBox' => '[-962 -415 1778 1174]',
   'ItalicAngle' => 0,
@@ -13,11 +13,11 @@ $desc=array (
 );
 $up=-63;
 $ut=44;
-$ttffile='C:/wamp/www/idsr/idsr/mpdf51/ttfonts/DejaVuSansCondensed-Bold.ttf';
+$ttffile='mpdf/ttfonts/DejaVuSansCondensed-Bold.ttf';
 $TTCfontID='0';
-$originalsize=545712;
+$originalsize=653336;
 $sip=false;
-$smp=false;
+$smp=true;
 $BMPselected=true;
 $fontkey='dejavusanscondensedB';
 $panose='0 0 2 11 8 6 3 6 4 2 2 4';

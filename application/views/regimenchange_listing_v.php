@@ -141,7 +141,7 @@ foreach($actions as $action){
 	</div><!--/.fluid-container-->
 	<div id="regimenchange_form" title="New regimen change reason" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="NewRegimen" aria-hidden="true">
 		<?php
-		$attributes = array('class' => 'input_form');
+		$attributes = array('class' => 'input_form','id'=>'regimenchange_management_frm');
 		echo form_open('regimenchange_management/save', $attributes);
 		echo validation_errors('<p class="error">', '</p>');
 		?>
@@ -153,7 +153,7 @@ foreach($actions as $action){
 			<label>
 				<strong class="label">Regimen change reason</strong>
 				<input type="hidden" name="regimenchange_id" id="regimenchange_id" class="input" >
-				<input type="text" name="regimenchange_name" id="regimenchange_name" class="input-xlarge span12" >
+				<input type="text" name="regimenchange_name" id="regimenchange_name" class="input-xlarge span12" required="required">
 			</label>
 		</div>
 		<div class="modal-footer">
@@ -166,7 +166,7 @@ foreach($actions as $action){
 	<!--Edit regimen change reason -->
 	<div id="edit_form" title="Edit regimen change reason" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="NewRegimen" aria-hidden="true">
 		<?php
-		$attributes = array('class' => 'input_form');
+		$attributes = array('class' => 'input_form','id'=>'regimenupdate_management_frm');
 		echo form_open('regimenchange_management/update', $attributes);
 		echo validation_errors('<p class="error">', '</p>');
 		?>
@@ -178,7 +178,7 @@ foreach($actions as $action){
 			<label>
 				<strong class="label">Regimen change reason</strong>
 				<input type="hidden" name="regimenchange_id" id="edit_regimenchange_id" class="input" >
-				<input type="text" name="regimenchange_name" id="edit_regimenchange_name" class="input-xlarge span12" >
+				<input type="text" name="regimenchange_name" id="edit_regimenchange_name" class="input-xlarge span12" required="required">
 			</label>
 		</div>	
 		<div class="modal-footer">
@@ -189,6 +189,15 @@ foreach($actions as $action){
 	</div>
 
 </div>
+
+<script type="text/javascript">
+	$(document).ready(function(){
+		/*Prevent Double Click*/
+		$('form').submit(function(){
+		  	$(this).find(':submit').attr('disabled','disabled');
+		});
+	});
+</script>
 
 
 

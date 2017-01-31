@@ -1,4 +1,6 @@
 <?php
+ob_start();
+
 class Regimen_Drug_Management extends MY_Controller {
 	function __construct() {
 		parent::__construct();
@@ -107,4 +109,5 @@ class Regimen_Drug_Management extends MY_Controller {
 	}
 
 }
+ob_get_clean();
 ?>

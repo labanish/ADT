@@ -28,10 +28,16 @@ class Settings extends MY_Controller {
 
 		
 		$query = $this -> db -> query($sql);
-		$results = $query -> result();
+		$result = $query -> row();
 
-		$this -> session -> set_userdata('msg_success', $results[0] -> name . ' was enabled!');
-		$this -> session -> set_flashdata('filter_datatable', $results[0] -> name);
+		if(in_array($table, array('patient_status', 'regimen_category', 'drug_unit'))){
+			$name = $result->Name;
+		}else{
+			$name = $result->name;
+		}
+
+		$this -> session -> set_userdata('msg_success', $name . ' was enabled!');
+		$this -> session -> set_flashdata('filter_datatable', $name);
 		$this -> session -> set_userdata("link_id", "listing/" . $table);
 		$this -> session -> set_userdata("linkSub", "settings/listing/" . $table);
 		//Filter datatable
@@ -42,8 +48,6 @@ class Settings extends MY_Controller {
 		
 		//If table is CCC_Store, disable CCC Store in drug_source and drug_destination
 		if($table=="ccc_store_service_point"){
-			
-			
 			$this -> db -> where('id', $id);
 			$this -> db -> update('ccc_store_service_point', array("active" => 0));
 			
@@ -60,10 +64,16 @@ class Settings extends MY_Controller {
 		
 		
 		$query = $this -> db -> query($sql);
-		$results = $query -> result();
+		$result = $query -> row();
 
-		$this -> session -> set_userdata('msg_error', $results[0] -> name . ' was disabled!');
-		$this -> session -> set_flashdata('filter_datatable', $results[0] -> name);
+		if(in_array($table, array('patient_status', 'regimen_category', 'drug_unit'))){
+			$name = $result->Name;
+		}else{
+			$name = $result->name;
+		}
+
+		$this -> session -> set_userdata('msg_error', $name . ' was disabled!');
+		$this -> session -> set_flashdata('filter_datatable', $name);
 		$this -> session -> set_userdata("link_id", "listing/" . $table);
 		$this -> session -> set_userdata("linkSub", "settings/listing/" . $table);
 		//Filter datatable
@@ -71,6 +81,7 @@ class Settings extends MY_Controller {
 	}
 
 	public function listing($table = "") {
+		$similar_tables = array('patient_status', 'regimen_category', 'drug_unit');
 		$columns = array("#", "Name", "Options");
 		if($table=="transaction_type"){
 			$columns = array("#", "Name", "Description","Effect","Options");
@@ -102,7 +113,7 @@ class Settings extends MY_Controller {
 				$name .= ' '.$source -> last_name;
 				//$name =str_replace(" ","",$name);
 				$name =strtoupper($name);
-			}else if($table=="patient_status"){
+			}else if(in_array($table, $similar_tables)){
 				$name = $source -> Name;
 			}else{
 				$name = $source -> name;
@@ -124,7 +135,7 @@ class Settings extends MY_Controller {
                }
                $this -> table -> add_row("",$checkbox . "&nbsp;" .$source -> patient_number_ccc, $name, $links); 
 			}else{
-				if($table=="patient_status"){
+				if(in_array($table, $similar_tables)){
 					$active = $source -> Active;
 				}else{
 					$active = $source -> active;

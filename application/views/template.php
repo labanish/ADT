@@ -180,7 +180,7 @@ if (isset($styles)) {
 						$(".welcome_msg").css("margin-top","2.5%");
 					}
 					else{
-						$(".welcome_msg").css("margin-top","5%");
+						$(".welcome_msg").css("margin-top","3%");
 					}	
 				}else{
 					$(".welcome_msg").css("margin-top","4%")
@@ -270,7 +270,7 @@ if (isset($styles)) {
 		        </ul>
 	        </div><!--/.nav-collapse -->
 			<div class="welcome_msg">
-				<span>Welcome <b style="font-weight: bolder;font-size: 20px;"><?php echo $this -> session -> userdata('full_name');?></b>. <a id="logout_btn" href="<?php echo base_url().'user_management/logout/2' ?>"><i class="icon-off"></i>Logout</a></span>
+				<span><font style="color:#B8B8B8; text-transform: uppercase; font-weight: bold;" >username: </font><b style="font-weight: bold;font-size: 15px;text-transform: uppercase;"><?php echo $this -> session -> userdata('full_name');?> | </b><a id="logout_btn" href="<?php echo base_url().'user_management/logout/2' ?>"><i class="icon-off"></i> Logout</a></span>
 				<br>
 				<span class="date"><?php echo date('l, jS F Y') ?></span>
 				<input type="hidden" id="facility_hidden" />
@@ -461,15 +461,8 @@ if (isset($styles)) {
 					<div class="row-fluid">
 						<div id="footer_text2" class="span12" style="text-align:center">
 							Government of Kenya &copy; <?php echo date('Y');?>.
-							All Rights Reserved 
-							<!--
-							<p class="text-right"> 
-							    <sub>
-							        <strong>time:</strong> {elapsed_time} seconds 
-							        <strong>memory:</strong> {memory_usage} 
-							    </sub>
-							</p>
-							-->			
+							All Rights Reserved . <strong>Web-ADT version 3.1</strong>
+					
 						</div>	
 					</div>
 				</div>
@@ -487,7 +480,7 @@ if (isset($styles)) {
 		   	 <div class="control-group">
 			    <div class="controls">
 			      <select id="search_criteria" name="search_criteria" required  class="span3">
-			      	<option data-cat='patient' value="0" data-dest="patient_management/viewDetails/">Search Patients</option>
+			      	<option data-cat='patient' value="0" data-dest="patient_management/load_view/details/">Search Patients</option>
 			      	<?php 
 		      		foreach ($ccc_stores as $ccc_store) {
 						echo "<option data-cat='drugcode' value='".$ccc_store['id']."' data-id ='".$ccc_store['id']."' data-dest='inventory_management/getDrugBinCard/'>Search drugs (".$ccc_store['Name'].")</option>";	  

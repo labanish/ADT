@@ -25,11 +25,17 @@
 	.dataTables_info{
 		width:40%;
 	}
+	form{
+		background-color:#CCFFFF;
+	}
 
 </style>
 <script type="text/javascript">
 	$(document).ready(function() {
-		
+		/*Prevent Double Click*/
+		$('input_form').submit(function(){
+		  	$(this).find(':submit').attr('disabled','disabled');
+		});
 		$(".setting_table").find("tr :first").css("min-width","230px");
 		
 		//This loop goes through each table row in the page and applies the necessary modifications
@@ -129,11 +135,11 @@
 		<div class="modal-body">
 			<label>
 				<strong class="label">Indication Code</strong>
-				<input type="text" name="indication_code" id="indication_code" class="input-xlarge">
+				<input type="text" name="indication_code" id="indication_code" class="input-xlarge" required="">
 			</label>
 			<label>
 				<strong class="label">Indication Name</strong>
-				<input type="text" name="indication_name" id="indication_name" class="input-xlarge">
+				<input type="text" name="indication_name" id="indication_name" class="input-xlarge" required="">
 			</label>
 		</div>	
 		
@@ -157,12 +163,12 @@
 		<div class="modal-body">
 			<label>
 				<strong class="label">Indication Code</strong>
-				<input type="text" name="indication_code" id="edit_indication_code" class="input-xlarge">
+				<input type="text" name="indication_code" id="edit_indication_code" class="input-xlarge" required="">
 			</label>
 				<label>
 				<strong class="label">Indication Name</strong>
 				<input type="hidden" name="indication_id" id="edit_indication_id" class="input-xlarge">
-				<input type="text" name="indication_name" id="edit_indication_name" class="input-xlarge">
+				<input type="text" name="indication_name" id="edit_indication_name" class="input-xlarge" required="">
 			</label>
 		</div>	
 		

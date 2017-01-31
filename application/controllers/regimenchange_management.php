@@ -1,4 +1,6 @@
 <?php
+ob_start();
+
 if (!defined('BASEPATH'))
 	exit('No direct script access allowed');
 
@@ -117,7 +119,7 @@ class Regimenchange_Management extends MY_Controller {
 		$data['quick_link'] = "regimen_change_reason";
 		$this -> load -> view("regimenchange_listing_v", $data);
 	}
-
-	
-
 }
+// create a buffer
+ob_get_clean();
+?>

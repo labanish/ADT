@@ -334,7 +334,10 @@ foreach($results as $result){
 			
 			$("#iso_start_date").change(function(){
 				var endDate =new  Date($("#iso_start_date").val());
-				var numberOfDaysToAdd = 168;
+
+				//changed the isonizid date to 180  by vicliz 
+				//var numberOfDaysToAdd = 168;
+				var numberOfDaysToAdd = 180;
 				endDate.setDate(endDate.getDate() + numberOfDaysToAdd); 
 				var end_date = (endDate.getFullYear()+'-'+("0" + (endDate.getMonth() + 1)).slice(-2)+'-'+endDate.getDate());
 				$("#iso_end_date").val(end_date);
@@ -491,19 +494,19 @@ foreach($results as $result){
 				var tbphase=$(".tbphase").val();
 			    if (category==1) {
 					if(tbphase==1){
-					  	//Intensive
-					  	var numberOfDaysToAdd=90;
+					  	//Intensive tb phase change the number of days from 90 to 56 for Category one
+					  	var numberOfDaysToAdd=56;
 					}else if(tbphase==2){
 					  	//Continuation
 					  	var numberOfDaysToAdd=112;
 					} 
 			    }else if (category==2) {
 	                 if(tbphase==1){
-					  	//Intensive
-					  	var numberOfDaysToAdd=90;
+					  	//Intensive tb phase change the number of days from 90 to 84 for Category two
+					  	var numberOfDaysToAdd=84;
 					}else if(tbphase==2){
-					  	//Continuation
-					  	var numberOfDaysToAdd=150;
+					  	//Continuation changed from 150 to 140 days
+					  	var numberOfDaysToAdd=140;
 					}
 			    }
                 var start_date = new Date(new_date.getFullYear(), new_date.getMonth(), new_date.getDate());
@@ -1289,11 +1292,11 @@ foreach($results as $result){
 
 		<div class="max-row" id="isoniazid_view">
 				<div class="mid-row" id="isoniazid_start_date_view">
-				<label>Isoniazid Start Date</label>
-				<input type="text" name="iso_start_date" id="iso_start_date"  style="color:red"/>
+				<label class="">Isoniazid Start Date</label>
+				<input type="text" name="iso_start_date" id="iso_start_date" class="validate[required]" style="color:red"/>
 				</div>
 				<div class="mid-row" id="isoniazid_end_date_view">
-				<label> Isoniazid End Date</label>
+				<label > Isoniazid End Date</label>
 				<input  type="text"name="iso_end_date" id="iso_end_date" style="color:red">
 				</div>								
 			</div>

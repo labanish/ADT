@@ -8,10 +8,10 @@ $first_load = $ccc_stores[0]['id'];//Which store to load first
 		letter-spacing:0px;
 	}
 	table.dataTable{
-	    zoom:0.85;	
+	    zoom:1;	
 	}
 	
-	.table-bordered input {
+	.table-bordered input{
 		width:9em;
 	}
 
@@ -176,7 +176,14 @@ if ($access_level == "facility_administrator") {
 				<table id="store_table" class="listing_table table table-bordered table-hover table-condensed table" style="width: 100% !important">
 					<thead>
 						<tr>
-							<th style="width:28%">Commodity</th><th>Generic Name</th><th>QTY/SOH</th><th>Unit</th><th>Pack Size</th><th>Supplier</th><th>Dose</th><th style="width:10%">Action</th>
+							<th>Commodity</th>
+							<th>Generic Name</th>
+							<th>QTY/SOH</th>
+							<th>Unit</th>
+							<th>Pack Size</th>
+							<th>Supplier</th>
+							<th>Dose</th>
+							<th>Action</th>
 						</tr>
 					</thead>
 					<tbody>

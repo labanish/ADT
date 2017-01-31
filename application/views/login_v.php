@@ -9,7 +9,7 @@
 		$this -> load -> view('sections/head');
 		?>
 	</head>
-	<body>
+	<body style="margin:0;">
 		<header>
 			<div class="container-fluid">
 			<div class="row-fluid">
@@ -56,11 +56,11 @@
 			<form class="login-form" action="<?php echo base_url().'user_management/authenticate'?>" method="post" style="margin:0 auto " >
 				<label> <strong >Username</strong>
 					<br>
-					<input type="text" name="username" class="input-xlarge" id="username" value="" placeholder="user@example.com">
+					<input type="text" name="username" class="input-xlarge" id="username" value="" placeholder="username">
 				</label>
 				<label> <strong >Password</strong>
 					<br>
-					<input type="password" name="password" class="input-xlarge" id="password" placeholder="********">
+					<input type="password" name="password" class="input-xlarge" id="password" placeholder="password">
 				</label>
 				<input type="submit" class="btn" name="register" id="register" value="Login" >
 				<div style="margin:auto;width:auto" class="anchor">
@@ -77,6 +77,8 @@
 				<div id="footer_text2" class="span12" style="text-align:center">
 					Government of Kenya &copy; <?php echo date('Y');?>.
 					All Rights Reserved
+					<br/><br/>
+						<strong>Web-ADT version 3.1</strong>
 					</div>
 				</div>
 				</div>

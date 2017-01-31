@@ -7,6 +7,10 @@
 			$("#edit_classification_name").val(this.name);
 			//$("#edit_form").dialog("open");
 		});
+		/*Prevent Double Click*/
+		$('input_form').submit(function(){
+		  	$(this).find(':submit').attr('disabled','disabled');
+		});
 	
 	});
 
@@ -70,7 +74,7 @@
 		<div class="modal-body">
 			<label>
 			<strong class="label">Drug Classification</strong>
-			<input type="text" name="classification_name" id="classification_name" class="input-xlarge">
+			<input type="text" name="classification_name" id="classification_name" class="input-xlarge" required="required">
 			</label>
 		</div>
 		<div class="modal-footer">
@@ -93,7 +97,7 @@
 			<label>
 			<strong class="label">Drug Classification</strong>
 			<input type="hidden" name="classification_id" id="classification_id" class="input">
-			<input type="text" name="edit_classification_name" id="edit_classification_name" class="input-xlarge">
+			<input type="text" name="edit_classification_name" id="edit_classification_name" class="input-xlarge" required="required">
 			</label>
 		</div>
 		<div class="modal-footer">

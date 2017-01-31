@@ -304,7 +304,6 @@ class Drugcode_management extends MY_Controller {
 		}
 		
 		$data['non_mapped_drugs'] = Drugcode::getNonMappedDrugs();//Not mapped regimens
-		 
 		echo json_encode($data);
 	}
 

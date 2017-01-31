@@ -2,9 +2,34 @@
 	table {
 	 table-layout:auto; 
 	}
+
+	.ui-multiselect-menu {
+	    display: none;
+	    margin-left: 15px;
+	    position: static; 
+	    text-align: left;
+	   	zoom: 0.8;
+	}
+
+    .ui-multiselect-header{
+		zoom:0.9;
+	}
+
 </style>
 <script type="text/javascript">
+
+	function triggetmultiselect(){
+	    $('.sync_facility').multiselect().multiselectfilter();
+	}
+
 	$(document).ready(function() {
+		/*Prevent Double Click*/
+		$('input_form').submit(function(){
+		  	$(this).find(':submit').attr('disabled','disabled');
+		});
+		$('#user_form').on('show', function(){
+        	triggetmultiselect();
+   		 });
 		
 		$("#btn_save_user").live('click',function(event){
 			event.preventDefault();
@@ -16,6 +41,12 @@
 			
 			var atpos=email.indexOf("@");
 			var dotpos=email.lastIndexOf(".");
+
+			//Order sites
+			var user_facilities = $("select#user_facilities").multiselect("getChecked").map(function() {
+					return this.value;
+			}).get();
+			$("#user_facilities_holder").val(user_facilities);
 			
 			
 			if($.trim(fullname)=="" || $.trim(username)==""){
@@ -23,6 +54,9 @@
 			}
 			else if ($.trim(username)!="" && $.trim(username).length<2 ){
 				$("#msg_error").text("The Username field must be at least 2 characters in length!");
+			}
+			else if ($.trim(user_facilities) ==""){
+				$("#msg_error").text("Select Order Sites for user");
 			}
 			else{
 				$("#msg_error").text("");
@@ -64,7 +98,6 @@
 			
 			var atpos=email.indexOf("@");
 			var dotpos=email.lastIndexOf(".");
-			
 			
 			if($.trim(fullname)=="" || $.trim(username)==""){
 				$("#e_msg_error").text("Some fields are missing !");
@@ -211,7 +244,6 @@
 	</div>
 
 	<div id="user_form" title="New User" class="modal hide fade cyan" tabindex="-1" role="dialog" aria-labelledby="label" aria-hidden="true">
-		
 			<?php
 			$attributes = array('class' => 'input_form','id'=>'fm_user');
 			echo form_open('user_management/save', $attributes);
@@ -276,7 +308,10 @@
 							<input type="email" name="email" id="email" class="input-xlarge" placeholder="e.g. youremail@example.com">
 						</div></td><td class="_red" id="invalid_email">
 					</td></tr>
-				<tr><td><strong class="label">Facility</strong></td>
+				<tr>
+					<td>
+						<strong class="label">Facility</strong>
+					</td>
 					<td>
 						<span class="add-on"><i class=" icon-chevron-down icon-black"></i></span>
 						<select name="facility" id="facility" class="input-xlarge">
@@ -287,7 +322,23 @@
 							<?php }?>
 						</select>
 					</td>
-					<td></td>
+				</tr>
+				<!--Order sites-->
+				<tr>
+					<td>
+						<strong class="label">Order Sites</strong>
+					</td>
+					<td>
+						<span class="add-on"><i class=" icon-chevron-down icon-black"></i></span>
+						<input type="hidden" id="user_facilities_holder" name="user_facilities_holder" />
+						<select name="user_facilities" id="user_facilities" class="input-xlarge sync_facility" multiple="multiple" required="">
+							<?php 
+							foreach($order_sites as $site){
+							?>]
+							<option value="<?php echo $site['id'];?>"><?php echo $site['name'];?></option>
+							<?php }?>
+						</select>
+					</td>
 				</tr>
 			</table>
 			</div>
@@ -376,4 +427,3 @@
 		</div>
 
 </div>
-

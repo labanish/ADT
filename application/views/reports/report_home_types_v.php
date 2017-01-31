@@ -104,6 +104,8 @@ $ccc_stores = $this ->session ->userdata("ccc_store");
 				<option class="single_date_report" value="getADR">Patient Allergy Summary</option>
 				<option class="date_range_report" value="patients_disclosure">Patients Status &amp; Disclosure</option>	
 				<option class="single_date_report" value="getBMI">Patient BMI Summary</option>
+				<!-- New section for patients Isoniazid -->
+				<option class="date_range_report" value="getisoniazidPatients">Patients on Drug Prophylaxis </option>
 			</select></td>
 		</tr>
 		<!-- Visiting patients reports -->
@@ -117,6 +119,7 @@ $ccc_stores = $this ->session ->userdata("ccc_store");
 				<option class="date_range_report" value="getPatientsforRefill">List of Patients Visited For Refill</option>
 				<option class="date_range_report" value="getPatientMissingAppointments">Patients Missing Appointments</option>
 				<option class="date_range_report" value="dispensingReport">Patients Visit Summary</option>
+				<option class="date_range_report" value="differenciated_package_of_care">Patients on Differentiated Care</option>
 			</select></td>
 		</tr>
 		<!-- Early warning reports -->
@@ -241,6 +244,7 @@ $ccc_stores = $this ->session ->userdata("ccc_store");
 					<td class="adherence_report_type_title"><select name="adherence_type_report" id="adherence_type_report">
 							<option value="appointment">Appointment</option>
 							<option value="pill_count">Pill Count</option>
+							<option value="missed_pill">Missed Pill</option>
 						</select></td>
 					<td>
 					<td><label >From: </label></td>

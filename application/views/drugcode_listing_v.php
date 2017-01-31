@@ -85,6 +85,9 @@
 </style>
 <script type="text/javascript">
 	$(document).ready(function() {
+		$('entry_form').submit(function(){
+		  	$(this).find(':submit').attr('disabled','disabled');
+		});
 		$(".setting_table").find("tr :first").css("width","380px");
 		//This loop goes through each table row in the page and applies the necessary modifications
 		$.each($(".table_row"), function(i, v) {
@@ -447,7 +450,7 @@
 			<a href="#new_drugcode" role="button" id="btn_new_drugcode" class="btn" data-toggle="modal"><i class="icon-plus icon-black"></i>New Drug Code</a>      	
 	      	<button id="disable_mutliple_drugs" class="btn btn-danger">Disable selected drugs</button>
 	      	<button id="enable_mutliple_drugs" class="btn btn-info">Enable selected drugs</button>
-	      	<a href="#md_bulk_mapping" role="button" class="btn btn-success" id="btn_bulk_mapping"  data-toggle="modal">Bulk mapping</a>
+	      	<a href="#md_bulk_mapping" role="button" class="btn btn-success" id="btn_bulk_mapping_new"  data-toggle="modal">Bulk mapping</a>
 	      	<?php echo $drugcodes;?>
 	      	
 	      </div>
@@ -476,15 +479,15 @@
 			
 			<table style="margin-top:54px">
 				<tr><td>
-					<strong class="label">Drug ID</strong></td><td><input type="text" class="input-xlarge" style="width:320px;font-size:13px" id="add_drugname" name="drugname"/></td></tr>
+					<strong class="label">Drug ID</strong></td><td><input type="text" class="input-xlarge" style="width:320px;font-size:13px" id="add_drugname" name="drugname" required=""/></td></tr>
 				<tr><td><strong class="label">Unit</strong></td>
 					<td>
-						<select id="add_drugunit" class="input-small" name="drugunit">
+						<select id="add_drugunit" class="input-small" name="drugunit" required="">
 							
 						</select>		
 					</td>
 				</tr>
-				<tr><td><strong class="label">Packsize</strong></td><td><input type="text" class="input-small" id="add_packsize" name="packsize" /></td></tr>
+				<tr><td><strong class="label">Packsize</strong></td><td><input type="text" class="input-small" id="add_packsize" name="packsize" required=""/></td></tr>
 				<!--<tr><td><strong class="label">Safety Quantity</strong></td><td><input type="text" class="input-small" id="add_safety_quantity" name="safety_quantity" /></td></tr>-->
 				<input type="hidden" class="input-small" id="add_safety_quantity" name="safety_quantity" />
 				<tr><td><strong class="label">Generic Name</strong></td>
@@ -621,15 +624,15 @@
 				<tr><td>
 					<input type="hidden" name="drugcode_id" id="drugcode_id" class="input">
 					<strong class="label">Drug ID</strong></td>
-					<td><input type="text" class="input-xlarge" style="width:320px;font-size:13px" id="drugname" name="drugname"/></td></tr>
+					<td><input type="text" class="input-xlarge" style="width:320px;font-size:13px" id="drugname" name="drugname" required=""/></td></tr>
 				<tr><td><strong class="label">Unit</strong></td>
 					<td>
-						<select id="drugunit" class="input-small" name="drugunit">
+						<select id="drugunit" class="input-small" name="drugunit" required="">
 							
 						</select>		
 					</td>
 				</tr>
-				<tr><td><strong class="label">Packsize</strong></td><td><input type="text" class="input-small" id="packsize" name="packsize" /><input type="hidden" class="input-small" id="safety_quantity" name="safety_quantity" /></td></tr>
+				<tr><td><strong class="label">Packsize</strong></td><td><input type="text" class="input-small" id="packsize" name="packsize" required=""/><input type="hidden" class="input-small" id="safety_quantity" name="safety_quantity" /></td></tr>
 				<!--<tr><td><strong class="label">Safety Quantity</strong></td><td><input type="text" class="input-small" id="safety_quantity" name="safety_quantity" /></td></tr>-->
 				<tr><td><strong class="label">Generic Name</strong></td>
 					<td>
@@ -753,8 +756,8 @@
 	</div>
 	
 	<!-- Modal for bulk drugs mapping -->
-	<form id="fmBulkMapping" action="">
-		<div id="md_bulk_mapping" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="BulkMapping" aria-hidden="true">
+	<form id="fmBulkMapping" action="" style="width:100% !important">
+		<div id="md_bulk_mapping" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="BulkMapping" aria-hidden="true" style="width: 100% !important">
 			<div class="modal-header">
 			    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
 			    <h3 id="BulkMapping">Bulk Drugs  Mapping [ Drugs details ]</h3>
@@ -763,7 +766,7 @@
 				<div id="loadingD" style="display: none; width: 60%; position:fixed; margin-bottom: 15px; text-align: center;"><img style="width: 30px;" src="<?php echo base_url();?>/assets/images/loading_spin.gif"></div>
 				<table class="table table-bordered table-striped" id="tbl_bulk_mapping"> 
 					<thead>
-						<tr><th style="width: 5%">#</th><th style="width:60%">Drugs</th><th>Sync Drugs</th></tr>
+						<tr><th style="width: 6%">#</th><th style="width:60%">Drugs</th><th>Sync Drugs</th></tr>
 					</thead>
 					<tbody>
 					</tbody>
@@ -787,10 +790,10 @@
 		});
 		ap = 0;
 		//Bulk Mapping Modal
-		$("#btn_bulk_mapping").live("click",function(){
+		$("#btn_bulk_mapping_new").on("click",function(){
 			$("#md_bulk_mapping").css("width","60%");
 			$("#md_bulk_mapping").css("margin-left","-30%");
-			$("#tbl_bulk_mapping tbody > tr >td >select").remove();
+			$("#tbl_bulk_mapping tbody > tr ").remove();
 			
 			//get Non mapped regimens
 			$.ajax({
@@ -806,7 +809,18 @@
 	                		$("#tbl_bulk_mapping thead").append("<tr id='0' map_id=''><td>0</td><td class='truncate' style='font-style:italic'> Name [Unit] - strength ( packsize ) </td><td style='font-style:italic'>Name[abbreviation]strength|formulation(packsize)</td></tr>");
 	                		ap=1;
 	                	}
-	                	appendRows(counter,total_drugs,data.non_mapped_drugs);
+	                	for (var i = 0; i <total_drugs ; i++) {
+	                		var c = i+1;
+	                		var name = data.non_mapped_drugs[i]['Drug'];
+							var unit = data.non_mapped_drugs[i]['drug_unit'];
+							var dose = data.non_mapped_drugs[i]['Dose'];
+							var strength = data.non_mapped_drugs[i]['Strength'];
+							var packsize = data.non_mapped_drugs[i]['Pack_Size'];
+							var id = data.non_mapped_drugs[i]['id'];
+							$("#tbl_bulk_mapping tbody").append("<tr id='"+id+"' map_id=''><td>"+c+"</td><td class='truncate'>"+name+"[" +unit+ "] - "+strength+" ( "+packsize+" ) </td><td></td></tr>");
+	                	}
+	                	$("#edit_drug_mapping").clone ().appendTo ("#tbl_bulk_mapping tbody > tr >td:last-child").attr ("class", "sel_bulk_map");
+	                	// appendRows(counter,total_drugs,data.non_mapped_drugs);
 	                   
 	                },
 	                error: function(){

@@ -17,6 +17,10 @@
 </style>
 <script type="text/javascript">
 	$(document).ready(function() {
+		/*Prevent Double Click*/
+		$('input_form').submit(function(){
+		  	$(this).find(':submit').attr('disabled','disabled');
+		});
 		$(".setting_table").find("tr :first").css("min-width","300px");
 		//This loop goes through each table row in the page and applies the necessary modifications
 		$.each($(".table_row"), function(i, v) {
@@ -96,7 +100,7 @@
 			<label>
 				<strong class="label">Non adherence reason</strong>
 				<input type="hidden" name="nonadherence_id" id="nonadherence_id" class="input" >
-				<input type="text" name="nonadherence_name" id="nonadherence_name" class="input-xlarge" >
+				<input type="text" name="nonadherence_name" id="nonadherence_name" class="input-xlarge" required="">
 			</label>
 		</div>
 		<div class="modal-footer">
@@ -120,7 +124,7 @@
 		<label>
 			<strong class="label">Non adherence reason</strong>
 			<input type="hidden" name="nonadherence_id" id="edit_nonadherence_id" class="input" >
-			<input type="text" name="nonadherence_name" id="edit_nonadherence_name" class="input-xlarge" >
+			<input type="text" name="nonadherence_name" id="edit_nonadherence_name" class="input-xlarge" required="">
 		</label>
 		</div>
 		<div class="modal-footer">
