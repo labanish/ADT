@@ -400,7 +400,7 @@
 									<a href="#" class="visit_management" title="Visit Purpose Management">Visit Purpose</a>
 								</li>
 								<li>
-									<a href="#" class="viral_load_manual" title="Patient Viral Load Manual Management">Viral Load Manual</a>
+									<a href="#" class="viral_load_manual" title="Patient Viral Load Results">Viral Load Results</a>
 								</li>
 								<li>
 									<a href="#" class="settings/listing/patient_status" title="Patient Status Management">Patient Status</a>

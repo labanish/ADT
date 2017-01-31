@@ -74,7 +74,6 @@
 	      	<?php 
 	      		echo validation_errors('<p class="error">', '</p>');
 			?>
-				<a href="#client_form" role="button" id="new_client" class="btn" data-toggle="modal"><i class="icon-plus icon-black"></i>Add Patient Viral Load</a>
 				<!--<a href="#file_form" role="button" id="new_client" class="btn" data-toggle="modal"><i class="icon-plus icon-black"></i>Upload CSV</a>-->
 			<?php
 				echo @$viral_result;
@@ -86,44 +85,6 @@
 	    </div><!--/span-->
 	  </div><!--/row-->
 	</div><!--/.fluid-container-->
-	
-		
-	<div id="client_form" title="Viral load Manual" class="modal hide fade cyan" tabindex="-1" role="dialog" aria-labelledby="label" aria-hidden="true">
-		<?php
-			$attributes = array('class' => 'input_form');
-			echo form_open('viral_load_manual/save', $attributes);
-		?>
-		<div class="modal-header">
-			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-			<h3 id="NewDrug">Add Viral Laod Result</h3>
-		</div>
-		<div class="modal-body">
-			<label>
-			<strong class="label">Patient CCC Number</strong>
-				<!--<input type="text" name="classification_name" id="patient_ccc_number" class="input-xlarge" required="required">-->
-				<select name="patient_ccc_number" id="patient_ccc_number">
-    				<option value="">-- Select Type --</option>
-				</select>
-			</label>
-			<label>
-			<strong class="label">Test Date</strong>
-			      <input type="text" name="test_date" id="test_date" class="validate[required] ">
-			</label>
-			<label>
-			<strong class="label">Result</strong>
-			<input type="text" name="result" id="result" class="input-xlarge" required="required">
-			</label>
-			<label>
-			<strong class="label">Justification</strong>
-			<input type="text" name="justification" id="justification" class="input-xlarge" required="required">
-			</label>
-		</div>
-		<div class="modal-footer">
-		   <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
-		   <input type="submit" value="Save" class="btn btn-primary " />
-		</div>
-		<?php echo form_close();?>
-	</div>
 	
 	<div id="edit_form" title="Edit Drug Classification" class="modal hide fade cyan " tabindex="-1" role="dialog" aria-labelledby="label" aria-hidden="true">
 		<?php
