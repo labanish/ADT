@@ -1,4 +1,4 @@
-Version 3.1 31/01/2017
+Version 3.1.0 31/01/2017
 ==============================================
 - Added: Add Viral Load data manually, maybe through settings
 - Added: Allow pharmacist to adjust lost to follow-up days like the adult_age so as not to go back to the code 
