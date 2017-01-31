@@ -29,6 +29,12 @@ class Patient_Management extends MY_Controller {
         $this -> load ->view("patient_merging_v",$data);
     }
 
+    public function get_Last_vl_result($ccc_number){
+        $sql = "SELECT * FROM patient_viral_load WHERE patient_ccc_number = '$ccc_number' ORDER BY test_date DESC LIMIT 1";
+        $results = $this->db->query($sql)->result_array();
+        echo json_encode($results);
+    }
+
     public function details() {
         $data['content_view'] = "patient_details_v";
         $data['hide_side_menu'] = 1;

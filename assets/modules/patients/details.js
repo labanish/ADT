@@ -100,8 +100,8 @@ $(document).ajaxStop(function(){
 
 		//Open Modal
 		$("#patient_details").dialog("open");
-
-		$("#details_patient_number_ccc").text($("#patient_number_ccc").val());
+		var patient_number_ccc = $("#patient_number_ccc").val()
+		$("#details_patient_number_ccc").text(patient_number_ccc);
 		$("#details_first_name").text($("#first_name").val());
 		$("#details_last_name").text($("#last_name").val());
 		$("#details_gender").text($("#gender").text());
@@ -112,7 +112,7 @@ $(document).ajaxStop(function(){
 		getDispensing();
 		getRegimenChange();
 		getAppointmentHistory();
-		get_viral_result($("#patient_number_ccc").val());
+		getViralResult(patient_number_ccc);
 	});
 
 });
@@ -284,4 +284,19 @@ function getAppointmentHistory(){
 	    	
 	    }
 	});
+
 }
+
+
+function getViralResult(ccc_no){
+	var data_source=base_url+"patient_management/get_Last_vl_result/"+ccc_no;
+	$("#viral_load_date").text('N/A');
+	$("#viral_load_result").text('N/A');
+	$.getJSON(data_source, function(data){
+		$.each(data, function(key, val) {
+			$("#viral_load_date").text(val.test_date);
+		    $("#viral_load_result").text(val.result)       
+		});	
+	});
+}
+             

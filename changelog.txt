@@ -1,3 +1,26 @@
+Version 3.1 31/01/2017
+==============================================
+- Added: Add Viral Load data manually, maybe through settings
+- Added: Allow pharmacist to adjust lost to follow-up days like the adult_age so as not to go back to the code 
+- Added: Autocomplete duration and quantity after selecting days to next appointment 
+- Added: Viral Load Notifications during Dispensing
+- Added: Update latest guidelines
+- Added: Differentiated Care Report
+- Fixed: Link to parent/guardian is showing for adults in Patient Details
+- Fixed: Dosing Value replaced by id in dispensing history list (Patient Details)
+- Fixed: Bin card JSON error (LVCT specific)
+- Fixed: Negative quantity popup during dispensing because default quantity is blank or a zero
+- Fixed: Remove the use of cache and compression of .css and .js files 
+- Fixed: Ensure icons are visible when port is changed from 80 
+- Fixed: Report for Drugs Issued at not showing all satellites and drug destinations and data
+- Fixed: Test and ensure bulk mapping is working when bulk mapping button is clicked again in the same DOM
+- Fixed: Duplicate Saving on DoubleClick Submit
+- Fixed: Changing transaction type does not reset the inventory/stock page
+- Fixed: Patient visited for refill (Adherence Error) - LVCT & Others
+- Fixed: Stock consumption report(JSON Error) (LVCT Specific)
+- Fixed: Ensure correct calculation of expected pill count
+- Fixed: Update MOH 731 Template and MOH 731 not picking enrolled in care
+
 Version 2.18 10/11/2014
 ==============================================
 - Added: Lost to Followup Reporty

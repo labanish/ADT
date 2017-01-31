@@ -7323,12 +7323,13 @@ class report_management extends MY_Controller {
 		$data['content_view']='guidelines_listing_v';
 	    $this -> base_params($data);
     }
-    // function for the differentiated Package of Care
 
-    public function differenciated_package_of_care($start_date){    	
-    	$date = date('Y-m-d', strtotime($start_date));
-    	$six_months_app = date('Y-m-d',strtotime('+ 6 months',strtotime($date)));    	
+    //Differentiated Care
+    public function differenciated_package_of_care($start_date, $end_date){    	
+    	$start_date = date('Y-m-d', strtotime($start_date));
+    	$end_date = date('Y-m-d', strtotime($end_date));   	
     	$viralcount = 1000;
+    	$longterm_duration = 180;
     	$row_string .= "<table border='1' class='dataTables'>
 			<thead>
 				<tr>
@@ -7342,9 +7343,37 @@ class report_management extends MY_Controller {
 		$count_less_female = 0;$count_more_female = 0;
 
 		$row_string .= "<tr><td> > $viralcount cp/ml</td>";
-		$sql_more="SELECT g.name, COUNT(p.gender) AS count, pv.result FROM patient p,patient_viral_load pv,
-    				gender g WHERE 	p.nextappointment >= '$six_months_app'  AND p.patient_number_ccc = pv.patient_ccc_number
-        			AND pv.result >'$viralcount'  AND g.id = p.gender GROUP BY p.gender";		
+
+		$sql_more = "SELECT 
+						t.name, 
+						COUNT(t.gender) AS count,
+						t.result
+					FROM(
+						SELECT 
+							patient_id,dispensing_date,patient,appointment,p.gender,g.name,vl.result
+						FROM patient_visit pv
+						INNER JOIN patient p ON p.patient_number_ccc = pv.patient_id
+						INNER JOIN gender g ON p.gender = g.id
+						INNER JOIN (
+							SELECT 
+								patient_ccc_number,MAX(test_date) test_date,result
+							FROM patient_viral_load 
+							WHERE test_date < '$end_date'
+							AND result > '$viralcount'
+							GROUP BY patient_ccc_number,test_date
+						) vl ON vl.patient_ccc_number = p.patient_number_ccc
+						INNER JOIN (
+							SELECT 
+								patient,min(appointment) appointment
+							FROM patient_appointment ipa 
+							INNER JOIN patient_visit ipv ON ipv.patient_id = ipa.patient AND ipa.appointment > ipv.dispensing_date
+							WHERE ipv.dispensing_date BETWEEN '$start_date' AND '$end_date'
+							GROUP BY patient
+						) pa ON pa.patient = pv.patient_id 
+						WHERE pv.dispensing_date BETWEEN '$start_date' AND '$end_date' AND DATEDIFF(pa.appointment,pv.dispensing_date) >= $longterm_duration
+						GROUP BY patient_id,dispensing_date
+					)t 
+					GROUP BY t.gender";
 		$query = $this ->db ->query($sql_more);
 		$result_more = $query->result_array();	
 		
@@ -7363,9 +7392,36 @@ class report_management extends MY_Controller {
 		}
 		$row_string .= "<td>$count_more_male</<td><td>$count_more_female</td>";
 		$row_string .= "</tr><tr><td>< 1000 cp/ml</td>";
-    	$sql_less = "SELECT g.name, COUNT(p.gender) AS count, pv.result FROM patient p,patient_viral_load pv,
-    				gender g WHERE 	p.nextappointment >= '$six_months_app'  AND p.patient_number_ccc = pv.patient_ccc_number
-        			AND pv.result <='$viralcount'  AND g.id = p.gender GROUP BY p.gender";
+		$sql_less = "SELECT 
+						t.name, 
+						COUNT(t.gender) AS count,
+						t.result
+					FROM(
+						SELECT 
+							patient_id,dispensing_date,patient,appointment,p.gender,g.name,vl.result
+						FROM patient_visit pv
+						INNER JOIN patient p ON p.patient_number_ccc = pv.patient_id
+						INNER JOIN gender g ON p.gender = g.id
+						INNER JOIN (
+							SELECT 
+								patient_ccc_number,MAX(test_date) test_date,result
+							FROM patient_viral_load 
+							WHERE test_date < '$end_date'
+							AND result <= '$viralcount'
+							GROUP BY patient_ccc_number,test_date
+						) vl ON vl.patient_ccc_number = p.patient_number_ccc
+						INNER JOIN (
+							SELECT 
+								patient,min(appointment) appointment
+							FROM patient_appointment ipa 
+							INNER JOIN patient_visit ipv ON ipv.patient_id = ipa.patient AND ipa.appointment > ipv.dispensing_date
+							WHERE ipv.dispensing_date BETWEEN '$start_date' AND '$end_date'
+							GROUP BY patient
+						) pa ON pa.patient = pv.patient_id 
+						WHERE pv.dispensing_date BETWEEN '$start_date' AND '$end_date' AND DATEDIFF(pa.appointment,pv.dispensing_date) >= $longterm_duration
+						GROUP BY patient_id,dispensing_date
+					)t 
+					GROUP BY t.gender";
         $query = $this ->db ->query($sql_less);
 		$result_less = $query->result_array();
 		
@@ -7389,8 +7445,8 @@ class report_management extends MY_Controller {
 		$row_string .= "<td>$count_all_male</<td><td>$count_all_female</td>";
 		$row_string .= "</tr></tbody></table>";
 		$data['overall_total'] = $count_all_male+$count_all_female;
-		$data['from'] = $date;
-		$data['to'] = $six_months_app;
+		$data['from'] = $start_date;
+		$data['to'] = $end_date;
 		$data['dyn_table'] = $row_string;		
 		$data['title'] = "webADT | Reports";
 		$data['hide_side_menu'] = 1;
