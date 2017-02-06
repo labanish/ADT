@@ -353,7 +353,8 @@ class User_Management extends MY_Controller {
 				}
 				//looks good. Continue!
 				else {
-					$facility_details = Facilities::getCurrentFacility($logged_in -> Facility_Code);
+					//$facility_details = Facilities::getCurrentFacility($logged_in -> Facility_Code);
+					$facility_details = $this->getFacilityDetails($logged_in -> Facility_Code);
 					$phone = $logged_in -> Phone_Number;
 					$check = substr($phone, 0);
 					$phone = str_replace('+254', '', $phone);
@@ -380,7 +381,7 @@ class User_Management extends MY_Controller {
 					}else{
 						$session_data['lost_to_follow_up'] = 180;
 					}
-
+					
 					$this -> session -> set_userdata($session_data);
 					$user = $this -> session -> userdata('user_id');
 					$sql = "update access_log set access_type='Logout' where user_id='$user'";
@@ -405,6 +406,11 @@ class User_Management extends MY_Controller {
 			$data['title'] = "System Login";
 			$this -> load -> view("login_v", $data);
 		}
+	}
+
+	public function getFacilityDetails($facility_code){
+		$sql = "SELECT * FROM facilities WHERE facilitycode = ?";
+		return $this->db->query($sql, array($facility_code))->result_array();
 	}
 
 	private function _submit_validate() {
