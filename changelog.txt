@@ -1,3 +1,7 @@
+Version 3.1.1 06/02/2017
+==============================================
+- Fixed: Lost to Followup Session Bug
+
 Version 3.1.0 31/01/2017
 ==============================================
 - Added: Add Viral Load data manually, maybe through settings
