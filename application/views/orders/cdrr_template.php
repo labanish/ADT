@@ -334,6 +334,7 @@
 					$count_one=0;
 					$count_two=0;
 					$count_three=0;
+					$count_four=0;
 					foreach($commodities as $commodity){
 				         if($commodity -> Drug !=NULL){
 				         	$counter++;
@@ -343,6 +344,7 @@
 			                   }
 						  if($hide_generate==2){
 						  if($commodity->Category==1 && $count_one==0){
+						  	  echo '<tr><td colspan="15" style="text-align:center;background:#990;">ARVs</td></tr>';
 						  	  echo '<tr><td colspan="15" style="text-align:center;background:#999;">Adult Preparations</td></tr>';
 							  $count_one++;
 						  }	   
@@ -351,8 +353,12 @@
 							  $count_two++;
 						  }
                           if($commodity->Category==3 && $count_three==0){
-						  	  echo '<tr><td colspan="15" style="text-align:center;background:#999;">Drugs for OIs</td></tr>';
+						  	  echo '<tr><td colspan="15" style="text-align:center;background:#999;">Medicines for OIs</td></tr>';
 							  $count_three++;
+						  }
+						  if($commodity->Category==4 && $count_four==0){
+						  	  echo '<tr><td colspan="15" style="text-align:center;background:#999;">TB/ HIV DRUGS</td></tr>';
+							  $count_four++;
 						  }
 						  }else{
 						  if($commodity->Category==1 && $count_one==0){
@@ -364,8 +370,12 @@
 							  $count_two++;
 						  }
                           if($commodity->Category==3 && $count_three==0){
-						  	  echo '<tr><td colspan="13" style="text-align:center;background:#999;">Drugs for OIs</td></tr>';
+						  	  echo '<tr><td colspan="13" style="text-align:center;background:#999;">Medicines for OIs</td></tr>';
 							  $count_three++;
+						  }
+						  if($commodity->Category==4 && $count_four==0){
+						  	  echo '<tr><td colspan="13" style="text-align:center;background:#999;">TB/ HIV DRUGS</td></tr>';
+							  $count_four++;
 						  }
 						  }
 					?>

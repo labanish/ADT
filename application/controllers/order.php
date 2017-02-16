@@ -253,7 +253,8 @@ class Order extends MY_Controller {
 			        FROM cdrr_item ci
 			        LEFT JOIN sync_drug sd ON sd.id=ci.drug_id
 			        WHERE ci.cdrr_id='$cdrr_id'
-			        AND(sd.category_id='1' OR sd.category_id='2' OR sd.category_id='3')";
+			        AND(sd.category_id='1' OR sd.category_id='2' OR sd.category_id='3' OR sd.category_id='4')
+			        AND Active = '1'";
 					$query = $this -> db -> query($sql);
 					$data['commodities'] = $query -> result();
 				}
