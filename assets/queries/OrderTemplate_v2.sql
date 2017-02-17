@@ -1,4 +1,25 @@
-UPDATE `sync_drug` SET `Active` = '0' WHERE `id` IN (5, 6, 11, 196, 200, 141, 217, 225, 226, 40, 36, 37, 214, 242)//
+UPDATE sync_drug SET Active ='0' WHERE id IN (
+	SELECT *
+	FROM (
+		SELECT id
+		FROM sync_drug
+		WHERE id NOT IN (
+			SELECT  min(id)
+	        FROM sync_drug
+	        GROUP BY CONCAT_WS(') (',CONCAT_WS(' (', name, abbreviation),CONCAT_WS(') ', strength, formulation))
+	        HAVING COUNT(id) > 1
+	   	)
+		AND CONCAT_WS(') (',CONCAT_WS(' (', name, abbreviation),CONCAT_WS(') ', strength, formulation)) IN (
+			SELECT 
+	            CONCAT_WS(') (',CONCAT_WS(' (', name, abbreviation),CONCAT_WS(') ', strength, formulation)) AS drug
+	        FROM sync_drug
+	        GROUP BY drug
+	        HAVING COUNT(id) > 1
+	        ORDER BY drug
+	    )
+	) t
+)//
+UPDATE `sync_drug` SET `Active` = '0' WHERE `id` IN (5, 6, 11, 196, 200, 141, 217, 225, 226, 40, 36, 37, 214, 242, 199)//
 INSERT INTO `sync_drug` (`id`, `name`, `abbreviation`, `strength`, `packsize`, `formulation`, `unit`, `note`, `weight`, `category_id`, `regimen_id`) VALUES
 (245, 'Tenofovir/Emtricitabine', 'TDF/FTC', '300/200mg', 30, 'FDC Tabs', '', '', 0, 1, 0),
 (246, 'Abacavir/Lamivudine', 'ABC/3TC', '600mg/300mg', 60, 'FDC Tabs', '', '', 0, 1, 0),
