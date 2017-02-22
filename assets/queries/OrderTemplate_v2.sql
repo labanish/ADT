@@ -6,6 +6,7 @@ UPDATE sync_drug SET Active ='0' WHERE id IN (
 		WHERE id NOT IN (
 			SELECT  min(id)
 	        FROM sync_drug
+	        WHERE Active = '1'
 	        GROUP BY CONCAT_WS(') (',CONCAT_WS(' (', name, abbreviation),CONCAT_WS(') ', strength, formulation))
 	        HAVING COUNT(id) > 1
 	   	)
@@ -13,14 +14,22 @@ UPDATE sync_drug SET Active ='0' WHERE id IN (
 			SELECT 
 	            CONCAT_WS(') (',CONCAT_WS(' (', name, abbreviation),CONCAT_WS(') ', strength, formulation)) AS drug
 	        FROM sync_drug
+	        WHERE Active = '1'
 	        GROUP BY drug
 	        HAVING COUNT(id) > 1
 	        ORDER BY drug
 	    )
 	) t
 )//
-UPDATE `sync_drug` SET `Active` = '0' WHERE `id` IN (5, 6, 11, 196, 200, 141, 217, 225, 226, 40, 36, 37, 214, 242, 199)//
-INSERT INTO `sync_drug` (`id`, `name`, `abbreviation`, `strength`, `packsize`, `formulation`, `unit`, `note`, `weight`, `category_id`, `regimen_id`) VALUES
+UPDATE sync_drug SET Active = '0' WHERE id IN (
+	SELECT * 
+	FROM (
+		SELECT id
+		FROM sync_drug
+		WHERE CONCAT_WS(')(',CONCAT_WS('(',name,abbreviation),CONCAT(strength, CONCAT(')',packsize))) IN ('Stavudine/Lamivudine/Nevirapine(d4T/3TC/NVP)(30/150/200mg)60', 'Stavudine/Lamivudine(d4T/3TC)(30/150mg)60','Zidovudine(AZT)(300mg)60','Darunavir(DRV)(300mg)120','Saquinavir(SQV)(200mg)270','Nevirapine(NVP)(10mg/ml)240','Raltegravir Susp(RAL)(100mg/5ml)60','Diflucan()(2mg/ml)100','Diflucan()(50mg/5ml)35','Diflucan()(200mg)28','Co-trimoxazole()(480mg)1000','Co-trimoxazole (500s) blister pack Tabs()(960mg)500')
+	) t
+)//
+REPLACE INTO `sync_drug` (`id`, `name`, `abbreviation`, `strength`, `packsize`, `formulation`, `unit`, `note`, `weight`, `category_id`, `regimen_id`) VALUES
 (245, 'Tenofovir/Emtricitabine', 'TDF/FTC', '300/200mg', 30, 'FDC Tabs', '', '', 0, 1, 0),
 (246, 'Abacavir/Lamivudine', 'ABC/3TC', '600mg/300mg', 60, 'FDC Tabs', '', '', 0, 1, 0),
 (247, 'Efavirenz', 'EFV', '400mg', 30, 'tabs', '', '', 0, 1, 0),
@@ -36,12 +45,12 @@ INSERT INTO `sync_drug` (`id`, `name`, `abbreviation`, `strength`, `packsize`, `
 (257, 'Rifabutin', '', '150mg', 30, 'Tab', '', '', 0, 4, 0),
 (258, 'Tenofovir/Lamivudine/Efavirenz', 'TDF/3TC/EFV', '300/300/400mg', 30, 'FDC Tabs', '', '', 0, 1, 0)//
 UPDATE `sync_regimen_category` SET `Active` = '0' WHERE  `Name` IN('Other Pediatric Regimen', 'OIs Medicines {CM} and {OC} For Diflucan Donation Program ONLY')//
-INSERT INTO `sync_regimen_category` (`id`, `Name`, `Active`, `ccc_store_sp`) VALUES
+REPLACE INTO `sync_regimen_category` (`id`, `Name`, `Active`, `ccc_store_sp`) VALUES
 (22, 'PrEP', '1', 2),
 (23, 'Hepatitis B Patients who are HIV-ve', '1', 2),
 (24, 'OIs Medicines [3.Fluconazole (treatment & prophylaxis)]', '1', 2)//
 UPDATE `sync_regimen` SET `Active` = '0' WHERE `code` IN('AF3A','AF3B','AT1A','AT1B','AT1C','AT2A','CF3A','CF3B','CT1A','CT1B','CT1C','CT2A','PM1','PM2','PC1','PC2','PC4','PC5','PA1B','PA3B','OI4A','OI4C','OI3A','OI3C','CM3N','CM3R','OC3N','OC3R')//
-INSERT INTO `sync_regimen` (`id`, `name`, `code`, `old_code`, `description`, `category_id`) VALUES
+REPLACE INTO `sync_regimen` (`id`, `name`, `code`, `old_code`, `description`, `category_id`) VALUES
 (270, 'AZT + 3TC + DTG', 'AF1D', '', '', 4),
 (271, 'TDF + 3TC + ATV/r', 'AF2D', '', '', 4),
 (272, 'TDF + 3TC + DTG', 'AF2E', '', '', 4),

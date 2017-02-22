@@ -96,7 +96,7 @@
 					</tr>
 					<tr>
 						<td><b>County: &nbsp;</b><?php echo $facility_object -> County -> county;?></td>
-						<td><b>District: &nbsp;</b><?php echo $facility_object -> Parent_District -> Name;?></td>
+						<td><b>Sub-County: &nbsp;</b><?php echo $facility_object -> Parent_District -> Name;?></td>
 					</tr>
 					
 					<tr>
@@ -190,13 +190,11 @@
 						<th class="col_drug" rowspan="3">Drug Name</th>
 						<th class="number" rowspan="3">Unit Pack Size</th>
 						<th class="number">Beginning Balance</th>
-						<th class="number">Quantity <br/>Received in this period</th>
-						<th class="col_dispensed_units">Total Quantity ISSUED to <br/> ARV dispensing sites <br/><font style="font-weight:lighter; color:blue;">(Satellite sites plus<br/>Central site dispensing <br/>point(s) where relevant)</font></th>
-						<th class="col_losses_units">Losses<br/><font style="font-weight:lighter; color:blue;">(Damages, Expiries, Missing)</font></th>
-<!-- new column for the cdrr_array -->
-						<th class="col_adjustments">Positive</br> Adjustments</br><font style="font-weight:lighter; color:blue;"> (Stocks transfers from other facilities)</font></th>
-						<th class="col_adjustments">Negative </br>Adjustments</br><font style="font-weight:lighter; color:blue;"> (Borrowed from <br/>or Issued out to Other Facilities)</font></th>
-<!-- end of new column for the cdrr_array -->						
+						<th class="number">Total Quantity <br/>Received this month</th>
+						<th class="col_dispensed_units">Total Quantity Issued this month</th>
+						<th class="col_losses_units">Losses &amp Wastages</th>
+						<th class="col_adjustments">Positive</br>Adjustments</th>
+						<th class="col_adjustments">Negative</br>Adjustments</th>				
 						<th class="number">End of Month Physical Count</th>
 						<th class="number">Reported Aggregated Quantity CONSUMED in the reporting period <font style="font-weight:lighter; color:blue;">(Satellite sites plus Central site dispensing point where relevant)</font></th>
 						<th class="number">Reported Aggregated Physical Stock on Hand at end of reporting period <font style="font-weight:lighter; color:blue;">(Satellite sites plus Central site dispensing point where relevant)</font></th>
@@ -236,37 +234,22 @@
 					</tr>
 			</thead>';
 
-// this is the start of a standalone form. 
+	// this is the start of a standalone form. 
 	}else if($stand_alone==1){
 		$header_text = '<thead style="text-align:left;background:#c3d9ff;">
 					<tr>
 						<th class="col_drug" rowspan="3">Drug Name</th>
 						<th class="number" rowspan="3">Unit Pack Size</th>
 						<th class="number">Beginning Balance</th>
-						<th class="number">Quantity <br/>Received this period</th>
-						<th class="col_dispensed_units" colspan="2">Total Quantity Dispensed <br/>this period</th>
-						<th class="col_losses_units">Losses <br/><font style="font-weight:lighter; color:blue;">(Damages, Expiries, Missing)</font></th>
-<!-- new column for the cdrr_array -->
-						<th class="col_adjustments">Positive</br> Adjustments</br><font style="font-weight:lighter; color:blue;"> (Stocks transfers from other facilities)</font></th>
-						<th class="col_adjustments">Negative </br>Adjustments</br><font style="font-weight:lighter; color:blue;"> (Borrowed from <br/>or Issued out to Other Facilities)</font></th>
-<!-- end of new column for the cdrr -->
-						<th class="number">End of Month</br> Physical Count</br><font style="font-weight:lighter; color:blue;">(For CS </br>Dispensing </br>Point, please </br><strong>exclude</strong> the central site Store stocks)</font></th>
-						<th class="number" colspan="2">Drugs with less than 6 months to expiry</th>
-						<th class="number">Days out of stock this Month</th>
-						<th class="number">Quantity required for RESUPPLY</th>
-					</tr>
-					<tr>
-						<th>In Packs</th>
-						<th>In Packs</th>
-						<th colspan="2" class="col_dispensed_units">In Packs</th>
-						<th class="col_dispensed_units">In Packs</th>
-						<th>In Packs</th>
-						<th>In Packs</th>
-						<th>In Packs</th>
-						<th>Quantity</th>
-						<th>Expiry Date</th>
-						<th></th>
-						<th>In Packs</th>
+						<th class="number">Total Quantity <br/>Received this month</th>
+						<th class="col_dispensed_units" colspan="2">Total Quantity Dispensed <br/>this month</th>
+						<th class="col_losses_units">Losses &amp Wastages</th>
+						<th class="col_adjustments">Positive</br>Adjustments</th>
+						<th class="col_adjustments">Negative</br>Adjustments</th>
+						<th class="number">End of Month</br> Physical Count</th>
+						<th class="number" colspan="2">Commodities expiring in <u>less than</u> 6 months to expiry</th>
+						<th class="number">Days out of stock <u>this</u> Month</th>
+						<th class="number">Quantity required for RE-SUPPLY</th>
 					</tr>
 					<tr>
 						<th>A</th>
@@ -276,8 +259,8 @@
 						<th>E</th>
 						<th>F</th>
 						<th>G</th>
-						<th>In Unit Packs</th>
-						<th>mm-yy</th>
+						<th>Quantity</th>
+						<th>Earliest Expiry<br/> date mm/yyyy</th>
 						<th>H</th>
 						<th>I</th>
 					</tr>
@@ -286,33 +269,18 @@
 	}else if($stand_alone==0 && $hide_generate !=2){
 		$header_text = '<thead style="text-align:left;background:#c3d9ff;">
 					<tr>
-						<th class="col_drug" rowspan="3">Drug Name</th>
-						<th class="number" rowspan="3">Unit Pack Size</th>
+						<th class="col_drug" rowspan="2">Drug Name</th>
+						<th class="number" rowspan="2">Unit Pack Size</th>
 						<th class="number">Beginning Balance</th>
-						<th class="number">Quantity <br/>Received this period</th>
-						<th class="col_dispensed_units">Total Quantity Dispensed <br/>this period</th>
-						<th class="col_losses_units">Losses <br/><font style="font-weight:lighter; color:blue;">(Damages, Expiries, Missing)</font></th>
-<!-- new column for the cdrr_array -->
-						<th class="col_adjustments">Positive</br> Adjustments</br><font style="font-weight:lighter; color:blue;"> (Stocks transfers from other facilities)</font></th>
-						<th class="col_adjustments">Negative </br>Adjustments</br><font style="font-weight:lighter; color:blue;"> (Borrowed from <br/>or Issued out to Other Facilities)</font></th>
-<!-- end of new column for the cdrr -->
-						<th class="number">End of Month</br> Physical Count</br><font style="font-weight:lighter; color:blue;">(For CS </br>Dispensing </br>Point, please </br><strong>exclude</strong> the central site Store stocks)</font></th>
-						<th class="number" colspan="2">Drugs with less than 6 months to expiry</th>
-						<th class="number">Days out of stock this Month</th>
-						<th class="number">Quantity required for RESUPPLY</th>
-					</tr>
-					<tr>
-						<th>In Packs</th>
-						<th>In Packs</th>
-						<th class="col_dispensed_units">In Packs</th>
-						<th class="col_dispensed_units">In Packs</th>
-						<th>In Packs</th>
-						<th>In Packs</th>
-						<th>In Packs</th>
-						<th>Quantity</th>
-						<th>Expiry Date</th>
-						<th></th>
-						<th>In Packs</th>
+						<th class="number">Total Quantity <br/>Received this month</th>
+						<th class="col_dispensed_units">Total Quantity Dispensed <br/>this month</th>
+						<th class="col_losses_units">Losses &amp Wastages</font></th>
+						<th class="col_adjustments">Positive</br>Adjustments</th>
+						<th class="col_adjustments">Negative</br>Adjustments</th>
+						<th class="number">End of Month</br> Physical Stock Count</br><font style="font-weight:lighter; color:blue;">(For CS </br>Dispensing </br>Point, please </br><strong>exclude</strong> the central site Store stocks)</font></th>
+						<th class="number" colspan="2">Commodities expiring in <u>less than</u> 6 months to expiry</th>
+						<th class="number">Days out of stock <u>this</u> Month</th>
+						<th class="number">Quantity required for RE-SUPPLY</th>
 					</tr>
 					<tr>
 						<th>A</th>
@@ -322,8 +290,8 @@
 						<th>E</th>
 						<th>F</th>
 						<th>G</th>
-						<th>In Unit Packs</th>
-						<th>mm-yy</th>
+						<th>Quantity</th>
+						<th>Earliest Expiry<br/> date mm/yyyy</th>
 						<th>H</th>
 						<th>I</th>
 					</tr>
@@ -344,7 +312,7 @@
 			                   }
 						  if($hide_generate==2){
 						  if($commodity->Category==1 && $count_one==0){
-						  	  echo '<tr><td colspan="15" style="text-align:center;background:#990;">ARVs</td></tr>';
+						  	  echo '<tr><td colspan="15" style="text-align:center;background:#998;">ARVs</td></tr>';
 						  	  echo '<tr><td colspan="15" style="text-align:center;background:#999;">Adult Preparations</td></tr>';
 							  $count_one++;
 						  }	   
@@ -362,6 +330,7 @@
 						  }
 						  }else{
 						  if($commodity->Category==1 && $count_one==0){
+						  	  echo '<tr><td colspan="13" style="text-align:center;background:#998;">ARVs</td></tr>';
 						  	  echo '<tr><td colspan="13" style="text-align:center;background:#999;">Adult Preparations</td></tr>';
 							  $count_one++;
 						  }	   
