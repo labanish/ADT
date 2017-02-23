@@ -998,11 +998,13 @@ class Order extends MY_Controller {
 			//Load download template
 			$template = "";
 			if ($report_type == "D-CDRR") {
-				$template = "new_cdrr_aggregate.xlsx";
+				$template = "cdrr_aggregate.xlsx";
+			} else if($report_type == "F-CDRR_units"){
+				$template = "cdrr_satellite.xlsx";
 			}else{
-				$template = "new_cdrr_satellite_standalone.xlsx";
+				$template = "cdrr_standalone.xlsx";
 			}
-			$inputFileName = $_SERVER['DOCUMENT_ROOT'] . '/ADT/assets/' . $template;
+			$inputFileName = $_SERVER['DOCUMENT_ROOT'] . '/ADT/assets/templates/orders/v2/' . $template;
 			$inputFileType = PHPExcel_IOFactory::identify($inputFileName);
     		$objReader = PHPExcel_IOFactory::createReader($inputFileType);
 			$objPHPExcel = $objReader -> load($inputFileName);
@@ -1149,11 +1151,11 @@ class Order extends MY_Controller {
 			//Load download template
 			$template = "";
 			if ($report_type == "D-MAPS") {
-				$template = "new_fmaps_aggregate.xlsx";
+				$template = "maps_aggregate.xlsx";
 			}else{
-				$template = "new_fmaps_satellite_standalone.xlsx";
+				$template = "maps_standalone.xlsx";
 			}
-			$inputFileName = $_SERVER['DOCUMENT_ROOT'] . '/ADT/assets/' . $template;
+			$inputFileName = $_SERVER['DOCUMENT_ROOT'] . '/ADT/assets/templates/orders/v2/' . $template;
 			$inputFileType = PHPExcel_IOFactory::identify($inputFileName);
     		$objReader = PHPExcel_IOFactory::createReader($inputFileType);
 			$objPHPExcel = $objReader -> load($inputFileName);

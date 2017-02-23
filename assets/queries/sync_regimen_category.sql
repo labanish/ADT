@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS `sync_regimen_category` (
 ALTER TABLE `sync_regimen_category` ADD PRIMARY KEY (`id`), ADD KEY `ccc_store_sp` (`ccc_store_sp`)//
 ALTER TABLE `sync_regimen_category` MODIFY `id` int(2) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22//
 ALTER TABLE `sync_regimen_category` CHANGE  `Active`  `Active` VARCHAR( 2 ) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL DEFAULT  '1'//
-INSERT INTO `sync_regimen_category` (`id`, `Name`, `Active`, `ccc_store_sp`) VALUES
+REPLACE INTO `sync_regimen_category` (`id`, `Name`, `Active`, `ccc_store_sp`) VALUES
 (4, 'Adult First Line', '1', 2),
 (5, 'Adult Second Line', '1', 2),
 (7, 'Paediatric First Line', '1', 2),

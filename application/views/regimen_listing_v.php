@@ -656,6 +656,7 @@
 		var id = data[counter]['id'];
 		if(counter<(total-1)){
 			var c = counter+1;
+			$("#tbl_bulk_mapping tbody").empty();//remove preloaded data
 			$("#tbl_bulk_mapping tbody").append("<tr id='"+id+"' map_id=''><td>"+c+"</td><td class='truncate'>"+code+" <b>|</b> "+name+"</td><td></td></tr>");
 	    	appendRows(c,total,data);
 		}else{

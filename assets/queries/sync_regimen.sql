@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS `sync_regimen` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8//
 ALTER TABLE `sync_regimen` ADD `Active` varchar(2) NOT NULL DEFAULT '1'//
-INSERT INTO `sync_regimen` (`id`, `name`, `code`, `old_code`, `description`, `category_id`) VALUES
+REPLACE INTO `sync_regimen` (`id`, `name`, `code`, `old_code`, `description`, `category_id`) VALUES
 (1, 'AZT + 3TC + NVP', 'AF1A', '', 'Zidovudine + Lamivudine + Nevirapine', 4),
 (2, 'AZT + 3TC + EFV', 'AF1B', '', 'Zidovudine + Lamivudine + Efavirenz', 4),
 (3, 'TDF + 3TC + NVP', 'AF2A', '', 'Tenofovir + Lamivudine + Nevirapine', 4),

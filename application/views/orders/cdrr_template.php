@@ -92,37 +92,41 @@
 						<td><b>Facility code: &nbsp;</b><?php echo $facility_object -> facilitycode;?>
 							<input type="hidden" name="facility_code" id="facility_code" value="<?php echo $facility_object ->facilitycode; ?>"/>
 							<input type="hidden" name="facility_id" id="facility_id" value="<?php echo $facility_id; ?>"/>
+							<input type="hidden" name="sponsor" value="<?php echo $facility_object -> support -> Name; ?>"/>
+							<input type="hidden" name="non_arv" id="non_arv" value="0"/>
+							<?php
+								$type_of_service = array();
+								if ($facility_object -> service_art == "1") {
+									$type_of_service[] = "ART";
+								}
+								if ($facility_object -> service_pmtct == "1") {
+									$type_of_service[] = "PMTCT";
+								}
+								if ($facility_object -> service_pep == "1") {
+									$type_of_service[] = "PEP";
+								}
+							?>
+							<input type="hidden" name="type_of_service" value="<?php echo implode(",", $type_of_service); ?>"/>
 						</td>
 					</tr>
 					<tr>
-						<td><b>County: &nbsp;</b><?php echo $facility_object -> County -> county;?></td>
+						<td><b>County: &nbsp;</b><?php echo ucwords($facility_object -> County -> county);?></td>
 						<td><b>Sub-County: &nbsp;</b><?php echo $facility_object -> Parent_District -> Name;?></td>
 					</tr>
 					
+					<!--
 					<tr>
-						<td colspan='2'><b>Programme Sponsor: &nbsp;</b><?php echo $facility_object -> support -> Name;?>
-							<input type="hidden" name="sponsor" value="<?php echo $facility_object -> support -> Name; ?>"/>
+						<td colspan='2'><b>Programme Sponsor: &nbsp;</b><?php //echo $facility_object -> support -> Name;?>
+							<input type="hidden" name="sponsor" value="<?php //echo $facility_object -> support -> Name; ?>"/>
 						</td>
 					</tr>
-					
 					<tr>
-						<td><b>Type of Service provided at the Facility: &nbsp; </b><?php
-						$type_of_service = array();
-						if ($facility_object -> service_art == "1") {
-							$type_of_service[] = "ART";
-						}
-						if ($facility_object -> service_pmtct == "1") {
-							$type_of_service[] = "PMTCT";
-						}
-						if ($facility_object -> service_pep == "1") {
-							$type_of_service[] = "PEP";
-						}
-						echo implode(",", $type_of_service);
-						?><input type="hidden" name="type_of_service" value="<?php echo implode(",", $type_of_service); ?>"/></td>
+						<td><b>Type of Service provided at the Facility: &nbsp; </b>
+						<input type="hidden" name="type_of_service" value="<?php //echo implode(",", $type_of_service); ?>"/></td>
 						<td><b>Non-ARV: &nbsp;</b>
 						<input type="checkbox" name="non_arv" id="non_arv" value="0"/>
 						</td>
-					</tr>
+					</tr>-->
 					<tr>
 						<?php
 						if (empty($cdrr_array)) {
@@ -187,8 +191,14 @@
 	if($hide_generate==2){
 		$header_text = '<thead style="text-align:left;background:#c3d9ff;">
 					<tr>
-						<th class="col_drug" rowspan="3">Drug Name</th>
-						<th class="number" rowspan="3">Unit Pack Size</th>
+						<th colspan="2" style="text-align:center;"></th>
+						<th colspan="7" style="text-align:center;">Central site store / Sub-county store data</th>
+						<th colspan="2" style="text-align:center;">Data from the Satellite sites plus Central site dispensing point(s)</th>
+						<th colspan="4" style="text-align:center;">Central site store / Sub-county store data</th>
+					</tr>
+					<tr>
+						<th class="col_drug" rowspan="3">Commodity Name</th>
+						<th class="number" rowspan="3">Unit of Issue /<br/>Pack Size</th>
 						<th class="number">Beginning Balance</th>
 						<th class="number">Total Quantity <br/>Received this month</th>
 						<th class="col_dispensed_units">Total Quantity Issued this month</th>
@@ -196,26 +206,11 @@
 						<th class="col_adjustments">Positive</br>Adjustments</th>
 						<th class="col_adjustments">Negative</br>Adjustments</th>				
 						<th class="number">End of Month Physical Count</th>
-						<th class="number">Reported Aggregated Quantity CONSUMED in the reporting period <font style="font-weight:lighter; color:blue;">(Satellite sites plus Central site dispensing point where relevant)</font></th>
-						<th class="number">Reported Aggregated Physical Stock on Hand at end of reporting period <font style="font-weight:lighter; color:blue;">(Satellite sites plus Central site dispensing point where relevant)</font></th>
-						<th class="number" colspan="2">Drugs with less than 6 months to expiry<font style="font-weight:lighter; color:blue;">(Central Site/District Store)</font></th>
-						<th class="number">Days out of stock this Month</th>
-						<th class="number">Quantity required for RESUPPLY</th>
-					</tr>
-					<tr>
-						<th>In Packs</th>
-						<th>In Packs</th>
-						<th class="col_dispensed_units">In Packs</th>
-						<th class="col_dispensed_units">In Packs</th>
-						<th>In Packs</th>
-						<th>In Packs</th>
-						<th>In Packs</th>
-						<th>In Packs</th>
-						<th>In Packs</th>
-						<th>Quantity</th>
-						<th>Expiry Date</th>
-						<th></th>
-						<th>In Packs</th>
+						<th class="number">AGGREGATED Quantity Dispensed this Month</th>
+						<th class="number">AGGREGATED End of Month Physical Stock Count this Month</th>
+						<th class="number" colspan="2">Commmodities expiring in <u>less than</u> 6 months</th>
+						<th class="number">Days out of stock <u>this Month</u></th>
+						<th class="number">Quantity requested for RE-SUPPLY</th>
 					</tr>
 					<tr>
 						<th>A</th>
@@ -227,8 +222,8 @@
 						<th>G</th>
 						<th>H</th>
 						<th>I</th>
-						<th>In Packs</th>
-						<th>mm-yy</th>
+						<th>Quantity</th>
+						<th>Earliest expiry<br/> date mm/yyyy</th>
 						<th>J</th>
 						<th>K</th>
 					</tr>
@@ -238,8 +233,8 @@
 	}else if($stand_alone==1){
 		$header_text = '<thead style="text-align:left;background:#c3d9ff;">
 					<tr>
-						<th class="col_drug" rowspan="3">Drug Name</th>
-						<th class="number" rowspan="3">Unit Pack Size</th>
+						<th class="col_drug" rowspan="3">Commodity Name</th>
+						<th class="number" rowspan="3">Unit of Issue /<br/>Pack Size</th>
 						<th class="number">Beginning Balance</th>
 						<th class="number">Total Quantity <br/>Received this month</th>
 						<th class="col_dispensed_units" colspan="2">Total Quantity Dispensed <br/>this month</th>
