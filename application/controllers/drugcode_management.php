@@ -72,7 +72,7 @@ class Drugcode_management extends MY_Controller {
                                        ORDER BY name asc");
 
 		$data['edit_mappings'] = $query -> result_array();
-		$data['mappings'] = Sync_Drug::getActive();
+		$data['mappings'] = Sync_Drug::getOrderedActive();
         $data['instructions']=  Drug_instructions::getAllInstructions();
 		$this -> base_params($data);
 	}

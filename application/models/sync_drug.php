@@ -26,20 +26,21 @@ class Sync_Drug extends Doctrine_Record {
 
 	public function getActive() {
 		$drug_name = "CONCAT_WS('] ',CONCAT_WS(' [',name,abbreviation),CONCAT_WS(' ',strength,formulation)) as name";
-		$query = Doctrine_Query::create() -> select("id,packsize,$drug_name") -> from("sync_drug") -> where("Active = '1' and (category_id='1' or category_id='2' or category_id='3' or category_id='4')") -> orderBy("name asc");
+		$query = Doctrine_Query::create() -> select("id,packsize,$drug_name") -> from("sync_drug") -> where("Active = '1' and (category_id='1' or category_id='2' or category_id='3' or category_id='4')") -> orderBy("category_id asc");
 		$sync_drug = $query -> execute(array(), Doctrine::HYDRATE_ARRAY);
 		return $sync_drug;
 	}
+
 	public function getMapActive() {		
 		$drug_name = "CONCAT_WS('] ',CONCAT_WS(' [',name,abbreviation),CONCAT_WS(' ',strength,formulation)) as name";
-		$query = Doctrine_Query::create() -> select("id,packsize,$drug_name") -> from("sync_drug") -> where("Active = '1' and (category_id='1' or category_id='2' or category_id='3' or category_id='4')") -> orderBy("name asc");
+		$query = Doctrine_Query::create() -> select("id,packsize,$drug_name") -> from("sync_drug") -> where("Active = '1' and (category_id='1' or category_id='2' or category_id='3' or category_id='4')") -> orderBy("category_id asc");
 		$sync_drug = $query -> execute(array(), Doctrine::HYDRATE_ARRAY);
 		return $sync_drug;
 	}
 
 	public function getActiveList() {
 		$drug_name = "CONCAT_WS('] ',CONCAT_WS(' [',name,abbreviation),CONCAT_WS(' ',strength,formulation)) as Drug,unit as Unit_Name,packsize as Pack_Size,category_id as Category";
-		$query = Doctrine_Query::create() -> select("id,$drug_name") -> from("sync_drug") -> where("Active = '1' and (category_id='1' or category_id='2' or category_id='3' or category_id='4')") -> orderBy("name asc");
+		$query = Doctrine_Query::create() -> select("id,$drug_name") -> from("sync_drug") -> where("Active = '1' and (category_id='1' or category_id='2' or category_id='3' or category_id='4')") -> orderBy("category_id asc");
 		$sync_drug = $query -> execute();
 		return $sync_drug;
 	}
@@ -48,6 +49,13 @@ class Sync_Drug extends Doctrine_Record {
 		$query = Doctrine_Query::create() -> select("packsize") -> from("sync_drug") -> where("id='$id'");
 		$sync_drug = $query -> execute(array(), Doctrine::HYDRATE_ARRAY);
 		return $sync_drug[0];
+	}
+
+	public function getOrderedActive() {
+		$drug_name = "CONCAT_WS('] ',CONCAT_WS(' [',name,abbreviation),CONCAT_WS(' ',strength,formulation)) as name";
+		$query = Doctrine_Query::create() -> select("id,packsize,$drug_name") -> from("sync_drug") -> where("Active = '1' and (category_id='1' or category_id='2' or category_id='3' or category_id='4')") -> orderBy("name asc");
+		$sync_drug = $query -> execute(array(), Doctrine::HYDRATE_ARRAY);
+		return $sync_drug;
 	}
 
 }

@@ -542,6 +542,15 @@ class Patient_Management extends MY_Controller {
         $result = $query -> result_array();
         $auto_id = $result[0]['id'];
 
+        //Add Prep Data
+        $prep_test_data = array(
+            'patient_id' => $auto_id,
+            'is_tested' => $this->input->post('prep_test_answer', TRUE),
+            'test_date' => $this->input->post('prep_test_date', TRUE),
+            'test_result' => $this->input->post('prep_test_result', TRUE),
+        );
+        $this->db->insert('patient_prep_test', $prep_test_data);
+
         $patient = $this -> input -> post('patient_number', TRUE);
         $direction = $this -> input -> post('direction', TRUE);
 
