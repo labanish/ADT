@@ -87,8 +87,9 @@ class Dispensement_Management extends MY_Controller {
 		$data['appointments'] = "";
 		$dispensing_date = date('Y-m-d');
 
-		$sql = "select ps.name as patient_source,p.patient_number_ccc,FLOOR(DATEDIFF(CURDATE(),p.dob)/365) as age from patient p 
+		$sql = "select ps.name as patient_source,p.patient_number_ccc,FLOOR(DATEDIFF(CURDATE(),p.dob)/365) as age, LOWER(rst.name) as service_name from patient p 
 				LEFT JOIN patient_source ps ON ps.id = p.source
+				LEFT JOIN regimen_service_type rst ON rst.id = p.service
 				where p.id='$record_no' and facility_code='$facility_code'
 				";
 		$query = $this -> db -> query($sql);
@@ -98,6 +99,7 @@ class Dispensement_Management extends MY_Controller {
 		if ($results) {
 			$patient_no = $results[0]['patient_number_ccc'];
 			$age=@$results[0]['age'];
+			$service_name = $results[0]['service_name'];
 			$data['results'] = $results;
 		}
 
@@ -107,35 +109,54 @@ class Dispensement_Management extends MY_Controller {
 		$results1 = $query -> row_array();
 		$dated='';
 		$results=array();
-	if($results1){
-		$dated=$results1['dispensing_date'];
-		
-
-		$sql = "SELECT d.id as drug_id,d.drug,d.dose,d.duration, pv.quantity,pv.dispensing_date,pv.pill_count,r.id as regimen_id,r.regimen_desc,r.regimen_code,pv.months_of_stock as mos,ds.value,ds.frequency
-					FROM patient_visit pv
-					LEFT JOIN drugcode d ON d.id = pv.drug_id
-					LEFT JOIN dose ds ON ds.Name=d.dose
-					LEFT JOIN regimen r ON r.id = pv.regimen
-					WHERE pv.patient_id =  '$patient_no'
-					AND pv.active=1
-					AND pv.dispensing_date = '$dated'
-				ORDER BY dispensing_date DESC";	
-		$query = $this -> db -> query($sql);
-		$results = $query -> result_array();
-	}
+		if($results1){
+			$dated=$results1['dispensing_date'];
+			$sql = "SELECT d.id as drug_id,d.drug,d.dose,d.duration, pv.quantity,pv.dispensing_date,pv.pill_count,r.id as regimen_id,r.regimen_desc,r.regimen_code,pv.months_of_stock as mos,ds.value,ds.frequency
+						FROM patient_visit pv
+						LEFT JOIN drugcode d ON d.id = pv.drug_id
+						LEFT JOIN dose ds ON ds.Name=d.dose
+						LEFT JOIN regimen r ON r.id = pv.regimen
+						WHERE pv.patient_id =  '$patient_no'
+						AND pv.active=1
+						AND pv.dispensing_date = '$dated'
+					ORDER BY dispensing_date DESC";	
+			$query = $this -> db -> query($sql);
+			$results = $query -> result_array();
+		}
 		$data = array();
 		$data['non_adherence_reasons'] = Non_Adherence_Reasons::getAllHydrated();
 		$data['regimen_changes'] = Regimen_Change_Purpose::getAllHydrated();
 		$data['purposes'] = Visit_Purpose::getAll();
 		$data['dated'] = $dated;
 		$data['patient_id'] = $record_no; 
+		$data['service_name'] = $service_name;
 		$data['purposes'] = Visit_Purpose::getAll();
 		$data['patient_appointment']=$results;
 		$data['hide_side_menu'] = 1;
 		$data['content_view'] = "patients/dispense_v";
 		$this -> base_params($data);
                 
-        
+	}
+
+	public function update_prep_test($patient_id, $is_tested, $test_date, $test_result){
+		$message = '';
+		$test_data = array(
+            'patient_id' => $patient_id,
+            'is_tested' => $is_tested,
+            'test_date' => $test_date,
+            'test_result' => $test_result
+        );
+		$prev_test_data = $this->db->get_where('patient_prep_test', $test_data)->row_array();
+        if(empty($prev_test_data)){
+            $this->db->insert('patient_prep_test', $test_data);
+            $message .= 'Test Result Updated Successfully!<br/>';
+        }else{
+        	$message .= 'Test Result Already Exist!<br/>';
+        }
+    	if($test_result == TRUE){
+        	$message .= 'Switch Patient from PREP to ART service!<br/>';
+        }
+        echo $message;
 	}
 	
 	public function get_other_dispensing_details(){

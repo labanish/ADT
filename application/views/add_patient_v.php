@@ -210,9 +210,7 @@
 					$("#servicestartedcontent").hide();
 				}
 				else if(service_line_text == "prep"){
-					$("#service_started").val("");
 					$("#prep_test_question").show();
-					$("#servicestartedcontent").hide();
 					$("#pep_reason_listing").hide();
 					$("#pep_reason").val(0);
 					$("#who_listing").hide();
@@ -256,10 +254,10 @@
 		   });
 
 		   	$("#prep_test_date").datepicker({
-					maxDate : "0D",
-					dateFormat : $.datepicker.ATOM,
-					changeMonth : true,
-					changeYear : true
+				maxDate : "0D",
+				dateFormat : $.datepicker.ATOM,
+				changeMonth : true,
+				changeYear : true
 			});
 
 			$("#prep_test_date").change(function(){

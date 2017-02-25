@@ -381,18 +381,35 @@ class Patient_Management extends MY_Controller {
         $this -> base_params($data);
     }
 
+    public function getFacililtyAge(){
+        $facility_code = $this -> session -> userdata('facility');
+        $get_adult_age_sql = $this -> db -> query("SELECT adult_age FROM facilities where facilitycode='$facility_code'");
+        $get_adult_age_array = $get_adult_age_sql -> row_array();
+
+        return $get_adult_age_array['adult_age'];
+    }
+
     public function edit($record_no) {
         $sql = "SELECT p.*,
 		               rst.Name as service_name,
 		               dp.child,
-		               s.secondary_spouse 
+		               s.secondary_spouse,
+                       t.* 
 		               FROM patient p 
 		               LEFT JOIN regimen_service_type rst ON rst.id=p.service 
 		               LEFT JOIN dependants dp ON p.patient_number_ccc=dp.parent  
 		        	   LEFT JOIN spouses s ON p.patient_number_ccc=s.primary_spouse
-		               WHERE p.id='$record_no'
+                       LEFT JOIN (
+                            SELECT 
+                                patient_id, is_tested AS prep_test_answer, test_date AS prep_test_date, test_result AS prep_test_result 
+                            FROM patient_prep_test 
+                            WHERE patient_id = ?
+                            ORDER BY test_date DESC
+                            LIMIT 1
+                        ) t ON t.patient_id = p.id
+		               WHERE p.id = ?
 		               GROUP BY p.id";
-        $query = $this -> db -> query($sql);
+        $query = $this -> db -> query($sql, array($record_no, $record_no));
         $results = $query -> result_array();
         if ($results) {
             $results[0]['other_illnesses'] = $this -> extract_illness($results[0]['other_illnesses']);
@@ -400,6 +417,7 @@ class Patient_Management extends MY_Controller {
         }
 
         $data['record_no'] = $record_no;
+        $data['facility_adult_age'] = $this->getFacililtyAge();
         $data['districts'] = District::getPOB();
         $data['genders'] = Gender::getAll();
         $data['statuses'] = Patient_Status::getStatus();
@@ -543,13 +561,17 @@ class Patient_Management extends MY_Controller {
         $auto_id = $result[0]['id'];
 
         //Add Prep Data
+        $is_tested = $this->input->post('prep_test_answer', TRUE);
         $prep_test_data = array(
             'patient_id' => $auto_id,
-            'is_tested' => $this->input->post('prep_test_answer', TRUE),
+            'is_tested' =>  $is_tested,
             'test_date' => $this->input->post('prep_test_date', TRUE),
             'test_result' => $this->input->post('prep_test_result', TRUE),
         );
-        $this->db->insert('patient_prep_test', $prep_test_data);
+        //Only 'Save' for those tested
+        if($is_tested){
+            $this->db->insert('patient_prep_test', $prep_test_data);
+        }
 
         $patient = $this -> input -> post('patient_number', TRUE);
         $direction = $this -> input -> post('direction', TRUE);
@@ -651,7 +673,7 @@ class Patient_Management extends MY_Controller {
         if (!$other_drugs) {
             $other_drugs = "";
         }
-        //echo $this -> input -> post('pregnant', TRUE);die();
+
         $data = array(
             'drug_prophylaxis' => $drug_prophylaxis,
             'isoniazid_start_date'=>$this->input->post('iso_start_date',TRUE),
@@ -720,12 +742,31 @@ class Patient_Management extends MY_Controller {
             $this->unmerge_parent($patient_no);
             $this->merge_parent($patient_no,$child_no);
         }
+        //Update/Insert Test Data
+        $is_tested = $this->input->post('prep_test_answer', TRUE);
+        $test_data = array(
+            'patient_id' => $record_id,
+            'is_tested' => $is_tested,
+            'test_date' => $this->input->post('prep_test_date', TRUE),
+            'test_result' => $this->input->post('prep_test_result', TRUE)
+        );
+
+        if($is_tested){
+            $this->updateTestData($test_data);
+        }
 
         //Set session for notications
         $this -> session -> set_userdata('msg_save_transaction', 'success');
         $this -> session -> set_userdata('user_updated', $this -> input -> post('first_name'));
-        //redirect("patient_management/viewDetails/$record_id");
+
         redirect("patient_management/load_view/details/$record_id");
+    }
+
+    public function updateTestData($test_data = array()){
+        $prev_test_data = $this->db->get_where('patient_prep_test', $test_data)->row_array();
+        if(empty($prev_test_data)){
+            $this->db->insert('patient_prep_test', $test_data);
+        }
     }
 
     public function update_visit() {
@@ -1632,10 +1673,34 @@ class Patient_Management extends MY_Controller {
             }
         }
 
-        echo json_encode($data,JSON_PRETTY_PRINT);
+        //Add Latest Test
+        $data = array_merge($data, $this->get_latest_test($id));
+
+        echo json_encode($data, JSON_PRETTY_PRINT);
     }
 
-        public function get_visits( $patient_id = NULL )
+    public function get_latest_test($patient_id = NULL)
+    {
+        $prep_test_data = array(
+            'prep_test_answer' => 0,
+            'prep_test_date' => '',
+            'prep_test_result' => 0
+        );
+
+        $sql = "SELECT 
+                    is_tested AS prep_test_answer, test_date AS prep_test_date, test_result AS prep_test_result 
+                FROM patient_prep_test 
+                WHERE patient_id = ? 
+                ORDER BY test_date DESC
+                LIMIT 1";
+        $result = $this->db->query($sql, array($patient_id))->row_array();
+        if(!empty($result)){
+            $prep_test_data = $result;
+        }
+        return $prep_test_data;
+    }
+
+    public function get_visits( $patient_id = NULL )
     {
         $facility_code = $this -> session -> userdata("facility");
 

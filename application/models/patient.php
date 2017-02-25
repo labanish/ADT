@@ -179,69 +179,68 @@ class Patient extends Doctrine_Record {
 	public function get_patient_details($id){
 		$query = Doctrine_Query::create() -> select("p.Patient_Number_CCC,CONCAT_WS(' ',first_name,last_name,other_name) as names,Height,Weight,FLOOR(DATEDIFF(CURDATE(),p.dob)/365) as Dob,Pregnant,Tb") -> from("Patient p") -> where( "p.id = $id");
 		$patients = $query -> execute(array(), Doctrine::HYDRATE_ARRAY);
-		return $patients[0];
+		return @$patients[0];
 	}
 
-// Started on ART
-public function start_on_ART(){
-		$sql=("SELECT DATE_FORMAT(p.start_regimen_date,'%M-%Y') as period ,
-		                 COUNT( p.patient_number_ccc) AS totalart 
-                         FROM patient p 
-                         LEFT JOIN regimen_service_type rst ON rst.id=p.service 
-                         LEFT JOIN regimen r ON r.id=p.start_regimen 
-                         LEFT JOIN patient_source ps ON ps.id = p.source
-                         WHERE rst.name LIKE '%art%' 
-                        AND ps.name NOT LIKE '%transfer%'
-                         AND p.start_regimen !=''
-                         AND p.start_regimen_date >= '2011-01-01'
-                        GROUP BY YEAR(p.start_regimen_date),MONTH(p.start_regimen_date)
-                        ORDER BY p.start_regimen_date DESC
-                        
-                       ");
-		 $query = $this -> db -> query($sql);
-		$patients = $query -> result_array();
-         foreach($patients as $patient)
-		{
-			$data[$patient['period']][]=array('art_patients'=>(int)$patient['totalart']);
+	// Started on ART
+	public function start_on_ART(){
+			$sql=("SELECT DATE_FORMAT(p.start_regimen_date,'%M-%Y') as period ,
+			                 COUNT( p.patient_number_ccc) AS totalart 
+	                         FROM patient p 
+	                         LEFT JOIN regimen_service_type rst ON rst.id=p.service 
+	                         LEFT JOIN regimen r ON r.id=p.start_regimen 
+	                         LEFT JOIN patient_source ps ON ps.id = p.source
+	                         WHERE rst.name LIKE '%art%' 
+	                        AND ps.name NOT LIKE '%transfer%'
+	                         AND p.start_regimen !=''
+	                         AND p.start_regimen_date >= '2011-01-01'
+	                        GROUP BY YEAR(p.start_regimen_date),MONTH(p.start_regimen_date)
+	                        ORDER BY p.start_regimen_date DESC
+	                        
+	                       ");
+			 $query = $this -> db -> query($sql);
+			$patients = $query -> result_array();
+	         foreach($patients as $patient)
+			{
+				$data[$patient['period']][]=array('art_patients'=>(int)$patient['totalart']);
 
-		}
+			}
 
-		return $data;
+			return $data;
 	}
-// Started on firstline regimen
-public function start_on_firstline(){
-		$sql=("SELECT DATE_FORMAT(p.start_regimen_date,'%M-%Y') as period ,
-			         COUNT( p.patient_number_ccc) AS First 
-                     FROM patient p 
-                     LEFT JOIN regimen_service_type rst ON rst.id=p.service 
-                     LEFT JOIN regimen r ON r.id = p.start_regimen 
-                     LEFT JOIN patient_source ps ON ps.id = p.source 
-                     WHERE r.line=1 
-                     AND rst.name LIKE '%art%' 
-                     AND ps.name NOT LIKE '%transfer%'
-                     AND p.start_regimen !=''
-                     AND p.start_regimen_date >= '2011-01-01'
-                     GROUP BY YEAR(p.start_regimen_date),MONTH(p.start_regimen_date)
-                     ORDER BY p.start_regimen_date DESC");
-		
-		$query = $this -> db -> query($sql);
-		$patients = $query -> result_array();
+
+	// Started on firstline regimen
+	public function start_on_firstline(){
+			$sql=("SELECT DATE_FORMAT(p.start_regimen_date,'%M-%Y') as period ,
+				         COUNT( p.patient_number_ccc) AS First 
+	                     FROM patient p 
+	                     LEFT JOIN regimen_service_type rst ON rst.id=p.service 
+	                     LEFT JOIN regimen r ON r.id = p.start_regimen 
+	                     LEFT JOIN patient_source ps ON ps.id = p.source 
+	                     WHERE r.line=1 
+	                     AND rst.name LIKE '%art%' 
+	                     AND ps.name NOT LIKE '%transfer%'
+	                     AND p.start_regimen !=''
+	                     AND p.start_regimen_date >= '2011-01-01'
+	                     GROUP BY YEAR(p.start_regimen_date),MONTH(p.start_regimen_date)
+	                     ORDER BY p.start_regimen_date DESC");
+			
+			$query = $this -> db -> query($sql);
+			$patients = $query -> result_array();
 
 
-		 foreach($patients as $patient)
-		{
-			$data[$patient['period']][]=array('firstline_patients'=>(int)$patient['First']);
+			 foreach($patients as $patient)
+			{
+				$data[$patient['period']][]=array('firstline_patients'=>(int)$patient['First']);
 
-		}
+			}
 
-		return $data;
-
+			return $data;
 	}
 
 	//Still in Firstline
 	public function still_in_firstline(){
-
-	$sql=("SELECT DATE_FORMAT(p.start_regimen_date,'%M-%Y') as period ,COUNT( * ) AS patients_still_firstline
+		$sql=("SELECT DATE_FORMAT(p.start_regimen_date,'%M-%Y') as period ,COUNT( * ) AS patients_still_firstline
                         FROM patient p
                         LEFT JOIN regimen_service_type rst ON rst.id=p.service
                         LEFT JOIN regimen r ON r.id=p.start_regimen
@@ -293,7 +292,6 @@ public function start_on_firstline(){
 		foreach ($total_from_period_array as $value) {
 			$total_from_period = $value['Total_Patients'];
 		}
-
 	}
 
 	public function get_lost_to_followup(){
@@ -321,13 +319,10 @@ public function start_on_firstline(){
 
 		}
 
-		return $data;
-		
-
+		return $data;	
 	}
 
 	public function adherence_reports(){
-
 		$ontime=0;
 		$missed=0;
 		$defaulter = 0;
@@ -370,14 +365,11 @@ public function start_on_firstline(){
 	                    ORDER BY pv.dispensing_date ASC
 	                    LIMIT 1");	
 	                    $query=$this-> db ->query($sql);
-	                    $results=$query -> result_array();	
-	            	
-	                                        }						
+	                    $results=$query -> result_array();	 	
+	        }						
 	       					            
-		                } return $appointment; 
-
-	                 						}
-
+		} 
+		return $appointment; 
+	}
 	
-
 }
