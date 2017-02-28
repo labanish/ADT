@@ -6,33 +6,34 @@ foreach($results as $result){
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-            <style>
-                @media screen{
-                    .button-bar{
-                        width: 10.7%;
-                    }
+        <style>
+            @media screen{
+                .button-bar{
+                    width: 10.7%;
                 }
-                    .btn_positioning{
-                    float:right; position:fixed; bottom:70px; right:40px;
-                    margin: 10px;
-                }
-                    .button_size{
-                    height:38px; font-size:1em; font-weight: bold;
-                }
-                .ui-multiselect-menu{
-					zoom:0.8;
-					display:none; 
-					padding:3px; 
-					z-index:10000; 
-				}
-				.column input[type=checkbox] {
-					width: 10%;
-				}
-                
-                
-            </style>
+            }
+                .btn_positioning{
+                float:right; position:fixed; bottom:70px; right:40px;
+                margin: 10px;
+            }
+                .button_size{
+                height:38px; font-size:1em; font-weight: bold;
+            }
+            .ui-multiselect-menu{
+				zoom:0.8;
+				display:none; 
+				padding:3px; 
+				z-index:10000; 
+			}
+			.column input[type=checkbox] {
+				width: 10%;
+			}
+            
+            
+        </style>
 		<script type="text/javascript">
 		$(document).ready(function(){
+			var facilityAdultAge = parseInt(<?php echo $facility_adult_age;?>)
 			$("#drug_prophylaxis").trigger("multiselectclick");
 			//Function to Check Patient Numner exists
 			var base_url="<?php echo base_url();?>";
@@ -115,11 +116,11 @@ foreach($results as $result){
 				//change start age
 				$('#start_age').val(getStartAge(dob,"<?php echo $result['date_enrolled'];?>"));
 				//if age in years is less than 15 years
-				if ($('#age').val()>=15){
+				if ($('#age').val()>=facilityAdultAge){
 					$('.plan_hidden').css("display","block");
 					$('.match_hidden').css("display","none");
 					$("#match_parent").val("<?php echo $result['child']; ?>");
-				}else if($('#age').val()<15){
+				}else if($('#age').val()<facilityAdultAge){
 					$('.match_hidden').css("display","block");
 					$("#match_parent").val("");
 				}
@@ -160,7 +161,7 @@ foreach($results as $result){
 			$('#age').val(getAge("<?php echo $result['dob'];?>"));
 			
 			current_age=getAge("<?php echo $result['dob'];?>");
-			if(current_age < 15 ){
+			if(current_age < facilityAdultAge ){
 			   //if patient is less than 15 years old hide all family planning data
                $(".plan_hidden").css("display","none");
 			}else{
@@ -390,6 +391,18 @@ foreach($results as $result){
 			}
 			$('#tested_tb').val("<?php echo $result['tb_test'];?>");
 			$('#pep_reason').val("<?php echo $result['pep_reason'];?>");
+
+			$('#prep_test_answer').val("<?php echo $result['prep_test_answer'];?>");
+			$('#prep_test_date').val("<?php echo $result['prep_test_date'];?>");
+			$('#prep_test_result').val("<?php echo $result['prep_test_result'];?>");
+			if($('#prep_test_answer').val() == 1){
+				$('#prep_test_question').show();
+				$('#prep_test_date_view').show();
+				$('#prep_test_result_view').show();
+			}
+
+
+
 			$('#smoke').val("<?php echo $result['smoke'];?>");
 			$('#alcohol').val("<?php echo $result['alcohol'];?>");	
 			
@@ -572,6 +585,10 @@ foreach($results as $result){
 				$("#pep_reason_listing").show();
 				$("#who_listing").hide();
 				$("#drug_prophylax").hide();
+			}else if(service_name==="PREP"){
+				$("#pep_reason_listing").hide();
+				$("#who_listing").hide();
+				$("#drug_prophylax").hide();
 			}
 			
 			$("#service").val("<?php echo $result['service'] ?>");
@@ -624,27 +641,21 @@ foreach($results as $result){
 		   	    var service_line = $(this).val();
                 var link=base_url+"regimen_management/getRegimenLine/"+service_line;
                 var selected_text=$("#service option[value='"+service_line+"']").text();
-                append_start_regimen=true;
-                regimen_text="#regimen,#current_regimen";
-                
+                regimen_text = "#current_regimen";
+	            append_start_regimen = false;
 
 			   	$("#drug_prophylax").show();
 			   	$("#current_regimen option").remove();
 			   	$("#servicestartedcontent").show();
-			   	$("#service_started").val("");
 			   	$("#pep_reason_listing").hide();
 		   		$("#pep_reason").val(0);
 		   	  	$("#who_listing").show();
-		   	  	$("#who_stage").val(0);  
+		   	  	$("#prep_test_question").hide();
+		   	 	$("#prep_test_date_view").hide();
+		   	 	$("#prep_test_result_view").hide();  
                 
                 if(selected_text=="ART" || selected_text=="PMTCT"){
-	                $("#servicestartedcontent").show();
-	                $("#service_started").val("<?php echo $result['start_regimen_date'] ?>");
-	                $("#regimen").val("<?php echo $result['start_regimen'] ?>");
-	                regimen_text="#current_regimen";
-	                append_start_regimen=false;
-
-                    if(selected_text=="PMTCT" && $("#age").val() < 2){
+                    if(selected_text == "PMTCT" && $("#age").val() < 2){
                         var link=base_url+"regimen_management/getRegimenLine/"+service_line+"/true";
 		   	  	    }
 
@@ -652,13 +663,25 @@ foreach($results as $result){
 	                    if((prev_service !="ART" && selected_text=="PMTCT") || (prev_service !="PMTCT" && selected_text=="ART")){
 				   	  	   	append_start_regimen=true;
 	                		regimen_text="#regimen,#current_regimen";
+	                		$("#service_started").val("");
 				   	   	}
 		   	  	    }
                 }else if(selected_text==="PEP"){
 			   	  	$("#pep_reason_listing").show();
 			   	  	$("#who_listing").hide();
+			   	  	$("#who_stage").val(0);
 			   	  	$("#drug_prophylax").hide();
-			   	}
+			   	  	$("#drug_prophylax").val(0);
+			   	  	$("#service_started").val("");
+			   	}else if(selected_text == "PREP"){
+					$("#prep_test_question").show();
+					$("#pep_reason_listing").hide();
+					$("#who_listing").hide();
+					$("#who_stage").val(0);
+					$("#drug_prophylax").hide();
+					$("#drug_prophylax").val(0);
+					$("#service_started").val("");
+				}
 		   	    
 				$.ajax({
 				    url: link,
@@ -675,6 +698,41 @@ foreach($results as $result){
 				    }
 				});
 				prev_service=selected_text;
+		   });
+
+		   $("#prep_test_answer").on('change', function(){
+		   		var prep_test_answer = $(this).val();
+
+		   		$("#prep_test_date_view").hide();
+		   		$("#prep_test_date").val('');
+		   		$("#prep_test_result_view").hide();
+		   		$("#prep_test_result").val(0);
+
+		   		if(prep_test_answer == 1){
+		   			$("#prep_test_date_view").show();
+		   		}
+		   });
+
+		   	$("#prep_test_date").datepicker({
+				maxDate : "0D",
+				dateFormat : $.datepicker.ATOM,
+				changeMonth : true,
+				changeYear : true
+			});
+
+			$("#prep_test_date").change(function(){
+				var prep_test_date = $(this).val();
+				$("#prep_test_result").val(0);
+				$("#prep_test_result_view").show();
+			});
+
+			$("#prep_test_result").on('change', function(){
+		   		var prep_test_result = $(this).val();
+		   		if(prep_test_result == 1){
+		   			 bootbox.alert("<h4>Incorrect Regimen</h4>\n\<hr/><center>Patient Should Be started on ART Service</center>");
+		   			$("#service option:contains(ART)").attr('selected', 'selected');
+		   			$("#service").trigger('change')
+		   		}
 		   });
 		   
 		   $("#next_appointment_date").datepicker({
@@ -1239,6 +1297,26 @@ foreach($results as $result){
 					?>	
 				</select> </label>
 				</select>
+			</div>
+			<div class="max-row" id="prep_test_question" style="display:none;">
+				<div class="max-row">
+					<label>Have you been Tested?</label>
+					<select name="prep_test_answer" id="prep_test_answer">
+						<option value="0">No</option>
+						<option value="1">Yes</option>
+					</select>
+				</div>
+				<div class="mid-row" id="prep_test_date_view" style="display:none">
+					<label>Test Date</label>
+					<input type="text" name="prep_test_date" id="prep_test_date">
+				</div>
+				<div class="mid-row" id="prep_test_result_view" style="display:none">
+					<label>Was the Test Positive?</label>
+					<select name="prep_test_result" id="prep_test_result">
+						<option value="0">No</option>
+						<option value="1">Yes</option>
+					</select>
+				</div>
 			</div>
 			<div class="max-row">
 				<label id="start_of_regimen"><span class='astericks'>*</span>Start Regimen </label>

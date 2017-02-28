@@ -203,6 +203,7 @@
 	                	var counter = 0; 
 	                	var total_regimen = data.non_mapped_regimen.length;
 	                	var total_sync = data.sync_regimen.length;
+	                	$("#tbl_bulk_mapping tbody").empty();//remove preloaded data
 	                	appendRows(counter,total_regimen,data.non_mapped_regimen);
 	                   
 	                },
@@ -654,15 +655,14 @@
 		var name = data[counter]['Regimen_Desc'];
 		var code = data[counter]['Regimen_Code'];
 		var id = data[counter]['id'];
-		if(counter<(total-1)){
+		if(counter < total){
 			var c = counter+1;
 			$("#tbl_bulk_mapping tbody").append("<tr id='"+id+"' map_id=''><td>"+c+"</td><td class='truncate'>"+code+" <b>|</b> "+name+"</td><td></td></tr>");
-	    	appendRows(c,total,data);
-		}else{
-			$("#edit_regimen_mapping")
-			  .clone ()
-			  .appendTo ("#tbl_bulk_mapping tbody > tr >td:last-child")
-			  .attr ("class", "sel_bulk_map");
+			if(c < total){
+	    		appendRows(c,total,data);
+			}else{
+				$("#edit_regimen_mapping").clone().appendTo("#tbl_bulk_mapping tbody > tr >td:last-child").attr("class", "sel_bulk_map");
+			}
 		}
 		
 	}

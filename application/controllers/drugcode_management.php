@@ -67,11 +67,12 @@ class Drugcode_management extends MY_Controller {
                                        WHERE s.id NOT IN(SELECT dc.map
                                                          FROM drugcode dc
                                                          WHERE dc.map !='0')
-                                       AND (s.category_id='1' or s.category_id='2' or s.category_id='3')
+                                       AND (s.category_id='1' or s.category_id='2' or s.category_id='3' or s.category_id='4')
+                                       AND s.active='1'
                                        ORDER BY name asc");
 
 		$data['edit_mappings'] = $query -> result_array();
-		$data['mappings'] = Sync_Drug::getActive();
+		$data['mappings'] = Sync_Drug::getOrderedActive();
         $data['instructions']=  Drug_instructions::getAllInstructions();
 		$this -> base_params($data);
 	}
@@ -295,7 +296,8 @@ class Drugcode_management extends MY_Controller {
                                        WHERE s.id NOT IN(SELECT dc.map
                                                          FROM drugcode dc
                                                          WHERE dc.map !='0')
-                                       AND (s.category_id='1' or s.category_id='2' or s.category_id='3')
+                                       AND (s.category_id='1' or s.category_id='2' or s.category_id='3' or s.category_id='4')
+                                       AND s.active = '1'
                                        ORDER BY name asc");
 		$data['sync_drugs'] = $query -> result_array();
 		if($param==1){

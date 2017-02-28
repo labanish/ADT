@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS `sync_facility` (
    PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8//
 ALTER TABLE `sync_facility` ADD `Active` varchar(2) NOT NULL DEFAULT '1'//
-INSERT INTO `sync_facility` (`id`, `name`, `code`, `category`, `sponsors`, `services`, `manager_id`, `district_id`, `address_id`, `parent_id`, `ordering`, `affiliation`, `service_point`, `county_id`, `hcsm_id`, `keph_level`, `location`, `affiliate_organization_id`) VALUES
+REPLACE INTO `sync_facility` (`id`, `name`, `code`, `category`, `sponsors`, `services`, `manager_id`, `district_id`, `address_id`, `parent_id`, `ordering`, `affiliation`, `service_point`, `county_id`, `hcsm_id`, `keph_level`, `location`, `affiliate_organization_id`) VALUES
 (2, 'Maseno Mission Hospital', '13781', 'standalone', 'PEPFAR', 'ART,PMTCT,PEP,LAB,RTK', 895, 29, 146, NULL, 1, 'mission', 0, 17, NULL, 'Level 1', 'North West Kisumu', 2),
 (3, 'Zombe (AIC) Dispensary', '12860', 'satellite', '', '', 828, 73, 579, 102, 0, 'mission', 0, 18, NULL, 'Not Classified', '', 0),
 (4, 'AIC  Githumu Hospital', '10267', 'satellite', '', '', 678, 58, 8, NULL, 0, 'mission', 0, 29, NULL, 'Not Classified', '', 0),

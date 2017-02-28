@@ -339,6 +339,7 @@
     </div>
     <!--end modal-->
 </div>
+<script src="<?php echo base_url().'assets/scripts/bootbox/v4/bootbox.min.js'; ?>"></script>
 
 <script type="text/javascript">
 var patient_iqcare=false;
@@ -346,6 +347,7 @@ var patient_iqcare=false;
         var loopcounter = 0;
         //iqcare flag
         var patient_id="<?php echo $patient_id; ?>";
+        var service = "<?php echo $service_name; ?>"
         var base_url="<?php echo base_url();?>";
         var link = base_url + "patient_management/get_viral_load_info/" + patient_id;
         var request_viral_load=$.ajax({
@@ -358,6 +360,9 @@ var patient_iqcare=false;
                    }
                 }
             });
+
+        //Check if 'PREP' patient has been tested
+        checkIfTested(service, patient_id)
         
         //Run after all are done
         $(document).ajaxStop(function(){ 
@@ -1514,6 +1519,58 @@ if(patient_iqcare==false){
                 bootbox.alert("<h4>Regimens Details Alert</h4>\n\<hr/>\n\<center>Could not retrieve regimens details : </center>" + textStatus);
             });
     }
+
+    function checkIfTested(service, patient_id){
+        if(service == 'prep'){
+            bootbox.prompt({
+                title: "HIV TEST (PREP) | Has the Patient Been Tested?",
+                inputType: 'select',
+                inputOptions: [
+                    {
+                        text: 'No',
+                        value: '0',
+                    },
+                    {
+                        text: 'Yes',
+                        value: '1',
+                    }
+                ],
+                callback: function (is_tested) {
+                    if(is_tested == true){
+                        bootbox.prompt({
+                            title: "HIV TEST (PREP) | When was the Test Done?",
+                            inputType: 'date',
+                            callback: function (test_date) {
+                                bootbox.prompt({
+                                    title: "HIV TEST (PREP) | What was the Test Positive?",
+                                    inputType: 'select',
+                                    inputOptions: [
+                                        {
+                                            text: 'No',
+                                            value: '0',
+                                        },
+                                        {
+                                            text: 'Yes',
+                                            value: '1',
+                                        }
+                                    ],
+                                    callback: function (test_result) {
+                                        var test_result_url = "<?php echo base_url(); ?>"+'dispensement_management/update_prep_test/'+patient_id+'/'+is_tested+'/'+test_date+'/'+test_result
+                                        $.get(test_result_url, function(msg){
+                                             bootbox.alert("<h4>HIV TEST (PREP)</h4>\n\<hr/><center>"+msg+"</center>")
+                                        });
+                                    }
+                                });
+                            }
+                        });
+                    }else{
+                        bootbox.alert("<h4>HIV TEST (PREP)</h4>\n\<hr/><center>Please ensure that the client is tested for the treatment to be effective</center>")
+                    }
+                }         
+            });
+        }
+    }
+
     function checkIfPregnant(pregnancy_status,patient_ccc){
         if(pregnancy_status=='1'){
             bootbox.confirm("<h4>Pregnancy confirmation</h4>\n\<hr/><center>Is patient still pregnant?</center>","No", "Yes",

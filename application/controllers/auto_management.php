@@ -18,19 +18,6 @@ class auto_management extends MY_Controller {
         // $this->ftp_url='41.89.6.210';
 	}
 
-// To clean the sync_regimen_category table incase of the duplicates
-	// public function delete_dulicates(){
-	// 	$sql = "SELECT count(id) as counts, id, new_id,Name from sync_regimen_category group by id,Name having counts>1";
-	// 	$result_raw = $this->db->query($sql)->result_array();
-	// 	foreach ($result_raw as $key => $value) {
-	// 		$new_id = $value['new_id'];
-	// 		$id = $value['id'];
-	// 		$name = $value['Name'];
-	// 		$sql_inner = "delete from sync_regimen_category where id='$id' and Name = '$name' and new_id !='$new_id'";
-	// 		$this->db->query($sql_inner);
-
-	// }
-	
 	public function index($manual=FALSE){
 		$message ="";
 		$today = (int)date('Ymd');
@@ -92,62 +79,40 @@ class auto_management extends MY_Controller {
 	    echo $message;
 	}
 	public function mirth_adt_db(){
-		/*$message="";
 		$this->load->dbforge();
-		if ($this->dbforge->create_database('mirth_adt_db'))
-		{
-			$query_stmt = file_get_contents('assets/adt_iqcare/');
-			print_r($query_stmt);
-			die();
-			//Execute query statements
-			$statements = explode("//", $query_stmt);
-			foreach($statements as $statement){
-				$statement = trim($statement);
-				if ($statement){
-
-					$mirth_db=$this->load->database('mirth_db',TRUE);
-					$mirth_db->query($statement);
-					$message="ADT IQCARE sncy database created successfully";	
-				}
-			}
-
-		}
-		return $message;*/
-		$this->load->dbforge();
-		if ($this->dbforge->create_database('mirth_adt_db'))
-		{
-		$count = 0;
-		$delimeter = "//";
-		$queries_dir  = 'assets/adt_iqcare/';
-		$accepted_files = array('sql');
-		if (is_dir($queries_dir)) {
-			$files = scandir($queries_dir);
-			foreach ($files as $file_name) {
-				$ext = pathinfo($file_name, PATHINFO_EXTENSION);
-				if ($file_name != '.' && $file_name != '..' && in_array($ext, $accepted_files)) {
-					//Get query statements
-					$query_file = $queries_dir . '/' . $file_name;
-					$query_stmt = file_get_contents($query_file);
-					//Execute query statements
-					$statements = explode($delimeter, $query_stmt);
-					foreach($statements as $statement){
-						$statement = trim($statement);
-						if ($statement){
-							$mirth_db=$this->load->database('mirth_db',TRUE);
-							if (!$mirth_db->simple_query($statement))
-							{
-								$error = $file_name.'==>'.$mirth_db->_error_message().'<br/>';
+		if ($this->dbforge->create_database('mirth_adt_db')){
+			$count = 0;
+			$delimeter = "//";
+			$queries_dir  = 'assets/adt_iqcare/';
+			$accepted_files = array('sql');
+			if (is_dir($queries_dir)) {
+				$files = scandir($queries_dir);
+				foreach ($files as $file_name) {
+					$ext = pathinfo($file_name, PATHINFO_EXTENSION);
+					if ($file_name != '.' && $file_name != '..' && in_array($ext, $accepted_files)) {
+						//Get query statements
+						$query_file = $queries_dir . '/' . $file_name;
+						$query_stmt = file_get_contents($query_file);
+						//Execute query statements
+						$statements = explode($delimeter, $query_stmt);
+						foreach($statements as $statement){
+							$statement = trim($statement);
+							if ($statement){
+								$mirth_db=$this->load->database('mirth_db',TRUE);
+								if (!$mirth_db->simple_query($statement))
+								{
+									$error = $file_name.'==>'.$mirth_db->_error_message().'<br/>';
+								}
 							}
 						}
+						$count++;
 					}
-					$count++;
 				}
+			
 			}
-		
 		}
-       
 	}
-}
+
 	public function updateDrugId() {
 		//function to update drug_id column in drug_stock_movement table where drug_id column is zero
 		//Get batches for drugs which are associateed with those drugs
@@ -469,11 +434,13 @@ class auto_management extends MY_Controller {
 	public function updatePatientData() {
 		$days_to_lost_followup=$this -> session -> userdata('lost_to_follow_up');//Default lost to follow up
 		$days_to_pep_end = 30;
+		$days_to_prep_inactive = 1; //They should not be late for their appointments
 		$days_in_year = date("z", mktime(0, 0, 0, 12, 31, date('Y'))) + 1;
 		$adult_age = 12;
 		$active = 'active';
 		$lost = 'lost';
 		$pep = 'pep';
+		$prep = 'prep';
 		$pmtct = 'pmtct';
 		$two_year_days = $days_in_year * 2;
 		$adult_days = $days_in_year * $adult_age;
@@ -508,9 +475,12 @@ class auto_management extends MY_Controller {
 				$sql['Change Active to Lost_to_follow_up'] = "(SELECT patient_number_ccc,nextappointment,DATEDIFF(CURDATE(),nextappointment) as days
 					   FROM patient p
 					   LEFT JOIN patient_status ps ON ps.id=p.current_status
+					   LEFT JOIN regimen_service_type rst ON rst.id = p.service
 					   WHERE ps.Name LIKE '%$active%'
-					   AND (DATEDIFF(CURDATE(),nextappointment )) >=$days_to_lost_followup
-					   AND p.status_change_date != CURDATE()) as p1
+					   AND (DATEDIFF(CURDATE(),nextappointment )) >= $days_to_lost_followup
+					   AND p.status_change_date != CURDATE()
+					   AND rst.name NOT LIKE '%$pep%'
+					   AND rst.name NOT LIKE '%$prep%') as p1
 					   SET p.current_status = '$state[$lost]', p.status_change_date = CURDATE()";
 			}
 			
@@ -519,8 +489,11 @@ class auto_management extends MY_Controller {
 				$sql['Change Lost_to_follow_up to Active'] = "(SELECT patient_number_ccc,nextappointment,DATEDIFF(CURDATE(),nextappointment) as days
 					   FROM patient p
 					   LEFT JOIN patient_status ps ON ps.id=p.current_status
+					   LEFT JOIN regimen_service_type rst ON rst.id = p.service
 					   WHERE ps.Name LIKE '%$lost%'
-					   AND (DATEDIFF(CURDATE(),nextappointment )) <$days_to_lost_followup) as p1
+					   AND (DATEDIFF(CURDATE(),nextappointment )) < $days_to_lost_followup
+					   AND rst.name NOT LIKE '%$pep%'
+					   AND rst.name NOT LIKE '%$prep%') as p1
 					   SET p.current_status = '$state[$active]', p.status_change_date = CURDATE()";
 			}
 			
@@ -573,12 +546,33 @@ class auto_management extends MY_Controller {
 					   AND ps.Name LIKE '%$pmtct%') as p1
 					   SET p.current_status = '$state[$active]', p.status_change_date = CURDATE()";
 			}
+
+			/*Change PREP Active to Lost To Follow Up*/
+			$sql['Change PREP Active to Lost to FollowUp'] = "(SELECT patient_number_ccc,nextappointment,DATEDIFF(CURDATE(),nextappointment) as days
+				   FROM patient p
+				   LEFT JOIN patient_status ps ON ps.id=p.current_status
+				   LEFT JOIN regimen_service_type rst ON rst.id = p.service
+				   WHERE ps.Name LIKE '%$active%'
+				   AND rst.name LIKE '%$prep%'
+				   AND (DATEDIFF(CURDATE(), nextappointment)) >= $days_to_prep_inactive) as p1
+				   SET p.current_status = '$state[$lost]', p.status_change_date = CURDATE()";
+
+			/*Change PREP Lost To Follow Up to Active*/
+			$sql['Change PREP Lost to FollowUp to Active'] = "(SELECT patient_number_ccc,nextappointment,DATEDIFF(CURDATE(),nextappointment) as days
+				   FROM patient p
+				   LEFT JOIN patient_status ps ON ps.id=p.current_status
+				   LEFT JOIN regimen_service_type rst ON rst.id = p.service
+				   WHERE ps.Name LIKE '%$lost%'
+				   AND rst.name LIKE '%$prep%'
+				   AND (DATEDIFF(CURDATE(), nextappointment)) < $days_to_prep_inactive) as p1
+				   SET p.current_status = '$state[$active]', p.status_change_date = CURDATE()";
 			
 			foreach ($sql as $i => $q) {
 				$stmt1 = "UPDATE patient p,";
 				$stmt2 = " WHERE p.patient_number_ccc=p1.patient_number_ccc;";
 				$stmt1 .= $q;
 				$stmt1 .= $stmt2;
+
 				$q = $this -> db -> query($stmt1);
 				if ($this -> db -> affected_rows() > 0) {
 					$message .= $i . "(<b>" . $this -> db -> affected_rows() . "</b>) rows affected<br/>";

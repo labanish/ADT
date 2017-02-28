@@ -123,36 +123,20 @@
 
 			});
 	
-			//Function to check if female is pregnant --not working---(vicky)
-		/*	$("#gender").change(function() {
-					var selected_value = $(this).attr("value");
-                                        
-					//if female, display the prengancy selector
-					if(selected_value == 2 && $('age_in_years').val()>=14) {
-						//If female show pregnant container
-						$('#pregnant_view').slideDown('slow', function() {
+            //if female is pregnant put them on pmtct service 
+			$("#pregnant").change(function(){
+                var selected_value=$(this).attr("value");
+                if(selected_value==1){
+                	$("#service > option").each(function() {
+						if(this.text==="PMTCT"){
+							$(this).attr("selected","selected");    
+						}
+                   });     
+                }else {
+                   	$("#service").removeAttr("value");
+                }
+            });
 
-						});
-					} else {
-						//If male do not show pregnant container
-						$('#pregnant_view').slideUp('slow', function() {
-
-						});
-					}
-			});*/
-                        //if female is pregnant put them on pmtct service 
-			 $("#pregnant").change(function(){
-                            var selected_value=$(this).attr("value");
-                            if(selected_value==1){
-                              $("#service > option").each(function() {
-                              if(this.text==="PMTCT"){
-                                  $(this).attr("selected","selected");    
-                              }
-                               });     
-                            }else {
-                                 $("#service").removeAttr("value");
-                              }
-                        });
 			$(".match_spouse").css("display","none");
             $('#partner_status').change(function(){
 				var selected_value= $(this).val();
@@ -187,43 +171,61 @@
 			$("#service_started").datepicker('setDate', new Date());
 			
 			//Function to display transfer from list if patient source is(transfer in)
-				$("#source").change(function() {
-					var selected_value = $(this).val();
-					if(selected_value == 3) {
-						$("#patient_source_listing").show();
-					} else {
-						$("#patient_source_listing").hide();
-						$("#transfer_source").attr("value",'');
-					}
-				});
+			$("#source").change(function() {
+				var selected_value = $(this).val();
+				if(selected_value == 3) {
+					$("#patient_source_listing").show();
+				} else {
+					$("#patient_source_listing").hide();
+					$("#transfer_source").attr("value",'');
+				}
+			});
 			
 				
 		   //Function to display Regimens in this line
 		   $("#service").change(function() {
-		   	$("#drug_prophylax").css("display","block");
-		   	$("#regimen option").remove();
-		   	  var service_line = $(this).val();
-		   	  var link=base_url+"regimen_management/getRegimenLine/"+service_line;
-		   	  $("#service_started").val("<?php echo date('Y-m-d');?>");
-		   	  $("#servicestartedcontent").show();
-		   	  if($("#service option[value='"+service_line+"']").text()=="PEP"){
-		   	  	$("#pep_reason_listing").show();
-		   	  	$("#who_listing").hide();
-		   	  	$("#drug_prophylax").css("display","none");
-		   	  }else if($("#service option[value='"+service_line+"']").text()=="OI Only"){
-		   	  	$("#service_started").val("");
-                $("#pep_reason_listing").hide();
-		   	  	$("#servicestartedcontent").hide();
+		   		var service_line = $(this).val();
+		   	  	var service_line_text = $("#service option[value='"+service_line+"']").text().toLowerCase();
+		   	  	var link = base_url+"regimen_management/getRegimenLine/"+service_line;
 
-		   	  }else{
-		   	  	if($("#service option[value='"+service_line+"']").text()=="PMTCT" && $("#age_in_years").val() < 2){
-                    var link=base_url+"regimen_management/getRegimenLine/"+service_line+"/true";
+		   		$("#drug_prophylax").css("display","block");
+		   		$("#regimen option").remove();
+		   	  	$("#service_started").val("<?php echo date('Y-m-d');?>");
+		   	 	$("#servicestartedcontent").show();
+		   	 	$("#prep_test_answer").val(0)
+		   	 	$("#prep_test_question").hide();
+		   	 	$("#prep_test_date_view").hide();
+		   	 	$("#prep_test_date").val('');
+		   	 	$("#prep_test_result_view").hide();
+		   	 	$("#prep_test_result").val(0);
+
+				if(service_line_text == "pep"){
+					$("#pep_reason_listing").show();
+					$("#who_listing").hide();
+					$("#drug_prophylax").css("display","none");
+				}
+				else if(service_line_text == "oi only"){
+					$("#service_started").val("");
+					$("#pep_reason_listing").hide();
+					$("#servicestartedcontent").hide();
+				}
+				else if(service_line_text == "prep"){
+					$("#prep_test_question").show();
+					$("#pep_reason_listing").hide();
+					$("#pep_reason").val(0);
+					$("#who_listing").hide();
+					$("#who_stage").val(0);
+					$("#drug_prophylax").css("display","none");
+				}
+				else{
+			   	  	if(service_line_text == "pmtct" && $("#age_in_years").val() < 2){
+	                    var link = base_url+"regimen_management/getRegimenLine/"+service_line+"/true";
+					}
+					$("#pep_reason_listing").hide();
+					$("#pep_reason").val(0);
+					$("#who_listing").show();
+					$("#who_stage").val(0);
 		   	  	}
-		   	  	$("#pep_reason_listing").hide();
-		   	  	$("#pep_reason").val(0);
-		   	  	$("#who_listing").show();
-		   	  	$("#who_stage").val(0);
-		   	  }
 		   	  
 				$.ajax({
 				    url: link,
@@ -237,6 +239,42 @@
 				    }
 				});
 		   });
+
+		   $("#prep_test_answer").on('change', function(){
+		   		var prep_test_answer = $(this).val();
+
+		   		$("#prep_test_date_view").hide();
+		   		$("#prep_test_date").val('');
+		   		$("#prep_test_result_view").hide();
+		   		$("#prep_test_result").val(0);
+
+		   		if(prep_test_answer == 1){
+		   			$("#prep_test_date_view").show();
+		   		}
+		   });
+
+		   	$("#prep_test_date").datepicker({
+				maxDate : "0D",
+				dateFormat : $.datepicker.ATOM,
+				changeMonth : true,
+				changeYear : true
+			});
+
+			$("#prep_test_date").change(function(){
+				var prep_test_date = $(this).val();
+				$("#prep_test_result").val(0);
+				$("#prep_test_result_view").show();
+			});
+
+			$("#prep_test_result").on('change', function(){
+		   		var prep_test_result = $(this).val();
+		   		if(prep_test_result == 1){
+		   			 bootbox.alert("<h4>Incorrect Regimen</h4>\n\<hr/><center>Patient Should Be started on ART Service</center>");
+		   			$("#service option:contains(ART)").attr('selected', 'selected');
+		   			$("#service").trigger('change')
+		   		}
+		   });
+
 		   $("#tbcategory_view").hide();	
 		   //Function to display tb phases
 		   $(".tb").change(function() {
@@ -887,6 +925,28 @@
 							</select> </label>
 							</select>
 						</div>
+
+						<div class="max-row" id="prep_test_question" style="display:none;">
+							<div class="max-row">
+								<label>Have you been Tested?</label>
+								<select name="prep_test_answer" id="prep_test_answer">
+									<option value="0">No</option>
+									<option value="1">Yes</option>
+								</select>
+							</div>
+							<div class="mid-row" id="prep_test_date_view" style="display:none">
+								<label>Test Date</label>
+								<input type="text" name="prep_test_date" id="prep_test_date">
+							</div>
+							<div class="mid-row" id="prep_test_result_view" style="display:none">
+								<label>Was the Test Positive?</label>
+								<select name="prep_test_result" id="prep_test_result">
+									<option value="0">No</option>
+									<option value="1">Yes</option>
+								</select>
+							</div>
+						</div>
+
 						<div class="max-row">
 							<label id="start_of_regimen"><span class='astericks'>*</span>Start Regimen </label>
 							<select name="regimen" id="regimen" class="validate[required] start_regimen" >
@@ -923,16 +983,15 @@
 						</div>
 
                     <div class="max-row" id="isoniazid_view">
-				<div class="mid-row" id="isoniazid_start_date_view">
-				<label>Isoniazid Start Date</label>
-				<input type="text" name="iso_start_date" id="iso_start_date"  style="color:red"/>
-				</div>
-				<div class="mid-row" id="isoniazid_end_date_view">
-				<label> Isoniazid End Date</label>
-				<input  type="text"name="iso_end_date" id="iso_end_date" style="color:red">
-				</div>								
-			</div>
-
+						<div class="mid-row" id="isoniazid_start_date_view">
+							<label>Isoniazid Start Date</label>
+							<input type="text" name="iso_start_date" id="iso_start_date"  style="color:red"/>
+						</div>
+						<div class="mid-row" id="isoniazid_end_date_view">
+							<label> Isoniazid End Date</label>
+							<input  type="text"name="iso_end_date" id="iso_end_date" style="color:red">
+						</div>								
+					</div>
 
 					</fieldset>
 				</div>

@@ -1,4 +1,28 @@
-Version 3.1 31/01/2017
+Version 3.2.0 28/02/2017
+==============================================
+- Added: New Order Templates: Import Queries
+- Added: New Order Templates(v2)
+- Added: Disable Duplicate Order Drugs
+- Added: PREP functionality when Adding Patient
+- Added: Integrated Download and Import for Order Module(v2)
+- Added: Added patient_prep_test table schema
+- Added: Added PREP Functionality in Details and Edit Patient
+- Added: Added PREP questionaires during dispensing
+- Added: Added Active/Lost to followup auto status change queries
+- Added: Added Patient PREP Summary Report
+- Fixed: Stock Transaction Save button bug allowed duplicate saves
+- Fixed: Order New Template Queries
+- Fixed: Satellite and Standalone CDRR html templates
+- Fixed: Sync Active Drugs/Regimens/RegimenCategories
+- Fixed: Use of REPLACE instead of INSERT for sync schemas
+- Fixed: D-MAPS(v2) template missing expected and actual fields
+- Fixed: Bulk Mapping Regimens Bug(Showing only one regimen)
+
+Version 3.1.1 06/02/2017
+==============================================
+- Fixed: Lost to Followup Session Bug
+
+Version 3.1.0 31/01/2017
 ==============================================
 - Added: Add Viral Load data manually, maybe through settings
 - Added: Allow pharmacist to adjust lost to follow-up days like the adult_age so as not to go back to the code 

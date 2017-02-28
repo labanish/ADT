@@ -253,7 +253,8 @@ class Order extends MY_Controller {
 			        FROM cdrr_item ci
 			        LEFT JOIN sync_drug sd ON sd.id=ci.drug_id
 			        WHERE ci.cdrr_id='$cdrr_id'
-			        AND(sd.category_id='1' OR sd.category_id='2' OR sd.category_id='3')";
+			        AND(sd.category_id='1' OR sd.category_id='2' OR sd.category_id='3' OR sd.category_id='4')
+			        AND Active = '1'";
 					$query = $this -> db -> query($sql);
 					$data['commodities'] = $query -> result();
 				}
@@ -997,11 +998,13 @@ class Order extends MY_Controller {
 			//Load download template
 			$template = "";
 			if ($report_type == "D-CDRR") {
-				$template = "new_cdrr_aggregate.xlsx";
+				$template = "cdrr_aggregate.xlsx";
+			} else if($report_type == "F-CDRR_units"){
+				$template = "cdrr_satellite.xlsx";
 			}else{
-				$template = "new_cdrr_satellite_standalone.xlsx";
+				$template = "cdrr_standalone.xlsx";
 			}
-			$inputFileName = $_SERVER['DOCUMENT_ROOT'] . '/ADT/assets/' . $template;
+			$inputFileName = $_SERVER['DOCUMENT_ROOT'] . '/ADT/assets/templates/orders/v2/' . $template;
 			$inputFileType = PHPExcel_IOFactory::identify($inputFileName);
     		$objReader = PHPExcel_IOFactory::createReader($inputFileType);
 			$objPHPExcel = $objReader -> load($inputFileName);
@@ -1010,7 +1013,7 @@ class Order extends MY_Controller {
 			if (is_dir($dir)) {
 				$files = scandir($dir);
 				foreach ($files as $object) {
-					if ($object != "." && $object != "..") {
+					if (!in_array($object, array('.','..','.gitkeep'))) {
 						unlink($dir . "/" . $object);
 					}
 				}
@@ -1019,23 +1022,23 @@ class Order extends MY_Controller {
 			}
 
 			$objPHPExcel -> getActiveSheet() -> SetCellValue('C4', $cdrr_array[0]['name']);
-			$objPHPExcel -> getActiveSheet() -> SetCellValue('C5', $cdrr_array[0]['county_name']);
+			$objPHPExcel -> getActiveSheet() -> SetCellValue('C5', ucwords($cdrr_array[0]['county_name']));
 			$objPHPExcel -> getActiveSheet() -> SetCellValue('E7', date('d/m/Y', strtotime($cdrr_array[0]['period_begin'])));
 			
 			if ($report_type == "D-CDRR") {
 				$objPHPExcel -> getActiveSheet() -> SetCellValue('L4', $cdrr_array[0]['facilitycode']);
 				$objPHPExcel -> getActiveSheet() -> SetCellValue('L5', $cdrr_array[0]['district_name']); //Sub_county
 				$objPHPExcel -> getActiveSheet() -> SetCellValue('L7', date('d/m/Y', strtotime($cdrr_array[0]['period_end'])));
-				$objPHPExcel -> getActiveSheet() -> SetCellValue('B73', $cdrr_array[0]['comments']);
+				$objPHPExcel -> getActiveSheet() -> SetCellValue('B76', $cdrr_array[0]['comments']);
 				$drug_start = 16;
-				$drug_end = 69;
+				$drug_end = 72;
 			}else{
 				$objPHPExcel -> getActiveSheet() -> SetCellValue('K4', $cdrr_array[0]['facilitycode']);
 				$objPHPExcel -> getActiveSheet() -> SetCellValue('K5', $cdrr_array[0]['district_name']); //Sub_county
 				$objPHPExcel -> getActiveSheet() -> SetCellValue('K7', date('d/m/Y', strtotime($cdrr_array[0]['period_end'])));
-				$objPHPExcel -> getActiveSheet() -> SetCellValue('B72', $cdrr_array[0]['comments']);
+				$objPHPExcel -> getActiveSheet() -> SetCellValue('B75', $cdrr_array[0]['comments']);
 				$drug_start = 15;
-				$drug_end = 68;
+				$drug_end = 71;
 			}
 
 			
@@ -1075,21 +1078,21 @@ class Order extends MY_Controller {
 			} //End of for loop
 
 			if ($cdrr_array[0]['code'] == 'D-CDRR') {
-				$objPHPExcel -> getActiveSheet() -> SetCellValue('D79', $cdrr_array[0]['reports_expected']);
-				$objPHPExcel -> getActiveSheet() -> SetCellValue('L79', $cdrr_array[0]['reports_actual']);
+				$objPHPExcel -> getActiveSheet() -> SetCellValue('D83', $cdrr_array[0]['reports_expected']);
+				$objPHPExcel -> getActiveSheet() -> SetCellValue('L83', $cdrr_array[0]['reports_actual']);
 
 				$logs = Cdrr_Log::getLogs($cdrr_id);
 				foreach ($logs as $log) {
 					if ($log -> description == "prepared") {
-						$objPHPExcel -> getActiveSheet() -> SetCellValue('C91', $log -> user -> Name);
-						$objPHPExcel -> getActiveSheet() -> SetCellValue('C93', $log -> user -> Phone_Number);
-						$objPHPExcel -> getActiveSheet() -> SetCellValue('O91', $log -> user -> Access -> Level_Name);
-						$objPHPExcel -> getActiveSheet() -> SetCellValue('H93', $log -> created);
+						$objPHPExcel -> getActiveSheet() -> SetCellValue('C95', $log -> user -> Name);
+						$objPHPExcel -> getActiveSheet() -> SetCellValue('C97', $log -> user -> Phone_Number);
+						$objPHPExcel -> getActiveSheet() -> SetCellValue('O95', $log -> user -> Access -> Level_Name);
+						$objPHPExcel -> getActiveSheet() -> SetCellValue('H97', $log -> created);
 					} else if ($log -> description == "approved") {
-						$objPHPExcel -> getActiveSheet() -> SetCellValue('C96', $log -> s_user -> name);
-						$objPHPExcel -> getActiveSheet() -> SetCellValue('C99', $log -> user -> Phone_Number);
-						$objPHPExcel -> getActiveSheet() -> SetCellValue('O96', $log -> user -> Access -> Level_Name);
-						$objPHPExcel -> getActiveSheet() -> SetCellValue('H99', $log -> created);
+						$objPHPExcel -> getActiveSheet() -> SetCellValue('C100', $log -> s_user -> name);
+						$objPHPExcel -> getActiveSheet() -> SetCellValue('C103', $log -> user -> Phone_Number);
+						$objPHPExcel -> getActiveSheet() -> SetCellValue('O100', $log -> user -> Access -> Level_Name);
+						$objPHPExcel -> getActiveSheet() -> SetCellValue('H103', $log -> created);
 					}
 				}
 
@@ -1097,15 +1100,15 @@ class Order extends MY_Controller {
 				$logs = Cdrr_Log::getLogs($cdrr_id);
 				foreach ($logs as $log) {
 					if ($log -> description == "prepared") {
-						$objPHPExcel -> getActiveSheet() -> SetCellValue('C86', $log -> user -> Name);
-						$objPHPExcel -> getActiveSheet() -> SetCellValue('C88', $log -> user -> Phone_Number);
-						$objPHPExcel -> getActiveSheet() -> SetCellValue('M86', $log -> user -> Access -> Level_Name);
-						$objPHPExcel -> getActiveSheet() -> SetCellValue('H88', $log -> created);
+						$objPHPExcel -> getActiveSheet() -> SetCellValue('C89', $log -> user -> Name);
+						$objPHPExcel -> getActiveSheet() -> SetCellValue('C91', $log -> user -> Phone_Number);
+						$objPHPExcel -> getActiveSheet() -> SetCellValue('M89', $log -> user -> Access -> Level_Name);
+						$objPHPExcel -> getActiveSheet() -> SetCellValue('H91', $log -> created);
 					} else if ($log -> description == "approved") {
-						$objPHPExcel -> getActiveSheet() -> SetCellValue('C90', $log -> user -> Name);
-						$objPHPExcel -> getActiveSheet() -> SetCellValue('C93', $log -> user -> Phone_Number);
-						$objPHPExcel -> getActiveSheet() -> SetCellValue('M90', $log -> user -> Access -> Level_Name);
-						$objPHPExcel -> getActiveSheet() -> SetCellValue('H93', $log -> created);
+						$objPHPExcel -> getActiveSheet() -> SetCellValue('C93', $log -> user -> Name);
+						$objPHPExcel -> getActiveSheet() -> SetCellValue('C96', $log -> user -> Phone_Number);
+						$objPHPExcel -> getActiveSheet() -> SetCellValue('M93', $log -> user -> Access -> Level_Name);
+						$objPHPExcel -> getActiveSheet() -> SetCellValue('H96', $log -> created);
 					}
 				}
 
@@ -1148,11 +1151,11 @@ class Order extends MY_Controller {
 			//Load download template
 			$template = "";
 			if ($report_type == "D-MAPS") {
-				$template = "new_fmaps_aggregate.xlsx";
+				$template = "maps_aggregate.xlsx";
 			}else{
-				$template = "new_fmaps_satellite_standalone.xlsx";
+				$template = "maps_standalone.xlsx";
 			}
-			$inputFileName = $_SERVER['DOCUMENT_ROOT'] . '/ADT/assets/' . $template;
+			$inputFileName = $_SERVER['DOCUMENT_ROOT'] . '/ADT/assets/templates/orders/v2/' . $template;
 			$inputFileType = PHPExcel_IOFactory::identify($inputFileName);
     		$objReader = PHPExcel_IOFactory::createReader($inputFileType);
 			$objPHPExcel = $objReader -> load($inputFileName);
@@ -1161,7 +1164,7 @@ class Order extends MY_Controller {
 			if (is_dir($dir)) {
 				$files = scandir($dir);
 				foreach ($files as $object) {
-					if ($object != "." && $object != "..") {
+					if (!in_array($object, array('.','..','.gitkeep'))) {
 						unlink($dir . "/" . $object);
 					}
 				}
@@ -1171,7 +1174,7 @@ class Order extends MY_Controller {
 
 			//Top menu
 			$objPHPExcel -> getActiveSheet() -> SetCellValue('C4', $fmaps_array[0]['facility_name']);
-			$objPHPExcel -> getActiveSheet() -> SetCellValue('C5', $fmaps_array[0]['county_name']);
+			$objPHPExcel -> getActiveSheet() -> SetCellValue('C5', ucwords($fmaps_array[0]['county_name']));
 			$objPHPExcel -> getActiveSheet() -> SetCellValue('D7', date('d/m/Y', strtotime($fmaps_array[0]['period_begin'])));
 			$objPHPExcel -> getActiveSheet() -> SetCellValue('G4', $fmaps_array[0]['facilitycode']);
 			$objPHPExcel -> getActiveSheet() -> SetCellValue('G5', $fmaps_array[0]['district_name']);//Sub_county			
@@ -1181,8 +1184,8 @@ class Order extends MY_Controller {
 			$arr = $objPHPExcel -> getActiveSheet() -> toArray(null, true, true, true);
 
 			//First column
-			for ($i = 14; $i <= 66; $i++) {
-				if (!in_array($i, array(23,31,37,49,55,61))) {
+			for ($i = 14; $i <= 84; $i++) {
+				if (!in_array($i, array(28, 36, 49, 50, 66, 72))) {
 					$regimen_code = $arr[$i]['B'];
 					$regimen_desc = $arr[$i]['C'];
 					$key = $this -> getMappedRegimen($regimen_code, $regimen_desc);
@@ -1197,8 +1200,8 @@ class Order extends MY_Controller {
 			}
 
 			//Second column
-			for ($i = 14; $i <= 66; $i++) {
-				if (!in_array($i, array(25,32,33,39,43,44,45,46,51,54,61,62,63,64,65,66))) {
+			for ($i = 14; $i <= 56; $i++) {
+				if (!in_array($i, array(23, 29, 33, 34, 38, 42, 45, 46, 51, 54))) {
 					$regimen_code = $arr[$i]['F'];
 					$regimen_desc = $arr[$i]['G'];
 					$key = $this -> getMappedRegimen($regimen_code, $regimen_desc);
@@ -1215,33 +1218,33 @@ class Order extends MY_Controller {
 			//If order has changed status, check who prepared the order
 			$logs = Maps_Log::getMapLogs($fmaps_id);
 			if ($report_type == "D-MAPS") {
-				$objPHPExcel -> getActiveSheet() -> SetCellValue('D69', $fmaps_array[0]['reports_expected']);
-				$objPHPExcel -> getActiveSheet() -> SetCellValue('H69', $fmaps_array[0]['reports_actual']);
+				$objPHPExcel -> getActiveSheet() -> SetCellValue('D101', $fmaps_array[0]['reports_expected']);
+				$objPHPExcel -> getActiveSheet() -> SetCellValue('H101', $fmaps_array[0]['reports_actual']);
 				foreach ($logs as $log) {
 					if ($log -> description == "prepared") {
-						$objPHPExcel -> getActiveSheet() -> SetCellValue('C73', $log -> user -> Name);
-						$objPHPExcel -> getActiveSheet() -> SetCellValue('C76', $log -> created);
-						$objPHPExcel -> getActiveSheet() -> SetCellValue('C77', $log -> user -> Access -> Level_Name);
-						$objPHPExcel -> getActiveSheet() -> SetCellValue('C78', $log -> user -> Phone_Number);
+						$objPHPExcel -> getActiveSheet() -> SetCellValue('C87', $log -> user -> Name);
+						$objPHPExcel -> getActiveSheet() -> SetCellValue('C90', $log -> created);
+						$objPHPExcel -> getActiveSheet() -> SetCellValue('C91', $log -> user -> Access -> Level_Name);
+						$objPHPExcel -> getActiveSheet() -> SetCellValue('C92', $log -> user -> Phone_Number);
 					} else if ($log -> description == "approved") {
-						$objPHPExcel -> getActiveSheet() -> SetCellValue('G73', $log -> user -> Name);
-						$objPHPExcel -> getActiveSheet() -> SetCellValue('G76', $log -> created);
-						$objPHPExcel -> getActiveSheet() -> SetCellValue('G77', $log -> user -> Access -> Level_Name);
-						$objPHPExcel -> getActiveSheet() -> SetCellValue('G78', $log -> user -> Phone_Number);
+						$objPHPExcel -> getActiveSheet() -> SetCellValue('G74', $log -> user -> Name);
+						$objPHPExcel -> getActiveSheet() -> SetCellValue('G77', $log -> created);
+						$objPHPExcel -> getActiveSheet() -> SetCellValue('G78', $log -> user -> Access -> Level_Name);
+						$objPHPExcel -> getActiveSheet() -> SetCellValue('G79', $log -> user -> Phone_Number);
 					}
 				}
 			}else{
 				foreach ($logs as $log) {
 					if ($log -> description == "prepared") {
-						$objPHPExcel -> getActiveSheet() -> SetCellValue('C69', $log -> user -> Name);
-						$objPHPExcel -> getActiveSheet() -> SetCellValue('C72', $log -> created);
-						$objPHPExcel -> getActiveSheet() -> SetCellValue('C73', $log -> user -> Access -> Level_Name);
-						$objPHPExcel -> getActiveSheet() -> SetCellValue('C74', $log -> user -> Phone_Number);
+						$objPHPExcel -> getActiveSheet() -> SetCellValue('C87', $log -> user -> Name);
+						$objPHPExcel -> getActiveSheet() -> SetCellValue('C90', $log -> created);
+						$objPHPExcel -> getActiveSheet() -> SetCellValue('C91', $log -> user -> Access -> Level_Name);
+						$objPHPExcel -> getActiveSheet() -> SetCellValue('C92', $log -> user -> Phone_Number);
 					} else if ($log -> description == "approved") {
-						$objPHPExcel -> getActiveSheet() -> SetCellValue('G69', $log -> user -> Name);
-						$objPHPExcel -> getActiveSheet() -> SetCellValue('G72', $log -> created);
-						$objPHPExcel -> getActiveSheet() -> SetCellValue('G73', $log -> user -> Access -> Level_Name);
-						$objPHPExcel -> getActiveSheet() -> SetCellValue('G74', $log -> user -> Phone_Number);
+						$objPHPExcel -> getActiveSheet() -> SetCellValue('G74', $log -> user -> Name);
+						$objPHPExcel -> getActiveSheet() -> SetCellValue('G77', $log -> created);
+						$objPHPExcel -> getActiveSheet() -> SetCellValue('G78', $log -> user -> Access -> Level_Name);
+						$objPHPExcel -> getActiveSheet() -> SetCellValue('G79', $log -> user -> Phone_Number);
 					}
 				}
 			}
@@ -1277,13 +1280,14 @@ class Order extends MY_Controller {
 				$year = @$date_array[2];
 			}	
 
-			$day = $date_array[1];
-			$month = $date_array[0];
+			$day = $date_array[0];
+			$month = $date_array[1];
 
 			//Create and format date
 			$date = new DateTime();
 			$date->setDate($year, $month, $day);
 			$formatted_date = $date->format('Y-m-d');
+
 		}
 
 		return $formatted_date;
@@ -1292,11 +1296,11 @@ class Order extends MY_Controller {
 	public function checkFileType($type, $text) {
 
 		if ($type == "D-CDRR") {
-			$match = trim("CENTRAL SITE  / DISTRICT STORE CONSUMPTION DATA REPORT and REQUEST (D-CDRR) for ANTIRETROVIRAL and OPPORTUNISTIC INFECTION MEDICINES (MoH 730A)");
+			$match = trim("CENTRAL SITE  / SUB-COUNTY STORE CONSUMPTION DATA REPORT and REQUEST (CS-CDRR) for ANTIRETROVIRAL and OPPORTUNISTIC INFECTION MEDICINES");
 		} else if ($type == "D-MAPS") {
-			$match = trim("CENTRAL SITE  / DISTRICT STORE MONTHLY ARV PATIENT SUMMARY (D-MAPS) Report (MoH 729A)");
+			$match = trim("FACILITY MONTHLY ARV PATIENT SUMMARY (F-MAPS) Report (MoH 729B)");
 		} else if ($type == "F-CDRR_packs" || $type == "F-CDRR_units") {
-			$match = trim("FACILITY CONSUMPTION DATA REPORT and REQUEST (F-CDRR) for ANTIRETROVIRAL and OPPORTUNISTIC INFECTION MEDICINES (MoH 730B)");
+			$match = trim("FACILITY CONSUMPTION DATA REPORT and REQUEST (F-CDRR) for ANTIRETROVIRAL and OPPORTUNISTIC INFECTION MEDICINES");
 		} else if ($type == "F-MAPS") {
 			$match = trim("FACILITY MONTHLY ARV PATIENT SUMMARY (F-MAPS) Report (MoH 729B)");
 		}
@@ -1410,7 +1414,7 @@ class Order extends MY_Controller {
 						 		- Make sure that you have updated your settings
 						 		- Check that you have entered the correct facility code for the file being uploaded!";
 					} else {
-						$seventh_row = 72;
+						$seventh_row = 75;
 						$comments = trim($arr[$seventh_row]['B']);
 						$comments .= trim($arr[$seventh_row]['C']);
 						$comments .= trim($arr[$seventh_row]['D']);
@@ -1450,8 +1454,8 @@ class Order extends MY_Controller {
 						$cdrr_array = array();
 						$commodity_counter = 0;
 
-						for ($i = $sixth_row; $sixth_row, $i <= 68; $i++) {
-							if ($i != 35 || $i != 54) {
+						for ($i = $sixth_row; $sixth_row, $i <= 71; $i++) {
+							if (!in_array($i, array(35, 55, 68))) {
 								$drug_name = trim($arr[$i]['B']);
 								$pack_size = trim($arr[$i]['C']);
 								$commodity = $this -> getMappedDrug($drug_name, $pack_size);
@@ -1561,8 +1565,8 @@ class Order extends MY_Controller {
 						$other_regimens = "";
 
 						//First column
-						for ($i = $sixth_row; $sixth_row, $i <= 66; $i++) {
-							if (!in_array($i, array(23,31,37,49,55,61))) {
+						for ($i = $sixth_row; $sixth_row, $i <= 84; $i++) {
+							if (!in_array($i, array(28, 36, 49, 50, 66, 72))) {
 								//Ensure value is > 0
 								$total = $arr[$i]['D'];
 								if ($total > 0) {	
@@ -1581,8 +1585,8 @@ class Order extends MY_Controller {
 						}
 
 						//Second column
-						for ($i = $sixth_row; $sixth_row, $i <= 60; $i++) {
-							if (!in_array($i, array(25,32,33,39,43,44,45,46,51,54))) {
+						for ($i = $sixth_row; $sixth_row, $i <= 56; $i++) {
+							if (!in_array($i, array(23, 29, 33, 34, 38, 42, 45, 46, 51, 54))) {
 								//Ensure value is > 0
 								$total = $arr[$i]['H'];
 								if ($total > 0) {

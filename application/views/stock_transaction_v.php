@@ -669,7 +669,9 @@
 		
 		//Save transaction details
 		$("#btn_submit").click(function(){
-
+			var submit_btn = $(this)
+			//Disable button
+			submit_btn.attr("disabled","disabled");
 			//Timestamp
 			var time_stamp="<?php echo date('U');?>";
 			var all_drugs_supplied=1;
@@ -694,6 +696,8 @@
 				//alert(emailaddress);
 				if(emailaddress==""){
 					bootbox.alert("<h4>Email</h4>\n\<hr/><center>Please enter an email address</center>");
+					//Enable button
+					submit_btn.removeAttr("disabled")
 					return;
 				}
 			}
@@ -703,6 +707,8 @@
 				source_destination = $("#select_source").val();
 				if($("#select_source").val()==0){
 					bootbox.alert("<h4>Source</h4>\n\<hr/><center>Please select a source!</center>");
+					//Enable button
+					submit_btn.removeAttr("disabled")
 					return;
 				}
 			}
@@ -711,6 +717,8 @@
 				source_destination = $("#select_destination").val();
 				if($("#select_destination").val()==0){
 					bootbox.alert("<h4>Destination</h4>\n\<hr/><center>Please select a destination !</center>");
+					//Enable button
+					submit_btn.removeAttr("disabled")
 					return;
 				}
 			}
@@ -726,6 +734,8 @@
 			var last_row=$('#drugs_table tr');
 			if(last_row.find(".quantity").hasClass("stock_add_form_input_error")){//VAlidation
 				bootbox.alert("<h4>Quantity Alert</h4>\n\<hr/><center>There is a commodity that has a quantity greater than the quantity available!</center>");
+				//Enable button
+				submit_btn.removeAttr("disabled")
 				return;
 			}
 			
@@ -736,10 +746,14 @@
 				var quantity_entered=last_row.find(".quantity").val();
 				if(drug_selected==0 ){
 					bootbox.alert("<h4>Drug Alert</h4>\n\<hr/><center>You have not selected a drug!</center>");
+					//Enable button
+					submit_btn.removeAttr("disabled")
 					return;
 				}
 				else if(quantity_entered=="" || quantity_entered==0){
 					bootbox.alert("<h4>Quantity Alert</h4>\n\<hr/><center>You have not entered any quantity!</center>");
+					//Enable button
+					submit_btn.removeAttr("disabled")
 					return;
 				}
 				
@@ -764,6 +778,8 @@
 					if($(this).closest("tr").find(".batch").attr("value")=="" || $(this).closest("tr").find(".expiry ").attr("value")==""){
 						c=1;
 						bootbox.alert("<h4>Batch and Expiry Date Alert</h4>\n\<hr/><left>Please make sure you have entered a batch number and selected an expiry date for all drugs!</left>");
+						//Enable button
+						submit_btn.removeAttr("disabled")
 						return false;
 					}
 				}
@@ -772,12 +788,16 @@
 					if($(this).closest("tr").find(".batch").is(":visible") && $(this).closest("tr").find(".batch").attr("value")==0){
 						c=1;
 						bootbox.alert("<h4>Batch and Expiry Date Alert</h4>\n\<hr/><left>Please make sure you have entered a batch number and selected an expiry date for all drugs!</left>");
+						//Enable button
+						submit_btn.removeAttr("disabled")
 						return false;
 					}
 					else if($(this).closest("tr").find(".batch_select").is(":visible") && $(this).closest("tr").find(".batch_select").attr("value")==0){
 						c=1;
 						
 						bootbox.alert("<h4>Batch and Expiry Date Alert</h4>\n\<hr/><left>Please make sure you have entered a batch number and selected an expiry date for all drugs!</left>");
+						//Enable button
+						submit_btn.removeAttr("disabled")
 						return false;
 					}
 				}
@@ -788,6 +808,8 @@
 			});
 			//If no drugs were selected, exit
 			if(drugs_count == 0) {
+				//Enable button
+				submit_btn.removeAttr("disabled")
 				return;
 			}
 			//Retrieve all form input elements and their values
@@ -834,6 +856,8 @@
 				
 				//Check if batch number was entered or selected for all drugs
 				if(c==1){
+					//Enable button
+					submit_btn.removeAttr("disabled")
 					return false;
 				}
 				var _url="<?php echo base_url().'inventory_management/save'; ?>";
@@ -859,22 +883,20 @@
 			
 				if(reference_number.value == ''){
 					    bootbox.alert("<h4>Ref. / Order Number Required</h4>\n\<hr/><center>Please enter the reference_number! </center>" );
-					    $("#btn_submit").prop("disabled",false);
-					}
-				else{
-
-				//var emailaddress=dump["email_address"];
-				$("#btn_submit").prop("disabled",false);
-				var request=$.ajax({
-			     url: _url,
-			     type: 'post',
-			     data: {"emailaddress":emailaddress,"time_stamp":time_stamp,"cdrr_id":get_cdrr_id,"all_drug_supplied":all_drugs_supplied,"remaining_drugs":i,"quantity_choice":get_qty_choice,"quantity_out_choice":get_qty_out_choice,"source_name":selected_source,"destination_name":selected_destination,"source":get_source,"destination":get_destination,"source_destination":source_destination,"transaction_date":get_transaction_date,"reference_number":ref_number,"trans_type":trans_type,"trans_effect":trans_effect,"transaction_type":get_transaction_type,"drug_id":get_drug_id,"batch":get_batch,"expiry":get_expiry,"packs":get_packs,"quantity":get_qty,"available_qty":get_available_qty,"unit_cost":get_unit_cost,"amount":get_amount,"comment":get_comment,"optgroup":optgroup,"stock_type":get_stock_type,"stock_transaction":stock_transaction},
-			     dataType: "json",
-			     async: false,
-			    });
-			   
-			    request.always(function(data){
-			    	console.log(data);
+					    //$("#btn_submit").prop("disabled",false);
+					    //Enable button
+						submit_btn.removeAttr("disabled")
+				}else{
+					var request=$.ajax({
+				     url: _url,
+				     type: 'post',
+				     data: {"emailaddress":emailaddress,"time_stamp":time_stamp,"cdrr_id":get_cdrr_id,"all_drug_supplied":all_drugs_supplied,"remaining_drugs":i,"quantity_choice":get_qty_choice,"quantity_out_choice":get_qty_out_choice,"source_name":selected_source,"destination_name":selected_destination,"source":get_source,"destination":get_destination,"source_destination":source_destination,"transaction_date":get_transaction_date,"reference_number":ref_number,"trans_type":trans_type,"trans_effect":trans_effect,"transaction_type":get_transaction_type,"drug_id":get_drug_id,"batch":get_batch,"expiry":get_expiry,"packs":get_packs,"quantity":get_qty,"available_qty":get_available_qty,"unit_cost":get_unit_cost,"amount":get_amount,"comment":get_comment,"optgroup":optgroup,"stock_type":get_stock_type,"stock_transaction":stock_transaction},
+				     dataType: "json",
+				     async: false,
+				    });
+				   
+			    	request.always(function(data){
+			    	//console.log(data);
 			    	//return;
 			    	//$("#list_drugs_transacted").append(data);
 			    	remaining_drugs-=1;

@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS `sync_drug` (
 ALTER TABLE `sync_drug` ADD PRIMARY KEY (`id`)//
 ALTER TABLE `sync_drug` MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=245//
 ALTER TABLE `sync_drug` ADD `Active` varchar(2) NOT NULL DEFAULT '1'//
-INSERT INTO `sync_drug` (`id`, `name`, `abbreviation`, `strength`, `packsize`, `formulation`, `unit`, `note`, `weight`, `category_id`, `regimen_id`) VALUES
+REPLACE INTO `sync_drug` (`id`, `name`, `abbreviation`, `strength`, `packsize`, `formulation`, `unit`, `note`, `weight`, `category_id`, `regimen_id`) VALUES
 (1, 'Zidovudine/Lamivudine/Nevirapine', 'AZT/3TC/NVP', '300/150/200mg', 60, 'FDC Tabs', '', '', 0, 1, 0),
 (2, 'Zidovudine/Lamivudine', 'AZT/3TC', '300/150mg', 60, 'FDC Tabs', '', '', 0, 1, 0),
 (3, 'Tenofovir/Lamivudine/Efavirenz', 'TDF/3TC/EFV', '300/300/600mg', 30, 'FDC Tabs', '', '', 0, 1, 0),

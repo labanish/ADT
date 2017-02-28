@@ -173,6 +173,8 @@ if ($facility_object -> service_pep == "1") {
 							<input type="hidden" name="facility_id" value="<?php echo @$facility_id;?>" />
 							<input type="hidden" name="central_facility" value="<?php echo @$facility_object -> parent;?>" />
 							<input type="hidden" name="order_type" value="0"/>
+							<input type="hidden" name="sponsor" value="<?php echo @$supporter;?>" />
+							<input type="hidden" name="services" value="<?php echo @$type_of_service;?>" />
 							<th width="180px">Facility code:</th>
 							<td><span class="_green"><?php echo @$facility_object -> facilitycode;?></span></td>
 							<th width="160px">Facility Name:</th>
@@ -180,20 +182,22 @@ if ($facility_object -> service_pep == "1") {
 						</tr>
 						<tr>
 							<th>County:</th>
-							<td><span class="_green"><?php echo @$facility_object -> County -> county;?></span></td>
-							<th>District:</th>
+							<td><span class="_green"><?php echo ucwords(@$facility_object -> County -> county);?></span></td>
+							<th>Sub-County:</th>
 							<td><span class="_green"><?php echo @$facility_object -> Parent_District -> Name;?></span></td>
 						</tr>
+						<!--
 						<tr>
 							<th>Programme Sponsor:</th>
-							<td><span name="sponsors" id="fmap_sponsors" class="_green"><?php echo @$supporter;?></span>
-								<input type="hidden" name="sponsor" value="<?php echo @$supporter;?>" />
+							<td><span name="sponsors" id="fmap_sponsors" class="_green"><?php //echo @$supporter;?></span>
+								<input type="hidden" name="sponsor" value="<?php //echo @$supporter;?>" />
 							</td>
 							<th>Service provided:</th>
-							<td><span name="service" id="fmap_services" class="_green"><?php echo @$type_of_service;?></span>
-								<input type="hidden" name="services" value="<?php echo @$type_of_service;?>" />
+							<td><span name="service" id="fmap_services" class="_green"><?php //echo @$type_of_service;?></span>
+								<input type="hidden" name="services" value="<?php //echo @$type_of_service;?>" />
 							</td>
 						</tr>
+						-->
 						<tr>
 							<th>Reporting Period : </th>
 							<td colspan="1">

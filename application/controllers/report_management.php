@@ -39,7 +39,7 @@ class report_management extends MY_Controller {
 		if (is_dir($dir)) {
 			$files = scandir($dir);
 			foreach ($files as $object) {
-				if ($object != "." && $object != "..") {
+				if (!in_array($object, array('.','..','.gitkeep'))) {
 					unlink($dir . "/" . $object);
 				}
 			}
@@ -1854,6 +1854,109 @@ class report_management extends MY_Controller {
 	public function listing($data = "") {
 		$data['content_view'] = "report_v";
 		$this -> base_params($data);
+	}
+
+	public function get_prep_patients($period_start = "", $period_end=""){
+		$report_items = array(
+			"new_registration" => "SELECT 
+										COUNT(IF(LOWER(g.name) = 'male' AND (YEAR(CURDATE())-YEAR(dob)) >= 15 AND (YEAR(CURDATE())-YEAR(dob)) < 25 , 1, NULL)) as male_15,
+										COUNT(IF(LOWER(g.name) = 'male' AND (YEAR(CURDATE())-YEAR(dob)) >= 25  , 1, NULL)) as male_25,
+										COUNT(IF(LOWER(g.name) = 'female' AND (YEAR(CURDATE())-YEAR(dob)) >= 15 AND (YEAR(CURDATE())-YEAR(dob)) < 25 , 1, NULL)) as female_15,
+										COUNT(IF(LOWER(g.name) = 'female' AND (YEAR(CURDATE())-YEAR(dob)) >= 25  , 1, NULL)) as female_25
+									FROM patient p
+									LEFT JOIN gender g ON g.id = p.gender
+									WHERE date_enrolled BETWEEN  ? AND ?",
+			"enrollment_in_prep" => "SELECT 
+											COUNT(IF(LOWER(g.name) = 'male' AND (YEAR(CURDATE())-YEAR(dob)) >= 15 AND (YEAR(CURDATE())-YEAR(dob)) < 25 , 1, NULL)) as male_15,
+											COUNT(IF(LOWER(g.name) = 'male' AND (YEAR(CURDATE())-YEAR(dob)) >= 25  , 1, NULL)) as male_25,
+											COUNT(IF(LOWER(g.name) = 'female' AND (YEAR(CURDATE())-YEAR(dob)) >= 15 AND (YEAR(CURDATE())-YEAR(dob)) < 25 , 1, NULL)) as female_15,
+											COUNT(IF(LOWER(g.name) = 'female' AND (YEAR(CURDATE())-YEAR(dob)) >= 25  , 1, NULL)) as female_25
+										FROM patient p
+										LEFT JOIN gender g ON g.id = p.gender
+										LEFT JOIN regimen_service_type rst ON rst.id = p.service
+										WHERE date_enrolled BETWEEN  ? AND ?
+										AND rst.name LIKE '%prep%'",
+			"tested_positive" => "SELECT 
+											COUNT(IF(LOWER(g.name) = 'male' AND (YEAR(CURDATE())-YEAR(dob)) >= 15 AND (YEAR(CURDATE())-YEAR(dob)) < 25 , 1, NULL)) as male_15,
+											COUNT(IF(LOWER(g.name) = 'male' AND (YEAR(CURDATE())-YEAR(dob)) >= 25  , 1, NULL)) as male_25,
+											COUNT(IF(LOWER(g.name) = 'female' AND (YEAR(CURDATE())-YEAR(dob)) >= 15 AND (YEAR(CURDATE())-YEAR(dob)) < 25 , 1, NULL)) as female_15,
+											COUNT(IF(LOWER(g.name) = 'female' AND (YEAR(CURDATE())-YEAR(dob)) >= 25  , 1, NULL)) as female_25
+										FROM patient p
+										LEFT JOIN gender g ON g.id = p.gender
+										LEFT JOIN patient_prep_test pst ON pst.patient_id = p.id
+										WHERE pst.test_date BETWEEN  ? AND ?
+										AND pst.test_result = '1'",
+			"currently_on_prep" => "SELECT 
+											COUNT(IF(LOWER(g.name) = 'male' AND (YEAR(CURDATE())-YEAR(dob)) >= 15 AND (YEAR(CURDATE())-YEAR(dob)) < 25 , 1, NULL)) as male_15,
+											COUNT(IF(LOWER(g.name) = 'male' AND (YEAR(CURDATE())-YEAR(dob)) >= 25  , 1, NULL)) as male_25,
+											COUNT(IF(LOWER(g.name) = 'female' AND (YEAR(CURDATE())-YEAR(dob)) >= 15 AND (YEAR(CURDATE())-YEAR(dob)) < 25 , 1, NULL)) as female_15,
+											COUNT(IF(LOWER(g.name) = 'female' AND (YEAR(CURDATE())-YEAR(dob)) >= 25  , 1, NULL)) as female_25
+										FROM patient p
+										LEFT JOIN gender g ON g.id = p.gender
+										LEFT JOIN regimen_service_type rst ON rst.id = p.service
+										LEFT JOIN patient_status ps ON p.current_status = ps.id
+										WHERE p.date_enrolled <= ?
+										AND rst.name LIKE '%prep%'
+										AND ps.Name LIKE '%active%'",
+			"cumulative_ever_on_prep" => "SELECT 
+											COUNT(IF(LOWER(g.name) = 'male' AND (YEAR(CURDATE())-YEAR(dob)) >= 15 AND (YEAR(CURDATE())-YEAR(dob)) < 25 , 1, NULL)) as male_15,
+											COUNT(IF(LOWER(g.name) = 'male' AND (YEAR(CURDATE())-YEAR(dob)) >= 25  , 1, NULL)) as male_25,
+											COUNT(IF(LOWER(g.name) = 'female' AND (YEAR(CURDATE())-YEAR(dob)) >= 15 AND (YEAR(CURDATE())-YEAR(dob)) < 25 , 1, NULL)) as female_15,
+											COUNT(IF(LOWER(g.name) = 'female' AND (YEAR(CURDATE())-YEAR(dob)) >= 25  , 1, NULL)) as female_25
+										FROM patient p
+										LEFT JOIN gender g ON g.id = p.gender
+										LEFT JOIN regimen_service_type rst ON rst.id = p.service
+										WHERE p.date_enrolled <= ?
+										AND rst.name LIKE '%prep%'"
+		);
+
+
+		$dyn_table = "<table border='1' id='patient_listing'  cellpadding='5' class='dataTables'>";
+		$dyn_table .= "<thead>
+							<tr>
+								<th>Description</th>
+								<th>Total</th>
+								<th>Male</th>
+								<th></th>
+								<th>Female
+								<th></th>
+							</tr>
+							<tr>
+								<th></th>
+								<th></th>
+								<th>15 - 24</th>
+								<th>25 & Above</th>
+								<th>15 - 24</th>
+								<th>25 & Above</th>
+							</tr>
+						</thead>
+					<tbody>";
+
+		foreach ($report_items as $report => $sql) {
+			if(!in_array($report, array('currently_on_prep', 'cumulative_ever_on_prep'))){
+				$query = $this->db->query($sql, array($period_start, $period_end));
+			}else{
+				$query = $this->db->query($sql, array($period_end));
+			}
+			$result = $query->row_array();
+			$report = ucwords(str_ireplace("_", " ", $report));
+			$total = ($result['male_15'] + $result['male_25'] + $result['female_15'] + $result['female_25']);
+			$dyn_table .= "<tr><td>".$report ."</td><td>".$total."</td><td>".$result['male_15']."</td><td>".$result['male_25']."</td><td>".$result['female_15']."</td><td>".$result['female_25']."</td></tr>";
+		}
+		$dyn_table .= "</tbody><tfoot></tfoot></table>";
+
+		$data['dyn_table'] = $dyn_table;
+		$data['from'] = date('d-M-Y', strtotime($period_start));
+		$data['to'] = date('d-M-Y', strtotime($period_end));
+		$data['title'] = "webADT | Reports";
+		$data['hide_side_menu'] = 1;
+		$data['banner_text'] = "Facility Reports";
+		$data['selected_report_type_link'] = "standard_report_row";
+		$data['selected_report_type'] = "Standard Reports";
+		$data['report_title'] = "Patients PREP Summary";
+		$data['facility_name'] = $this -> session -> userdata('facility_name');
+		$data['content_view'] = 'reports/patient_prep_summary_v';
+		$this -> load -> view('template', $data);
 	}
 
 	public function patient_enrolled($from = "", $to = "", $supported_by = 0) {
@@ -7170,7 +7273,7 @@ class report_management extends MY_Controller {
 		if (is_dir($dir)) {
 			$files = scandir($dir);
 			foreach ($files as $object) {
-				if ($object != "." && $object != "..") {
+				if (!in_array($object, array('.','..','.gitkeep'))) {
 					unlink($dir . "/" . $object);
 				}
 			}
