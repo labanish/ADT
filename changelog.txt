@@ -16,6 +16,7 @@ Version 3.2.0 28/02/2017
 - Fixed: Sync Active Drugs/Regimens/RegimenCategories
 - Fixed: Use of REPLACE instead of INSERT for sync schemas
 - Fixed: D-MAPS(v2) template missing expected and actual fields
+- Fixed: Bulk Mapping Regimens Bug(Showing only one regimen)
 
 Version 3.1.1 06/02/2017
 ==============================================
