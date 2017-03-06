@@ -1,5 +1,6 @@
-Version 3.2.0 03/03/2017
+Version 3.2.0 06/03/2017
 ==============================================
+- Added: New User Manual(v3.2)
 - Added: New Order Templates: Import Queries
 - Added: New Order Templates(v2)
 - Added: Disable Duplicate Order Drugs
