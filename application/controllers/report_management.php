@@ -2300,7 +2300,88 @@ class report_management extends MY_Controller {
 
 	}
 
-	public function getScheduledPatients($from = "", $to = "") {
+
+	public function get_differentiated_care_appointments($from = "", $to = ""){
+		$start_date = date('Y-m-d', strtotime($from));
+		$end_date = date('Y-m-d', strtotime($to));
+		$overall_total = 0;
+
+		$sql = "SELECT 
+					tmp.appointment_description,
+					DATE_FORMAT(min(appointment), '%d-%b-%Y') from_date,
+					DATE_FORMAT(max(appointment), '%d-%b-%Y') to_date,
+					COUNT(*) as total
+				FROM
+				(SELECT 
+					pv.patient_id, 
+					pv.visit_date, 
+					pa.appointment, 
+					DATEDIFF(pa.appointment, pv.visit_date) appointment_days,
+					CASE 
+						WHEN DATEDIFF(pa.appointment, pv.visit_date) > 0 AND DATEDIFF(pa.appointment, pv.visit_date) < 31 THEN '1 Month(s)'
+						WHEN DATEDIFF(pa.appointment, pv.visit_date) > 30 AND DATEDIFF(pa.appointment, pv.visit_date) < 61 THEN '2 Month(s)'
+						WHEN DATEDIFF(pa.appointment, pv.visit_date) > 60 AND DATEDIFF(pa.appointment, pv.visit_date) < 91 THEN '3 Month(s)'
+						WHEN DATEDIFF(pa.appointment, pv.visit_date) > 90 AND DATEDIFF(pa.appointment, pv.visit_date) < 121 THEN '4 Month(s)'
+						WHEN DATEDIFF(pa.appointment, pv.visit_date) > 120 AND DATEDIFF(pa.appointment, pv.visit_date) < 151 THEN '5 Month(s)'
+						WHEN DATEDIFF(pa.appointment, pv.visit_date) > 150 AND DATEDIFF(pa.appointment, pv.visit_date) < 181 THEN '6 Month(s)'
+						WHEN DATEDIFF(pa.appointment, pv.visit_date) > 180 AND DATEDIFF(pa.appointment, pv.visit_date) < 211 THEN '7 Month(s)'
+						WHEN DATEDIFF(pa.appointment, pv.visit_date) > 210 AND DATEDIFF(pa.appointment, pv.visit_date) < 241 THEN '8 Month(s)'
+						WHEN DATEDIFF(pa.appointment, pv.visit_date) > 240 AND DATEDIFF(pa.appointment, pv.visit_date) < 271 THEN '9 Month(s)'
+						WHEN DATEDIFF(pa.appointment, pv.visit_date) > 270 AND DATEDIFF(pa.appointment, pv.visit_date) < 301 THEN '10 Month(s)'
+						WHEN DATEDIFF(pa.appointment, pv.visit_date) > 300 AND DATEDIFF(pa.appointment, pv.visit_date) < 331 THEN '11 Month(s)'
+						WHEN DATEDIFF(pa.appointment, pv.visit_date) > 330 AND DATEDIFF(pa.appointment, pv.visit_date) < 361 THEN '12 Month(s)'
+						WHEN DATEDIFF(pa.appointment, pv.visit_date) > 360 THEN 'Over 1 Year'
+						ELSE 'N/A'
+						END AS appointment_description
+				FROM patient_appointment pa 
+				INNER JOIN 
+				(SELECT patient_id, dispensing_date visit_date
+				FROM patient_visit
+				WHERE dispensing_date BETWEEN ? AND ?
+				GROUP BY patient_id, visit_date) pv ON pv.patient_id = pa.patient AND pa.appointment > visit_date
+				GROUP BY patient_id,visit_date
+				) tmp
+				GROUP BY tmp.appointment_description";
+
+		$query = $this -> db -> query($sql, array($start_date, $end_date));
+		$results = $query -> result_array();
+
+		$row_string = "<table border='1' class='dataTables'>
+							<thead >
+								<tr>
+									<th>Appointment Duration</th>
+									<th>Total</th>
+									<th>Action</th>
+								</tr>
+							</thead>
+							<tbody>";
+		foreach ($results as $result) {
+			$appointment_description = $result['appointment_description'];
+			$app_desc = str_ireplace(array(' ','(s)'), array('_',''), $appointment_description);
+			$total = $result['total'];
+			$overall_total += $total;
+			$action_link = anchor('report_management/getScheduledPatients/'.$result['from_date'].'/'.$result['to_date'].'/'.$from.'/'.$to.'/'.$app_desc, 'View Patients', array('target' => '_blank'));
+			$row_string .= "<tr><td>$appointment_description</td><td>$total</td><td>$action_link</td></tr>";
+		}
+		$row_string .= "</tbody></table>";
+
+		$data['from'] = date('d-M-Y', strtotime($from));
+		$data['to'] = date('d-M-Y', strtotime($to));
+		$data['dyn_table'] = $row_string;
+		$data['overall_total'] = $overall_total;
+		$data['title'] = "webADT | Reports";
+		$data['hide_side_menu'] = 1;
+		$data['banner_text'] = "Facility Reports";
+		$data['selected_report_type_link'] = "visiting_patient_report_row";
+		$data['selected_report_type'] = "Visiting Patients";
+		$data['report_title'] = "Appointment Allocation Analysis for Differentiated Care";
+		$data['facility_name'] = $this -> session -> userdata('facility_name');
+		$data['content_view'] = 'reports/differentiated_care_appointments_v';
+		$this -> load -> view('template', $data);
+
+	}
+
+	public function getScheduledPatients($from = "", $to = "", $filter_from = NULL, $filter_to = NULL, $appointment_description = NULL) {
 		//Variables
 		$visited = 0;
 		$not_visited = 0;
@@ -2314,8 +2395,53 @@ class report_management extends MY_Controller {
 		$from = date('Y-m-d', strtotime($from));
 		$to = date('Y-m-d', strtotime($to));
 
-		//Get all patients who have apppointments on the selected date range
-		$sql = "select patient,appointment from patient_appointment where appointment between '$from' and '$to' and facility='$facility_code' group by patient,appointment";
+		if($filter_from != NULL && $filter_to != NULL && $appointment_description != NULL){
+			$filter_from = date('Y-m-d', strtotime($filter_from));
+			$filter_to = date('Y-m-d', strtotime($filter_to));
+			$app_desc = str_ireplace('_', ' ', $appointment_description);
+			//Get all patients who have apppointments on the selected date range and visited in the filtered date range
+			$sql = "SELECT 
+						tmp.patient,
+						tmp.appointment
+					FROM(
+						SELECT 
+							pa.patient,
+							pa.appointment,
+							CASE 
+								WHEN DATEDIFF(pa.appointment, pv.visit_date) > 0 AND DATEDIFF(pa.appointment, pv.visit_date) < 31 THEN '1 Month'
+								WHEN DATEDIFF(pa.appointment, pv.visit_date) > 30 AND DATEDIFF(pa.appointment, pv.visit_date) < 61 THEN '2 Month'
+								WHEN DATEDIFF(pa.appointment, pv.visit_date) > 60 AND DATEDIFF(pa.appointment, pv.visit_date) < 91 THEN '3 Month'
+								WHEN DATEDIFF(pa.appointment, pv.visit_date) > 90 AND DATEDIFF(pa.appointment, pv.visit_date) < 121 THEN '4 Month'
+								WHEN DATEDIFF(pa.appointment, pv.visit_date) > 120 AND DATEDIFF(pa.appointment, pv.visit_date) < 151 THEN '5 Month'
+								WHEN DATEDIFF(pa.appointment, pv.visit_date) > 150 AND DATEDIFF(pa.appointment, pv.visit_date) < 181 THEN '6 Month'
+								WHEN DATEDIFF(pa.appointment, pv.visit_date) > 180 AND DATEDIFF(pa.appointment, pv.visit_date) < 211 THEN '7 Month'
+								WHEN DATEDIFF(pa.appointment, pv.visit_date) > 210 AND DATEDIFF(pa.appointment, pv.visit_date) < 241 THEN '8 Month'
+								WHEN DATEDIFF(pa.appointment, pv.visit_date) > 240 AND DATEDIFF(pa.appointment, pv.visit_date) < 271 THEN '9 Month'
+								WHEN DATEDIFF(pa.appointment, pv.visit_date) > 270 AND DATEDIFF(pa.appointment, pv.visit_date) < 301 THEN '10 Month'
+								WHEN DATEDIFF(pa.appointment, pv.visit_date) > 300 AND DATEDIFF(pa.appointment, pv.visit_date) < 331 THEN '11 Month'
+								WHEN DATEDIFF(pa.appointment, pv.visit_date) > 330 AND DATEDIFF(pa.appointment, pv.visit_date) < 361 THEN '12 Month'
+								WHEN DATEDIFF(pa.appointment, pv.visit_date) > 360 THEN 'Over 1 Year'
+								ELSE 'N/A'
+							END AS appointment_description
+						FROM patient_appointment pa 
+						INNER JOIN 
+						(SELECT 
+							patient_id, dispensing_date visit_date
+						FROM patient_visit
+						WHERE dispensing_date BETWEEN '$filter_from' AND '$filter_to'
+						GROUP BY patient_id, visit_date) pv ON pv.patient_id = pa.patient AND pa.appointment > visit_date
+						GROUP BY patient_id,visit_date
+					) tmp
+					WHERE tmp.appointment_description = '$app_desc'";
+		}else{
+			//Get all patients who have apppointments on the selected date range
+			$sql = "SELECT patient,appointment 
+					FROM patient_appointment 
+					WHERE appointment BETWEEN '$from' AND '$to' 
+					AND facility='$facility_code' 
+					GROUP BY patient,appointment";
+		}
+
 		$query = $this -> db -> query($sql);
 		$results = $query -> result_array();
 		$row_string = "
@@ -2388,10 +2514,8 @@ class report_management extends MY_Controller {
 					$overall_total++;
 				}
 			}
+		} 
 
-		} else {
-			//$row_string .= "<tr><td colspan='8'>No Data Available</td></tr>";
-		}
 		$row_string .= "</tbody></table>";
 		$data['from'] = date('d-M-Y', strtotime($from));
 		$data['to'] = date('d-M-Y', strtotime($to));
@@ -7554,8 +7678,8 @@ class report_management extends MY_Controller {
 		$data['title'] = "webADT | Reports";
 		$data['hide_side_menu'] = 1;
 		$data['banner_text'] = "Facility Reports";
-		$data['selected_report_type_link'] = "differenciated_package_of_care";
-		$data['selected_report_type'] = "Patients on differenciated Package of care";
+		$data['selected_report_type_link'] = "visiting_patient_report_row";
+		$data['selected_report_type'] = "Visiting Patients";
 		$data['report_title'] = "Differenciated Package of care";
 		$data['facility_name'] = $this -> session -> userdata('facility_name');
 		$data['content_view'] = 'reports/differenciated_package_of_care_v';

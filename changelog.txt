@@ -1,5 +1,7 @@
-Version 3.2.0 28/02/2017
+Version 3.2.0 08/03/2017
 ==============================================
+- Added: New Differentiated Care Report for Appointment Analysis
+- Added: New User Manual(v3.2)
 - Added: New Order Templates: Import Queries
 - Added: New Order Templates(v2)
 - Added: Disable Duplicate Order Drugs
@@ -10,6 +12,7 @@ Version 3.2.0 28/02/2017
 - Added: Added PREP questionaires during dispensing
 - Added: Added Active/Lost to followup auto status change queries
 - Added: Added Patient PREP Summary Report
+- Added: Added Port in database configuration and backup manager
 - Fixed: Stock Transaction Save button bug allowed duplicate saves
 - Fixed: Order New Template Queries
 - Fixed: Satellite and Standalone CDRR html templates
