@@ -7462,12 +7462,26 @@ class report_management extends MY_Controller {
 	public function dispensingReport($start_date="",$end_date=""){
 		ini_set("max_execution_time", "1000000");
 		$filter = "";
-		if($start_date!="" && $end_date!=""){
+		if($start_date != "" && $end_date != ""){
 			$start_date = date("Y-m-d",strtotime($start_date));
 			$end_date = date("Y-m-d",strtotime($end_date));
 			$filter = " WHERE dispensing_date BETWEEN '$start_date' AND '$end_date' ";
 		}
-		$sql = "SELECT pv.patient_id as 'CCC No', p.first_name as 'First Name', p.last_name as 'Last Name',pv.current_weight as 'Current Weight',pv.dispensing_date as 'Date of Visit',r.regimen_desc as 'Regimen', d.drug as 'Drug Name',pv.quantity as 'Quantity',pv.batch_number as 'Batch Number', IF(b.brand IS NULL,'',b.brand) as 'Brand Name',pv.dose as 'Dose',pv.duration as 'Duration',pv.user as 'Operator'
+
+		$sql = "SELECT 
+					pv.patient_id as 'CCC No', 
+					p.first_name as 'First Name', 
+					p.last_name as 'Last Name',
+					pv.current_weight as 'Current Weight',
+					pv.dispensing_date as 'Date of Visit',
+					r.regimen_desc as 'Regimen', 
+					d.drug as 'Drug Name',
+					pv.quantity as 'Quantity',
+					pv.batch_number as 'Batch Number', 
+					IF(b.brand IS NULL,'',b.brand) as 'Brand Name',
+					pv.dose as 'Dose',
+					pv.duration as 'Duration',
+					pv.user as 'Operator'
 				FROM patient_visit pv
 				LEFT JOIN patient p ON p.patient_number_ccc = pv.patient_id
 				LEFT JOIN drugcode d ON d.id = pv.drug_id
@@ -7475,7 +7489,7 @@ class report_management extends MY_Controller {
 				LEFT JOIN regimen r ON r.id = pv.regimen
 				$filter
 				ORDER BY dispensing_date DESC ";	
-		//echo $sql;die();
+
 		$query = $this ->db ->query($sql);
 		$result = $query->result_array();
 		$counter = 0;
@@ -7505,9 +7519,7 @@ class report_management extends MY_Controller {
 		$this->mpdf->WriteHTML($table);
 		$this->mpdf->ignore_invalid_utf8 = true;
 		$name = "Dispensing History as of ".date("Y_m_d").".pdf";
-		$this ->deleteAllFiles("./assets/download/");//Delete all files in folder first
-		write_file("./assets/download/$name", $this->mpdf->Output($name,'D'));
-		
+		$this->mpdf->Output($name,'D');
 	}
 
 	function deleteAllFiles($directory=""){
@@ -7517,7 +7529,9 @@ class report_management extends MY_Controller {
 		        if(is_dir($file)) { 
 		            deleteAllFiles($file);
 		        } else {
-		            unlink($file);
+		        	if($file != '.gitkeep'){
+		            	unlink($file);
+		            }
 		        }
 		    }
 		}

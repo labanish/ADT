@@ -40,7 +40,9 @@ application/config/database.php
 # exclude everything
 assets/cache/*
 Export/*
+assets/download/*
 
 # exception to the rule
 !assets/cache/.gitkeep 
 !Export/.gitkeep
+!assets/download/.gitkeep 
