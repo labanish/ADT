@@ -1,5 +1,6 @@
-Version 3.2.0 06/03/2017
+Version 3.2.0 08/03/2017
 ==============================================
+- Added: New Differentiated Care Report for Appointment Analysis
 - Added: New User Manual(v3.2)
 - Added: New Order Templates: Import Queries
 - Added: New Order Templates(v2)
