@@ -1,4 +1,7 @@
 <?php
+
+ob_start();
+
 if (!defined('BASEPATH'))
 	exit('No direct script access allowed');
 
@@ -41,4 +44,7 @@ class Settings_Management extends MY_Controller {
 		echo json_encode($access);
 	}
 
+
 }
+ob_get_clean();
+?>

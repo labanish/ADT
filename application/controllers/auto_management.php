@@ -1,31 +1,29 @@
 <?php
+ob_start();
 //error_reporting(0);
 class auto_management extends MY_Controller {
 	var $nascop_url = "";
 	var $viral_load_url="";
 	function __construct() {
 		parent::__construct();
-
 		ini_set("max_execution_time", "100000");
 		ini_set("memory_limit", '2048M');
 		ini_set("allow_url_fopen", '1');
-
 	    $dir = realpath($_SERVER['DOCUMENT_ROOT']);
 	    $link = $dir . "\\ADT\\assets\\nascop.txt";
 		$this -> nascop_url = trim(file_get_contents($link));
-		$this -> eid_url="http://nascop.org/eid/";
-               $this->ftp_url='41.89.6.210';
-                  //$this->ftp_url='192.168.133.56';
+		$this -> eid_url = "http://viralload.nascop.org/";
+        $this -> ftp_url = "192.168.133.10";
+        // off Campus access {should be active at facility level}
+        // $this->ftp_url='41.89.6.210';
 	}
 
 	public function index($manual=FALSE){
 		$message ="";
 		$today = (int)date('Ymd');
-
 		//get last update time of log file for auto_update
 		$log=Migration_Log::getLog('auto_update');
 		$last_update = (int)$log['last_index'];
-
 		//if not updated today
 		if ($today != $last_update || $manual==TRUE) {
 			//Function to create stored procedures
@@ -41,40 +39,78 @@ class auto_management extends MY_Controller {
 			//function to update patients without current_regimen with last regimen dispensed
 			$message .= $this->update_current_regimen(); 
 			//function to send eid statistics to nascop dashboard
-			$message .= $this->updateEid();
+			//$message .= $this->updateEid();
 			//function to update patient data such as active to lost_to_follow_up	
 			$message .= $this->updatePatientData();
 			//function to update data bugs by applying query fixes
 			$message .= $this->updateFixes();
-			//function to get viral load data
-			$message .= $this->updateViralLoad();
 			//function to add new facilities list
 			$message .= $this->updateFacilties();
 			//function to create new tables into adt
 			$message .= $this->update_database_tables();
 			//function to create new columns into table
 			$message .= $this->update_database_columns();
+			//function to get viral load data
+			$message .= $this->updateViralLoad();
 			//function to set negative batches to zero
 			$message .= $this->setBatchBalance();
+			//function to create mirth_sync_db
+			$message .= $this->mirth_adt_db();
+			//fucntion to update patient visit dose from id to name
+			$message .= $this->update_dose_name();
+			// To clean the sync_regimen_category table incase of the duplicates
+			// $message .= $this->delete_dulicates();
 			//function to update hash value of system to nascop
-			$message .= $this->update_system_version();
+			//$message .= $this->update_system_version();
             //function to download guidelines from nascop
-            $message .= $this->get_guidelines();
+            //$message .= $this->get_guidelines();
 			//function to update facility admin that reporting deadline is close
-			$message .= $this->update_reporting();
-
+			//$message .= $this->update_reporting();
 	        //finally update the log file for auto_update 
-	        if ($this -> session -> userdata("curl_error") != 1) {
+	        if ($this -> session -> userdata("curl_error") == '') {
 	        	$sql="UPDATE migration_log SET last_index='$today' WHERE source='auto_update'";
 				$this -> db -> query($sql);
 				$this -> session -> set_userdata("curl_error", "");
 			} 
 	    }
-
 	    if($manual==TRUE){
           	$message="<div class='alert alert-info'><button type='button' class='close' data-dismiss='alert'>&times;</button>".$message."</div>";
 	    }
 	    echo $message;
+	}
+	public function mirth_adt_db(){
+		$this->load->dbforge();
+		if ($this->dbforge->create_database('mirth_adt_db')){
+			$count = 0;
+			$delimeter = "//";
+			$queries_dir  = 'assets/adt_iqcare/';
+			$accepted_files = array('sql');
+			if (is_dir($queries_dir)) {
+				$files = scandir($queries_dir);
+				foreach ($files as $file_name) {
+					$ext = pathinfo($file_name, PATHINFO_EXTENSION);
+					if ($file_name != '.' && $file_name != '..' && in_array($ext, $accepted_files)) {
+						//Get query statements
+						$query_file = $queries_dir . '/' . $file_name;
+						$query_stmt = file_get_contents($query_file);
+						//Execute query statements
+						$statements = explode($delimeter, $query_stmt);
+						foreach($statements as $statement){
+							$statement = trim($statement);
+							if ($statement){
+								$mirth_db=$this->load->database('mirth_db',TRUE);
+								if (!$mirth_db->simple_query($statement))
+								{
+									$error = $file_name.'==>'.$mirth_db->_error_message().'<br/>';
+								}
+							}
+						}
+						$count++;
+					}
+				}
+			
+			}
+		}
 	}
 
 	public function updateDrugId() {
@@ -84,7 +120,6 @@ class auto_management extends MY_Controller {
 				FROM  `drug_stock_movement` 
 				WHERE drug =0 AND batch_number!=''
 				ORDER BY  `drug_stock_movement`.`drug` ";
-
 		$query = $this -> db -> query($sql);
 		$res = $query -> result_array();
 		$counter = 0;
@@ -118,7 +153,6 @@ class auto_management extends MY_Controller {
 				FROM  `patient_visit` 
 				WHERE drug_id =0 AND batch_number!=''
 				ORDER BY  `patient_visit`.`drug_id` ";
-
 		$query = $this -> db -> query($sql);
 		$res = $query -> result_array();
 		$counter = 0;
@@ -194,14 +228,13 @@ class auto_management extends MY_Controller {
         $this->db->query($sql);
         $count=$this->db->affected_rows();
         $message="(".$count.") transactions changed from main pharmacy to main store!<br/>";
-
         if($count<=0){
 			$message="";
 		}
 		return $message;
 	}
 	
-	public function setBatchBalance(){//Set batch balance to zero where balance is negative
+	public function setBatchBalance(){
 		$facility_code=$this->session->userdata("facility");
 		$sql="UPDATE drug_stock_balance dsb
 		      SET dsb.balance=0
@@ -210,7 +243,6 @@ class auto_management extends MY_Controller {
         $this->db->query($sql);
         $count=$this->db->affected_rows();
         $message="(".$count.") batches with negative balance have been updated!<br/>";
-
         if($count<=0){
 			$message="";
 		}
@@ -276,7 +308,6 @@ class auto_management extends MY_Controller {
 		$results = $query -> result_array();
 		if($results){
 			$json_data = json_encode($results, JSON_PRETTY_PRINT);
-
 			$ch = curl_init();
 			curl_setopt($ch, CURLOPT_URL, $url);
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -300,7 +331,6 @@ class auto_management extends MY_Controller {
 		$facility_name=$this -> session -> userdata('facility_name');
 		$facility_phone=$this->session->userdata("facility_phone");
 		$facility_sms_consent=$this->session->userdata("facility_sms_consent");
-
 		if($facility_sms_consent==TRUE){
 			/* Find out if today is on a weekend */
 			$weekDay = date('w');
@@ -309,9 +339,7 @@ class auto_management extends MY_Controller {
 			} else {
 				$tommorrow = date('Y-m-d', strtotime('+1 day'));
 			}
-
 			$nextweek=date('Y-m-d', strtotime('+1 week'));
-
 			$phone_minlength = '8';
 			$phone = "";
 			$phone_list = "";
@@ -319,7 +347,6 @@ class auto_management extends MY_Controller {
 			$first_part = "";
 			$kenyacode = "254";
 			$arrDelimiters = array("/", ",", "+");
-
 			/*Get All Patient Who Consented Yes That have an appointment Tommorow */
 			$sql = "SELECT p.phone,p.patient_number_ccc,p.nextappointment,temp.patient,temp.appointment,temp.machine_code as status,temp.id
 						FROM patient p
@@ -333,11 +360,9 @@ class auto_management extends MY_Controller {
 						AND char_length(p.phone)>$phone_minlength
 						AND temp.machine_code !='s'
 						GROUP BY p.patient_number_ccc";
-
 			$query = $this -> db -> query($sql);
 			$results = $query -> result_array();
 			$phone_data=array();
-
 			if ($results) {
 				foreach ($results as $result) {
 					$phone = $result['phone'];
@@ -345,7 +370,6 @@ class auto_management extends MY_Controller {
 					$newphone = substr($phone, -$phone_minlength);
 					$first_part = str_replace($newphone, "", $phone);
 					$message = "You have an Appointment on " . date('l dS-M-Y', strtotime($appointment)) . " at $facility_name Contact Phone: $facility_phone";
-
 					if (strlen($first_part) < 7) {
 						if ($first_part === '07') {
 							$phone = "+" . $kenyacode . substr($phone, 1);
@@ -361,12 +385,10 @@ class auto_management extends MY_Controller {
 							$phone_list .= $phone;
 							$messages_list .= "+" .$message;
 						}
-
 					} else {
 						/*If Phone Does not meet requirements*/
 						$phone = str_replace($arrDelimiters, "-|-", $phone);
 						$phones = explode("-|-", $phone);
-
 						foreach ($phones as $phone) {
 							$newphone = substr($phone, -$phone_minlength);
 							$first_part = str_replace($newphone, "", $phone);
@@ -396,13 +418,12 @@ class auto_management extends MY_Controller {
 				}
 				$phone_list = substr($phone_list, 1);
 				$messages_list = substr($messages_list, 1);
-
 				$phone_list = explode("+", $phone_list);
 			    $messages_list = explode("+", $messages_list);
 			
 				foreach ($phone_list as $counter=>$contact) {
 					$message = urlencode($messages_list[$counter]);
-					file("http://41.57.109.242:13000/cgi-bin/sendsms?username=clinton&password=ch41sms&to=$contact&text=$message");
+					//file("http://41.57.109.242:13000/cgi-bin/sendsms?username=clinton&password=ch41sms&to=$contact&text=$message");
 				}
 				$alert = "Patients notified (<b>" . sizeof($phone_list) . "</b>)";
 			}
@@ -411,19 +432,20 @@ class auto_management extends MY_Controller {
 	}
 
 	public function updatePatientData() {
-		$days_to_lost_followup = 90;
+		$days_to_lost_followup=$this -> session -> userdata('lost_to_follow_up');//Default lost to follow up
 		$days_to_pep_end = 30;
+		$days_to_prep_inactive = 1; //They should not be late for their appointments
 		$days_in_year = date("z", mktime(0, 0, 0, 12, 31, date('Y'))) + 1;
 		$adult_age = 12;
 		$active = 'active';
 		$lost = 'lost';
 		$pep = 'pep';
+		$prep = 'prep';
 		$pmtct = 'pmtct';
 		$two_year_days = $days_in_year * 2;
 		$adult_days = $days_in_year * $adult_age;
 		$message = "";
 		$state = array();
-
 		//Get Patient Status id's
 		$status_array = array($active, $lost, $pep, $pmtct);
 		foreach ($status_array as $status) {
@@ -432,11 +454,10 @@ class auto_management extends MY_Controller {
 			$rs = $q -> result_array();
 			if($rs){
 			    $state[$status] = $rs[0]['id'];
-			}  else {
-                            $state[$status]='NAN'; //If non existant
-                        }	
+			} else{
+                $state[$status]='NAN'; //If non existant
+            }	
 		}
-
 		if(!empty($state)){
 			/*Change Last Appointment to Next Appointment*/
 			$sql['Change Last Appointment to Next Appointment'] = "(SELECT patient_number_ccc,nextappointment,temp.appointment,temp.patient
@@ -449,15 +470,18 @@ class auto_management extends MY_Controller {
 						AND DATEDIFF(temp.appointment,p.nextappointment)>0
 						GROUP BY p.patient_number_ccc) as p1
 						SET p.nextappointment=p1.appointment";
-
 			/*Change Active to Lost_to_follow_up*/
 			if(isset($state[$lost])){
 				$sql['Change Active to Lost_to_follow_up'] = "(SELECT patient_number_ccc,nextappointment,DATEDIFF(CURDATE(),nextappointment) as days
 					   FROM patient p
 					   LEFT JOIN patient_status ps ON ps.id=p.current_status
+					   LEFT JOIN regimen_service_type rst ON rst.id = p.service
 					   WHERE ps.Name LIKE '%$active%'
-					   AND (DATEDIFF(CURDATE(),nextappointment )) >=$days_to_lost_followup) as p1
-					   SET p.current_status = '$state[$lost]'";
+					   AND (DATEDIFF(CURDATE(),nextappointment )) >= $days_to_lost_followup
+					   AND p.status_change_date != CURDATE()
+					   AND rst.name NOT LIKE '%$pep%'
+					   AND rst.name NOT LIKE '%$prep%') as p1
+					   SET p.current_status = '$state[$lost]', p.status_change_date = CURDATE()";
 			}
 			
 			/*Change Lost_to_follow_up to Active */
@@ -465,12 +489,14 @@ class auto_management extends MY_Controller {
 				$sql['Change Lost_to_follow_up to Active'] = "(SELECT patient_number_ccc,nextappointment,DATEDIFF(CURDATE(),nextappointment) as days
 					   FROM patient p
 					   LEFT JOIN patient_status ps ON ps.id=p.current_status
+					   LEFT JOIN regimen_service_type rst ON rst.id = p.service
 					   WHERE ps.Name LIKE '%$lost%'
-					   AND (DATEDIFF(CURDATE(),nextappointment )) <$days_to_lost_followup) as p1
-					   SET p.current_status = '$state[$active]' ";
+					   AND (DATEDIFF(CURDATE(),nextappointment )) < $days_to_lost_followup
+					   AND rst.name NOT LIKE '%$pep%'
+					   AND rst.name NOT LIKE '%$prep%') as p1
+					   SET p.current_status = '$state[$active]', p.status_change_date = CURDATE()";
 			}
 			
-
 			/*Change Active to PEP End*/
 			if(isset($state[$pep])){
 				$sql['Change Active to PEP End'] = "(SELECT patient_number_ccc,rst.name as Service,ps.Name as Status,DATEDIFF(CURDATE(),date_enrolled) as days_enrolled
@@ -480,10 +506,9 @@ class auto_management extends MY_Controller {
 					   WHERE (DATEDIFF(CURDATE(),date_enrolled))>=$days_to_pep_end 
 					   AND rst.name LIKE '%$pep%' 
 					   AND ps.Name NOT LIKE '%$pep%') as p1
-					   SET p.current_status = '$state[$pep]' ";
+					   SET p.current_status = '$state[$pep]', p.status_change_date = CURDATE()";
 			}
 			
-
 			/*Change PEP End to Active*/
 			if(isset($state[$active])){
 				$sql['Change PEP End to Active'] = "(SELECT patient_number_ccc,rst.name as Service,ps.Name as Status,DATEDIFF(CURDATE(),date_enrolled) as days_enrolled
@@ -493,10 +518,9 @@ class auto_management extends MY_Controller {
 					   WHERE (DATEDIFF(CURDATE(),date_enrolled))<$days_to_pep_end 
 					   AND rst.name LIKE '%$pep%' 
 					   AND ps.Name NOT LIKE '%$active%') as p1
-					   SET p.current_status = '$state[$active]' ";
+					   SET p.current_status = '$state[$active]', p.status_change_date = CURDATE()";
 			}
 			
-
 			/*Change Active to PMTCT End(children)*/
 			if(isset($state[$pmtct])){
 				$sql['Change Active to PMTCT End(children)'] = "(SELECT patient_number_ccc,rst.name AS Service,ps.Name AS Status,DATEDIFF(CURDATE(),dob) AS days
@@ -507,10 +531,9 @@ class auto_management extends MY_Controller {
 					   AND (DATEDIFF(CURDATE(),dob)) <$adult_days
 					   AND rst.name LIKE  '%$pmtct%'
 					   AND ps.Name NOT LIKE  '%$pmtct%') as p1
-					   SET p.current_status = '$state[$pmtct]'";
+					   SET p.current_status = '$state[$pmtct]', p.status_change_date = CURDATE()";
 			}
 			
-
 			/*Change PMTCT End to Active(Adults)*/
 			if(isset($state[$active])){
 				$sql['Change PMTCT End to Active(Adults)'] = "(SELECT patient_number_ccc,rst.name AS Service,ps.Name AS Status,DATEDIFF(CURDATE(),dob) AS days
@@ -521,14 +544,35 @@ class auto_management extends MY_Controller {
 					   AND (DATEDIFF(CURDATE(),dob)) >=$adult_days 
 					   AND rst.name LIKE '%$pmtct%'
 					   AND ps.Name LIKE '%$pmtct%') as p1
-					   SET p.current_status = '$state[$active]'";
+					   SET p.current_status = '$state[$active]', p.status_change_date = CURDATE()";
 			}
+
+			/*Change PREP Active to Lost To Follow Up*/
+			$sql['Change PREP Active to Lost to FollowUp'] = "(SELECT patient_number_ccc,nextappointment,DATEDIFF(CURDATE(),nextappointment) as days
+				   FROM patient p
+				   LEFT JOIN patient_status ps ON ps.id=p.current_status
+				   LEFT JOIN regimen_service_type rst ON rst.id = p.service
+				   WHERE ps.Name LIKE '%$active%'
+				   AND rst.name LIKE '%$prep%'
+				   AND (DATEDIFF(CURDATE(), nextappointment)) >= $days_to_prep_inactive) as p1
+				   SET p.current_status = '$state[$lost]', p.status_change_date = CURDATE()";
+
+			/*Change PREP Lost To Follow Up to Active*/
+			$sql['Change PREP Lost to FollowUp to Active'] = "(SELECT patient_number_ccc,nextappointment,DATEDIFF(CURDATE(),nextappointment) as days
+				   FROM patient p
+				   LEFT JOIN patient_status ps ON ps.id=p.current_status
+				   LEFT JOIN regimen_service_type rst ON rst.id = p.service
+				   WHERE ps.Name LIKE '%$lost%'
+				   AND rst.name LIKE '%$prep%'
+				   AND (DATEDIFF(CURDATE(), nextappointment)) < $days_to_prep_inactive) as p1
+				   SET p.current_status = '$state[$active]', p.status_change_date = CURDATE()";
 			
 			foreach ($sql as $i => $q) {
 				$stmt1 = "UPDATE patient p,";
 				$stmt2 = " WHERE p.patient_number_ccc=p1.patient_number_ccc;";
 				$stmt1 .= $q;
 				$stmt1 .= $stmt2;
+
 				$q = $this -> db -> query($stmt1);
 				if ($this -> db -> affected_rows() > 0) {
 					$message .= $i . "(<b>" . $this -> db -> affected_rows() . "</b>) rows affected<br/>";
@@ -539,6 +583,7 @@ class auto_management extends MY_Controller {
 	}
 
 	public function updateFixes(){
+		$days_to_lost_followup = $this -> session -> userdata('lost_to_follow_up');//Default lost to follow up
 		//Rename the prophylaxis cotrimoxazole
         $fixes[]="UPDATE drug_prophylaxis
         	      SET name='cotrimoxazole'
@@ -549,14 +594,8 @@ class auto_management extends MY_Controller {
                   SET p.start_regimen_date='' 
                   WHERE rst.name LIKE '%oi%'
                   AND p.start_regimen_date IS NOT NULL";
-        //Update status_change_date for lost_to_follow_up patients
-        $fixes[]="UPDATE patient p,
-				 (SELECT p.id, INTERVAL 90 DAY + p.nextappointment AS choosen_date
-				  FROM patient p
-				  LEFT JOIN patient_status ps ON ps.id = p.current_status
-				  WHERE ps.Name LIKE  '%lost%') as test 
-				 SET p.status_change_date=test.choosen_date
-				 WHERE p.id=test.id";
+        //Update status_change_date for lost_to_follow_up patients @180
+        $fixes[]="UPDATE patient p,(SELECT p.id,CASE WHEN p.nextappointment != '' THEN INTERVAL $days_to_lost_followup DAY + p.nextappointment ELSE CASE WHEN p.start_regimen_date != '' THEN INTERVAL $days_to_lost_followup DAY + p.start_regimen_date ELSE INTERVAL $days_to_lost_followup DAY + p.date_enrolled END END AS choosen_date FROM patient p LEFT JOIN patient_status ps ON ps.id = p.current_status WHERE ps.Name LIKE '%lost%' AND p.status_change_date = '') as test SET p.status_change_date=test.choosen_date WHERE p.id=test.id";
 	    //Update patients without service lines ie Pep end status should have pep as a service line
         $fixes[]="UPDATE patient p
 			 	  LEFT JOIN patient_status ps ON ps.id=p.current_status,
@@ -579,7 +618,6 @@ class auto_management extends MY_Controller {
 		$fixes[]="UPDATE drug_instructions 
 				  SET name=REPLACE(name, '?', '.')
 				  WHERE name LIKE '%?%'";
-
 		$facility_code=$this->session->userdata("facility");
 		//Auto Update Supported and supplied columns for satellite facilities
 		$fixes[] = "UPDATE facilities f, 
@@ -595,7 +633,6 @@ class auto_management extends MY_Controller {
 				  SET p.other_drugs = TRIM(Replace(Replace(Replace(p.other_drugs,'\t',''),'\n',''),'\r','')),
 				  p.other_illnesses = TRIM(Replace(Replace(Replace(p.other_illnesses,'\t',''),'\n',''),'\r','')),
 				  p.adr = TRIM(Replace(Replace(Replace(p.adr,'\t',''),'\n',''),'\r',''))";
-
 		//Execute fixes
 		$total=0;
 		foreach ($fixes as $fix) {
@@ -621,34 +658,45 @@ class auto_management extends MY_Controller {
 		$facility_code = $this -> session -> userdata("facility");
 		$url = $this -> eid_url . "vlapi.php?mfl=" . $facility_code;
 		$patient_tests=array();
-
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-		$json_data = curl_exec($ch);
+		$json_data = curl_exec($ch); 
 		if (empty($json_data)) {
 			$message = "cURL Error: " . curl_error($ch)."<br/>";
-			$this -> session -> set_userdata("curl_error", 1);
+			//$this -> session -> set_userdata("curl_error", 1);
 		} else {
-			$data = json_decode($json_data, TRUE);
+			$data = json_decode($json_data, TRUE); 
 			$lab_data=$data['posts'];
-			foreach($lab_data as $lab){
-				foreach($lab as $tests){
-				   $ccc_no=trim($tests['Patient']);
-				   $result=$tests['Result'];
-				   $date_tested=$tests['DateTested'];
-				   $patient_tests[$ccc_no][]=array('date_tested'=>$date_tested,'result'=>$result);
-                }
+			$message="Viral Load Download Failed!<br/>";
+			if(!empty($lab_data)){
+				foreach($lab_data as $lab){
+					foreach($lab as $tests){
+					   	$ccc_no = trim($tests['Patient']);
+					   	$result = $tests['Result'];
+					    $date_tested = $tests['DateTested'];
+					    $justification = $tests['Justification'];
+						//An array to store patient viral Load data
+						$sql = "CALL proc_check_viralload(?, ?, ?, ?)";
+						$parameters = array($ccc_no, $date_tested, $result, $justification);
+						$this->db->query($sql, $parameters);
+	               }
+				}
+		    	$message="Viral Load Download Success!<br/>";
 			}
-		    $message="Viral Load Download Success!<br/>";
 		}
-		curl_close($ch);
-        //write to file
-		$fp = fopen('assets/viral_load.json', 'w');
-		fwrite($fp, json_encode($patient_tests,JSON_PRETTY_PRINT));
-		fclose($fp);
+
 		return $message;
+	}
+
+	public function get_viral_load($patient_no){
+		$this->db->select('*');
+		$this->db->where('patient_ccc_number', $patient_no);
+    	$this->db->from('patient_viral_load');
+    	$this->db->order_by('test_date','desc');
+    	$query = $this->db->get();
+    	$result = $query->result_array();
+    	echo json_encode($result);
 	}
 
 	public function updateFacilties(){
@@ -666,7 +714,6 @@ class auto_management extends MY_Controller {
 			$facilities=array();
 			$facility_code=$this->session->userdata("facility");
 			$lists=Facilities::getParentandSatellites($facility_code);
-
 			for ($row = 2; $row < $highestRow; $row++) {
 				$facility_id=$arr[$row]['A'];
 				$facility_name=$arr[$row]['B'];
@@ -735,103 +782,36 @@ class auto_management extends MY_Controller {
 	    }
 		return $message;
 	}
-	public function update_database_tables(){
-		$count=0;
-		$message="";
-		$tables['dependants'] = "CREATE TABLE dependants(
-									id int(11),
-									parent varchar(30),
-									child varchar(30),
-									PRIMARY KEY (id)
-									);";
-        $tables['spouses']= "CREATE TABLE spouses(
-								id int(11),
-								primary_spouse varchar(30),
-								secondary_spouse varchar(30),
-								PRIMARY KEY (id)
-								);";
-        $tables['drug_instructions']="CREATE TABLE IF NOT EXISTS `drug_instructions` (
-									  `id` int(11) NOT NULL AUTO_INCREMENT,
-									  `name` varchar(255) NOT NULL,
-									  `active` int(11) NOT NULL,
-									  PRIMARY KEY (`id`)
-									) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=35;
-									INSERT INTO `drug_instructions` (`id`, `name`, `active`) VALUES
-									(1, 'Warning. May cause drowsiness', 1),
-									(2, 'Warning. May cause drowsiness. If affected to do not drive or operate machinery.Avoid alcoholic drink', 1),
-									(3, 'Warning. May cause drowsiness. If affected to do not drive or operate machinery.', 1),
-									(4, 'Warning. Avoid alcoholic drink', 1),
-									(5, 'Do not take indigestion remedies at the same time of the day as this medicine', 1),
-									(6, 'Do not take indigestion remedies or medicines containing Iron or Zinc at the same time of a day as this medicine', 1),
-									(7, 'Do not take milk, indigestion remedies, or medicines containing Iron or Zinc at the same time of day as this medicine', 1),
-									(8, 'Do not stop taking this medicine except on your doctor''s advice', 1),
-									(9, 'Take at regular intervals. Complete the prescribed course unless otherwise directed', 1),
-									(10, 'Warning. Follow the printed instruction you have been given with this medicine', 1),
-									(11, 'Avoid exposure of skin to direct sunlight or sun lamps', 1),
-									(12, 'Do not take anything containing aspirin while taking  this medicine', 1),
-									(13, 'Dissolve or mix with water before taking', 1),
-									(14, 'This medicine may colour the urine', 1),
-									(15, 'Caution flammable: Keep away from fire or flames', 1),
-									(16, 'Allow to dissolve under the tongue. Do not transfer from this container. Keep tightly closed. Discard 8 weeks after opening.', 1),
-									(17, 'Do not take more than??.in 24 hours', 1),
-									(18, 'Do not take more than ?..in 24 hours or?. In any one week', 1),
-									(19, 'Warning. Causes drowsiness which may continue the next day. If affected do not drive or operate machinery. Avoid alcoholic drink', 1),
-									(20, '??..with or after food', 1),
-									(21, '???.half to one hour after food', 1),
-									(22, '????..an hour before food or on an empty stomach', 1),
-									(23, '???.an hour before food or on an empty stomach', 1),
-									(24, '???. sucked or chewed', 1),
-									(25, '??? swallowed whole, not chewed', 1),
-									(26, '???dissolved under the tongue', 1),
-									(27, '????with plenty of water', 1),
-									(28, 'To be spread thinly?..', 1),
-									(29, 'Do not take more than  2 at any one time. Do not take more than 8 in 24 hours', 1),
-									(30, 'Do not take with any other paracetamol products.', 1),
-									(31, 'Contains aspirin and paracetamol. Do not take with any other paracetamol products', 1),
-									(32, 'Contains aspirin', 1),
-									(33, 'contains an apirin-like medicine', 1),
-									(34, 'Avoid a lot of fatty meals together with efavirenz', 1);";
-		$tables['sync_regimen_category']="CREATE TABLE IF NOT EXISTS `sync_regimen_category` (
-										  `id` int(2) NOT NULL AUTO_INCREMENT,
-										  `Name` varchar(50) NOT NULL,
-										  `Active` varchar(2) NOT NULL,
-										  `ccc_store_sp` int(11) NOT NULL DEFAULT '2',
-										  PRIMARY KEY (`id`),
-										  KEY `ccc_store_sp` (`ccc_store_sp`)
-										) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=14;
-										INSERT INTO `sync_regimen_category` (`id`, `Name`, `Active`, `ccc_store_sp`) VALUES
-										(4, 'Adult First Line', '1', 2),
-										(5, 'Adult Second Line', '1', 2),
-										(6, 'Other Adult ART', '1', 2),
-										(7, 'Paediatric First Line', '1', 2),
-										(8, 'Paediatric Second Line', '1', 2),
-										(9, 'Other Pediatric Regimen', '1', 2),
-										(10, 'PMTCT Mother', '1', 2),
-										(11, 'PMTCT Child', '1', 2),
-										(12, 'PEP Adult', '1', 2),
-										(13, 'PEP Child', '', 2);";
-                            $tables['faq'] = "CREATE TABLE IF NOT EXISTS `faq` (
-                                                  `id` int(11) NOT NULL AUTO_INCREMENT,
-                                                  `modules` varchar(100) NOT NULL,
-                                                  `questions` varchar(255) NOT NULL,
-                                                  `answers` varchar(255) NOT NULL,
-                                                  `active` int(5) NOT NULL DEFAULT '1',
-                                                  PRIMARY KEY (`id`)
-                                                ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;";
-            foreach($tables as $table=>$statements){
-            if (!$this->db->table_exists($table)){
-            	$statements=explode(";",$statements);
-            	foreach($statements as $statement){
-            		$this->db->query($statement);
-            	}
-		        $count++;
-			}
-        }
 
-        if($count>0){
- 			$message="(".$count.") tables created!<br/>";
-        }
-        return $message;
+	public function update_database_tables(){
+		$count = 0;
+		$delimeter = "//";
+		$queries_dir  = 'assets/queries';
+		$accepted_files = array('sql');
+		if (is_dir($queries_dir)) {
+			$files = scandir($queries_dir);
+			foreach ($files as $file_name) {
+				$ext = pathinfo($file_name, PATHINFO_EXTENSION);
+				if ($file_name != '.' && $file_name != '..' && in_array($ext, $accepted_files)) {
+					//Get query statements
+					$query_file = $queries_dir . '/' . $file_name;
+					$query_stmt = file_get_contents($query_file);
+					//Execute query statements
+					$statements = explode($delimeter, $query_stmt);
+					foreach($statements as $statement){
+						$statement = trim($statement);
+						if ($statement){
+							if (!$this->db->simple_query($statement))
+							{
+								$error = $file_name.'==>'.$this->db->_error_message().'<br/>';
+							}
+						}
+					}
+					$count++;
+				}
+			}
+		}
+        return "(".$count.") rows affected!<br/>";
 	}
 
 	public function update_database_columns(){
@@ -842,6 +822,10 @@ class auto_management extends MY_Controller {
 		$statements['spouses']='ALTER TABLE `spouses` CHANGE `id` `id` INT(11) NOT NULL AUTO_INCREMENT';
 		$statements['dependants']='ALTER TABLE `dependants` CHANGE `id` `id` INT(11) NOT NULL AUTO_INCREMENT';
 		$statements['source_destination'] = "ALTER TABLE  `drug_stock_movement` CHANGE  `Source_Destination`  `Source_Destination` VARCHAR( 50 )";
+		$statements['maps_issynched']="ALTER TABLE `maps` ADD `issynched` varchar(5) NOT NULL DEFAULT 'N'";
+		$statements['maps_item_issynched']="ALTER TABLE `maps_item` ADD `issynched` varchar(5) NOT NULL DEFAULT 'N'";
+		$statements['cdrr_item_adjustments_neg']="ALTER TABLE `cdrr_item` ADD `adjustments_neg` INT(11) NULL AFTER `adjustments`";
+
 		if ($statements) {
 			foreach ($statements as $column => $statement) {
 				if ($statement != null) {
@@ -855,39 +839,50 @@ class auto_management extends MY_Controller {
 		return $message;
 	}
    
-        //function to download guidelines from the nascop 
-        public function get_guidelines(){
-         $this->load->library('ftp');
-
+    public function get_guidelines(){
+        $this->load->library('ftp');
         $config['hostname'] = $this->ftp_url;
         $config['username'] = 'demo';
         $config['password'] = 'demo';
         $config['port']     = 21;
         $config['passive']  = TRUE;
         $config['debug']    = TRUE;
-
         $this->ftp->connect($config);
         $server_file="/";
         $dir = realpath($_SERVER['DOCUMENT_ROOT']);
        
-        
         $files = $this->ftp->list_files($server_file);
-	        if(!empty($files))
-	        {
-		        foreach($files as $file){
-		             $local_file = $dir . "/ADT/assets/guidelines". $file;
-		             $downloadfile= $this->ftp->download($file,$local_file , 'ascii');
-		        }
+        if(!empty($files))
+        {
+	        foreach($files as $file){
+	             $local_file = $dir . "/ADT/assets/guidelines". $file;
+	             $downloadfile= $this->ftp->download($file,$local_file , 'ascii');
 	        }
         }
-   
-        public function update_system_version(){
+    }
+    //function to update dose on patient visit from id to dose name 
+   public function update_dose_name(){
+   	$message = '';
+   		$sql="SELECT id, Name FROM dose";
+   		$query = $this -> db -> query($sql);
+		$doses = $query -> result_array();
+		foreach ($doses as $dose) {
+			$dose_id= $dose['id'];
+			$dose_name=$dose['Name'];
+			$sql1="UPDATE patient_visit set dose='$dose_name' where dose='$dose_id' ";
+   			$query1 = $this -> db -> query($sql1);
+   			$message = 'Updated Dose Records in Visits ('.$this-> db -> affected_rows().')';
+		}
+
+		return $message;
+
+   }
+    public function update_system_version(){
 		$url = $this -> nascop_url . "sync/gitlog";
 		$facility_code = $this -> session -> userdata("facility");
 		$hash=Git_Log::getLatestHash();
 		$results = array("facility_code" => $facility_code, "hash_value" => $hash);
 		$json_data = json_encode($results, JSON_PRETTY_PRINT);
-
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -926,7 +921,6 @@ class auto_management extends MY_Controller {
 			$facility_code = $this -> session -> userdata("facility");
 			$central_site = Sync_Facility::getId($facility_code, 0);
 			$central_site = $central_site['id'];
-
 			$sql = "SELECT sf.name as facility_name,sf.code as facility_code,IF(c.id,'reported','not reported') as status
 			        FROM sync_facility sf
 			        LEFT JOIN cdrr c ON c.facility_id=sf.id AND c.period_begin='$start_date' 
@@ -936,7 +930,6 @@ class auto_management extends MY_Controller {
 			        GROUP BY sf.id";
 			$query = $this -> db -> query($sql);
 			$satellites = $query -> result_array();
-
 			$notification .= "<table border='1'>";
 			$notification .= "<thead><tr><th>Name</th><th>Code</th><th>Status</th></tr></thead><tbody>";
 			if ($satellites) {
@@ -945,11 +938,9 @@ class auto_management extends MY_Controller {
 				}
 			}
 			$notification .= "</tbody></table>";
-
 			//send notification via email 
 			ini_set("SMTP", "ssl://smtp.gmail.com");
 			ini_set("smtp_port", "465");
-
 			$sql = "SELECT DISTINCT(Email_Address) as email 
 			        FROM users u
 			        LEFT JOIN access_level al ON al.id=u.Access_Level
@@ -968,22 +959,18 @@ class auto_management extends MY_Controller {
 			if(!empty($mail_list))
 			{
 				$mail_list = implode(",", $mail_list);
-
 				$config['mailtype'] = "html";
 				$config['protocol'] = 'smtp';
 				$config['smtp_host'] = 'ssl://smtp.googlemail.com';
 				$config['smtp_port'] = 465;
 				$config['smtp_user'] = stripslashes('webadt.chai@gmail.com');
 				$config['smtp_pass'] = stripslashes('WebAdt_052013');
-
 				$this -> load -> library('email', $config);
-
 				$this -> email -> set_newline("\r\n");
 				$this -> email -> from('webadt.chai@gmail.com', "WEB_ADT CHAI");
 				$this -> email -> to("$mail_list");
 				$this -> email -> subject("ORDER REPORTING NOTIFICATION");
 				$this -> email -> message("$notification");
-
 				if ($this -> email -> send()) {
 					$message = 'Reporting Notification was sent!<br/>';
 					$this -> email -> clear(TRUE);
@@ -995,7 +982,7 @@ class auto_management extends MY_Controller {
 		return $message;
 	}
 	
-	function createStoredProcedures(){
+	public function createStoredProcedures(){
 		$data =array();
 		
 		$data["MAPS: Patient Revisit OC CM Stored Procedure"] ="
@@ -1048,7 +1035,7 @@ class auto_management extends MY_Controller {
 		return $message;
 	}
 	
-	public function addIndex(){//Create indexes on columns in table;
+	public function addIndex(){
 		$columns = array(
 						array(
 							"table"=>"patient_visit",
@@ -1087,4 +1074,5 @@ class auto_management extends MY_Controller {
 		return $message;
 	}
 }
+ob_get_clean();
 ?>

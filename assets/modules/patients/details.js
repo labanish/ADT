@@ -33,13 +33,6 @@ $(function(){
 	var summary_url = base_url + "patient_management/load_summary/" + patient_id;
 	var spinner_url = base_url + "assets/images/loading_spin.gif";
 
-	//Show Page Spinner
-	/*
-	$.blockUI({ 
-		message: '<h3><img width="30" height="30" src="'+spinner_url+'" /> Loading...</h3>'
-	}); 
-    */
-
 	//Load Page Data(form.js) then load Patient Data(details.js) after that sanitize form (details.js)
     getPageData(page_url).always( function(){
 	    getPatientData(patient_url).always( function(){
@@ -82,8 +75,8 @@ $(function(){
 
 		//Open Modal
 		$("#patient_details").dialog("open");
-
-		$("#details_patient_number_ccc").text($("#patient_number_ccc").val());
+		var patient_number_ccc = $("#patient_number_ccc").val()
+		$("#details_patient_number_ccc").text(patient_number_ccc);
 		$("#details_first_name").text($("#first_name").val());
 		$("#details_last_name").text($("#last_name").val());
 		$("#details_gender").text($("#gender").text());
@@ -94,7 +87,7 @@ $(function(){
 		getDispensing();
 		getRegimenChange();
 		getAppointmentHistory();
-		get_viral_result($("#patient_number_ccc").val());
+		getViralResult(patient_number_ccc);
 	});
 
 });
@@ -117,9 +110,25 @@ function getPatientData(url){
                         
 			        }else{
 			            $( "#"+index ).val( value );
+			            if(index == 'age'){
+			            	checkGuardian(value)
+			            }
 			        }
 			    });
 			});
+}
+
+function checkGuardian(age){
+	var age = parseInt(age)
+	var facility_age_url = base_url + "dispensement_management/getFacililtyAge";
+	$.getJSON(facility_age_url, function(data){
+		var adult_age = parseInt(data[0].adult_age);
+		if(age < adult_age){
+			$(".parent_view").show();
+        }else{
+        	$(".parent_view").hide();
+        }
+	});
 }
 
 function addToCheckbox(div){		
@@ -132,7 +141,6 @@ function addToMultiSelect(div,data){
        
 }
 
-
 function sanitizeForm(){
     //Remove none selected options
     $("#details_frm select option:not(:selected)").remove();
@@ -143,107 +151,90 @@ function sanitizeForm(){
     $(".dataTables_filter input").attr("disabled", false);
     $(".dataTables_length select").attr("disabled", false);
 
-	//Close Spinner
-	//$.unblockUI({});
-
 	//Enable these Buttons
 	$("#patient_info").attr("disabled", false);
 	$("#viral_load").attr("disabled", false);
 	$("#dispensing_history_filter input").attr("disabled", false);
 	$("#dispensing_history_length select").attr("disabled", false);
-        //hide isoniazid view
-         $(".isoniazid").css("display","none");
-         $("#drug_prophylaxis > option").each(function(){
-            var drug_prophylaxis=$("#drug_prophylaxis").val();
-            if(drug_prophylaxis != null || drug_prophylaxis != " ") {
-		for(var i = 0; i < drug_prophylaxis.length; i++) {
-	              var selected_obj=$('input[name="drug_prophylaxis"][type="checkbox"][value="' + drug_prophylaxis[i] + '"]');
-                  	selected_obj.attr('checked', true);
-                  	if(drug_prophylaxis[i]==3){
-                  	   $(".isoniazid").show(); 
-                  	}
-				}
+
+    //Show/Hide isoniazid view
+    $(".isoniazid").css("display","none");
+    $("#drug_prophylaxis > option").each(function(){
+        var drug_prophylaxis=$("#drug_prophylaxis").val();
+        if(drug_prophylaxis != null || drug_prophylaxis != " ") {
+			for(var i = 0; i < drug_prophylaxis.length; i++) {
+	            var selected_obj=$('input[name="drug_prophylaxis"][type="checkbox"][value="' + drug_prophylaxis[i] + '"]');
+                selected_obj.attr('checked', true);
+              	if(drug_prophylaxis[i] == 3){
+              	   	$(".isoniazid").show(); 
+              	}
 			}
-           });
-         //show/hide pep reason depending on the patient type of service
-         $(".pep_reason").css("display","none");
-         $("#service > option").each(function() {
-                  if(this.text==="PEP"){
-                      $(".pep_reason").show();
-                      $(".who_stage").hide();
-                      $(".drug_prophylaxis").hide();
-                      
-                  }
-                   });  
-        
-         //hide tb category and phase
-          $(".tb_category_phase").css("display","none");
-          $(".tb_period").css("display","none");
-          if($("#tb").val()==1){
-            $(".tb_category_phase").show();  
-            $(".tb_period").show();
-          }
+		}
+    });
          
-          //hide match spouse
-//           $(".secondary_spouse").css("display","none");
-           $("#partner_status > option").each(function(){
-               if(this.text==="No Partner"){
-                 $(".secondary_spouse").hide();  
-               }
-           });
-           //family planning hide
-          if($("#fplan").val()=="" || $("#fplan").val()==null){
-              $("#fplan").hide();
-          }
-           //hide chronic diseases div
-            if($("#other_illnesses").val()=="" || $("#other_illnesses").val()==null){
-              $("#other_illnesses").hide();
-          }
-           //hide other chronic diseases div
-            if($("#other_chronic").val()=="" || $("#other_chronic").val()==null){
-              $("#other_chronic").hide();
-          }
-     
+	//Show/Hide pep/prep div depending on the patient type of service
+	$(".pep_reason").css("display","none");
+	$(".prep_test_question").css("display","none");
+	$("#service > option").each(function() {
+	  	if(this.text === "PEP"){
+	      	$(".pep_reason").show();
+	      	$(".who_stage").hide();
+	      	$(".drug_prophylaxis").hide();
+	  	}else if(this.text === "PREP"){
+	  		$(".prep_test_question").show();
+	  		$(".who_stage").hide();
+	  		$(".drug_prophylaxis").hide();
+	  	}
+	});
         
+	//Show/Hide tb category and phase
+	$(".tb_category_phase").css("display","none");
+	$(".tb_period").css("display","none");
+	if($("#tb").val() == 1){
+		$(".tb_category_phase").show();  
+		$(".tb_period").show();
+	}
+
+	//Hide match spouse
+	$("#partner_status > option").each(function(){
+		if(this.text==="No Partner"){
+	 		$(".secondary_spouse").hide();  
+		}
+	});
+
+	//Hide family planning
+	if($("#fplan").val() == "" || $("#fplan").val() == null){
+		$("#fplan").hide();
+	}
+
+	//hide chronic diseases div
+	if($("#other_illnesses").val() == "" || $("#other_illnesses").val() == null){
+		$("#other_illnesses").hide();
+	}
+
+	//Hide other chronic diseases div
+	if($("#other_chronic").val() == "" || $("#other_chronic").val() == null){
+		$("#other_chronic").hide();
+	}
+
 }
 
 function getViralLoad(){
  	var patient_no = $("#patient_number_ccc").val();
- 	var link = base_url +"assets/viral_load.json";
+ 	var link = base_url +"auto_management/get_viral_load/"+patient_no;
+ 	var table = '';
+ 	
+ 	$.getJSON(link, function(data){
+ 		if(data.length == 0){
+ 			table += '<tr><td colspan="3">No Data Available</td></tr>';
+ 		}
 
- 	$.getJSON( link ,function( data ){
-        var table='';
-        if(data.length !=0){
-        	patient_no = patient_no.toString().trim();
-	        viral_data = data[patient_no]; 
-            $.each(viral_data,function(i,v){
-                table+='<tr><td>'+v.date_tested+'</td><td>'+v.result+'</td></tr>';
-            });
-        }
-        $("#viral_load_data tbody").empty();
-    	$("#viral_load_data tbody").append(table);
+ 		$.each(data, function(i, vldata){
+ 			table += '<tr><td>'+vldata.test_date+'</td><td>'+vldata.result+'</td><td>'+vldata.justification+'</td></tr>';
+ 		});
+ 		$("#viral_load_data tbody").empty();
+ 		$("#viral_load_data tbody").append(table);
  	});
-
-}
-
-function get_viral_result(ccc_no){
-	ccc_no = ccc_no.toString().trim();
-	data_source=base_url+"assets/viral_load.json";
-	$("#viral_load_date").text('N/A');
-	$("#viral_load_result").text('N/A');
-	$.get(data_source,function(data){
-		if(data.length !=0){
-			data_length=data[ccc_no].length; 
-			if(data_length >0){
-				$.each(data[ccc_no],function(key,val) {
-				    if(key==(data_length-1)){  
-				    	$("#viral_load_date").text(val.date_tested);
-			            $("#viral_load_result").text(val.result);   
-			        }      
-			    });	
-			}
-		}
-	});
 }
  
 function getDispensing(){
@@ -287,4 +278,19 @@ function getAppointmentHistory(){
 	    	
 	    }
 	});
+
 }
+
+
+function getViralResult(ccc_no){
+	var data_source=base_url+"patient_management/get_Last_vl_result/"+ccc_no;
+	$("#viral_load_date").text('N/A');
+	$("#viral_load_result").text('N/A');
+	$.getJSON(data_source, function(data){
+		$.each(data, function(key, val) {
+			$("#viral_load_date").text(val.test_date);
+		    $("#viral_load_result").text(val.result)       
+		});	
+	});
+}
+             

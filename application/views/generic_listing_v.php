@@ -1,6 +1,9 @@
 <script>
 	$(document).ready(function() {
-
+		/*Prevent Double Click*/
+		$('input_form').submit(function(){
+		  	$(this).find(':submit').attr('disabled','disabled');
+		});
 		$('.edit_user').live('click',function(event){
 			event.preventDefault();
 			$("#generic_id").val(this.id);
@@ -71,7 +74,7 @@
 		<div class="modal-body">
 			<label>
 			<strong class="label">Generic Name</strong>
-			<input type="text" name="generic_name" id="generic_name" class="input-xlarge">
+			<input type="text" name="generic_name" id="generic_name" class="input-xlarge" required="">
 			</label>
 		</div>
 		<div class="modal-footer">
@@ -94,7 +97,7 @@
 			<label>
 			<strong class="label">Generic Name</strong>
 			<input type="hidden" name="generic_id" id="generic_id" class="input">
-			<input type="text" name="edit_generic_name" id="edit_generic_name" class="input-xlarge">
+			<input type="text" name="edit_generic_name" id="edit_generic_name" class="input-xlarge" required="">
 			</label>
 		</div>
 		<div class="modal-footer">

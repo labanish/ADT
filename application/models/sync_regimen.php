@@ -21,8 +21,16 @@ class Sync_Regimen extends Doctrine_Record {
 	}
 
 	public function getActive() {
-		$query = Doctrine_Query::create() -> select("sr.id,sr.code,sr.name,sr.category_id, sr.Sync_Regimen_Category.Name as category_name") -> from("sync_regimen sr") -> orderBy("category_id, code asc");
-		$sync_regimen = $query -> execute(array(), Doctrine::HYDRATE_ARRAY);
+		/*$query = Doctrine_Query::create() -> select("sr.id,sr.code,sr.name,sr.category_id, sr.Sync_Regimen_Category.Name as category_name") -> from("sync_regimen sr") -> where("sr.Active = '1'")-> orderBy("category_id, code asc");
+		$sync_regimen = $query -> execute(array(), Doctrine::HYDRATE_ARRAY);*/
+
+		$sql = "SELECT sr.id,sr.code,sr.name,sr.category_id, src.Name as category_name
+				FROM sync_regimen sr
+				LEFT JOIN sync_regimen_category src ON src.id = sr.category_id
+				WHERE sr.Active = '1'
+				AND src.Active = '1'
+				ORDER BY category_id,code asc";
+		$sync_regimen = $this->db->query($sql)->result_array();
 		return $sync_regimen;
 	}
 

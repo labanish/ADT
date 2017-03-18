@@ -5,7 +5,7 @@ class notification_management extends MY_Controller {
 	function __construct() {
 		parent::__construct();
 
-		ini_set("max_execution_time", "100000");
+		ini_set("max_execution_time", "1000000");
 		ini_set("memory_limit", '2048M');
 		ini_set("allow_url_fopen", '1');
 
@@ -32,6 +32,7 @@ class notification_management extends MY_Controller {
 		} else {
 			$temp = "<li><a href='#user_change_pass' data-toggle='modal'><i class='icon-th'></i>Password expiry <div class='badge badge-important'>" . $days_before_pwdchange . " Days </div></a><li>";
 		}
+
 		echo $temp;
 	}
 
@@ -80,6 +81,7 @@ class notification_management extends MY_Controller {
 	}
 
 	public function update_notification() {
+		/*
 		ini_set("max_execution_time", "1000000");
 		$this -> load -> library('Curl');
 
@@ -143,6 +145,9 @@ class notification_management extends MY_Controller {
 			}
 		}
 		echo $temp;
+		*/
+		$changelog_link=base_url().'changelog.txt';
+		echo "<li><a href='$changelog_link' target='_blank'><i class='icon-th'></i>System Up to Date</a></li>";
 	}
 
 	public function error_notification($display_array=false) {
@@ -161,6 +166,7 @@ class notification_management extends MY_Controller {
 										   OR p.gender='null' 
 										   OR p.gender is null)
 										   AND p.active='1'
+										   -- AND p.current_status = '1'
 										   GROUP BY p.patient_number_ccc;";
 
 		/*Patients without DOB*/
@@ -309,6 +315,7 @@ class notification_management extends MY_Controller {
 															LEFT JOIN regimen_service_type rst2 ON rst2.id = r.type_of_service
 															WHERE rst1.id != rst2.id
 															AND rst2.Name NOT LIKE '%oi%'
+															-- AND p.current_status = 1
 															GROUP BY p.patient_number_ccc;";
 
 		if($display_array==true){
@@ -333,7 +340,11 @@ class notification_management extends MY_Controller {
 				$temp = "<li><a href='" . $temp_link . "'><i class='icon-th'></i>Errors <div class='badge badge-important'>" . $overall_total . "</div></a><li>";
 			}
 			echo $temp;
-		}													
+
+
+
+		}	
+													
 	}
 
 	public function load_error_view() {
@@ -554,7 +565,7 @@ class notification_management extends MY_Controller {
 		//loop  through patients adding the rows
         foreach($patients as $patient){
         	$detail_link="<a href='".base_url()."patient_management/viewDetails/".$patient['id']."'>Detail</a>";
-        	$edit_link="<a href='".base_url()."/patient_management/edit/".$patient['id']."'>Edit</a>";
+        	$edit_link="<a href='".base_url()."patient_management/edit/".$patient['id']."'>Edit</a>";
         	$disable_link="<a href='".base_url()."patient_management/disable/".$patient['id']."' class='red'>Disable</a>";
             $patient['links']=$detail_link." |  ".$edit_link." | ".$disable_link;
         	unset($patient['id']);

@@ -3,6 +3,10 @@
 
 <script>
 	$(document).ready(function() {
+		/*Prevent Double Click*/
+		$('input_form').submit(function(){
+		  	$(this).find(':submit').attr('disabled','disabled');
+		});
 		$("#entry_form").dialog({
 			height : 200,
 			width : 500,
@@ -116,7 +120,7 @@
 				</tr>
 				<tr><td><strong class="label">Brand Name</strong></td>
 					<td>
-						<input type="text" name="brandname" id="brandname" class="input-xlarge">
+						<input type="text" name="brandname" id="brandname" class="input-xlarge" required="">
 					</td>
 				</tr>
 			</table>

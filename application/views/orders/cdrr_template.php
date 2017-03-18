@@ -35,7 +35,7 @@
          <?php echo $option_links; ?>
         </ul>
 		<label><h2><b><?php echo $cdrr_array[0]['cdrr_label']." ".$cdrr_array[0]['status_name'];?></b></h2></label><br/>
-o		<a href='<?php echo site_url("order/download_order/cdrr/".$cdrr_id);?>'><?php echo $cdrr_array[0]['cdrr_label']." ".$cdrr_array[0]['facility_name']." ".$cdrr_array[0]['period_begin']." to ".$cdrr_array[0]['period_end'].".xls";?></a>
+		<a href='<?php echo site_url("order/download_order/cdrr/".$cdrr_id);?>'><?php echo $cdrr_array[0]['cdrr_label']." ".$cdrr_array[0]['facility_name']." ".$cdrr_array[0]['period_begin']." to ".$cdrr_array[0]['period_end'].".xlsx";?></a>
 		<p></p>
 		<input type="hidden"  id="status" name="status" value="<?php echo strtolower($cdrr_array[0]['status_name']);?>"/>
 		<input type="hidden"  id="created" name="created" value="<?php echo $cdrr_array[0]['created'];?>"/>
@@ -92,37 +92,41 @@ o		<a href='<?php echo site_url("order/download_order/cdrr/".$cdrr_id);?>'><?php
 						<td><b>Facility code: &nbsp;</b><?php echo $facility_object -> facilitycode;?>
 							<input type="hidden" name="facility_code" id="facility_code" value="<?php echo $facility_object ->facilitycode; ?>"/>
 							<input type="hidden" name="facility_id" id="facility_id" value="<?php echo $facility_id; ?>"/>
-						</td>
-					</tr>
-					<tr>
-						<td><b>County: &nbsp;</b><?php echo $facility_object -> County -> county;?></td>
-						<td><b>District: &nbsp;</b><?php echo $facility_object -> Parent_District -> Name;?></td>
-					</tr>
-					
-					<tr>
-						<td colspan='2'><b>Programme Sponsor: &nbsp;</b><?php echo $facility_object -> support -> Name;?>
 							<input type="hidden" name="sponsor" value="<?php echo $facility_object -> support -> Name; ?>"/>
+							<input type="hidden" name="non_arv" id="non_arv" value="0"/>
+							<?php
+								$type_of_service = array();
+								if ($facility_object -> service_art == "1") {
+									$type_of_service[] = "ART";
+								}
+								if ($facility_object -> service_pmtct == "1") {
+									$type_of_service[] = "PMTCT";
+								}
+								if ($facility_object -> service_pep == "1") {
+									$type_of_service[] = "PEP";
+								}
+							?>
+							<input type="hidden" name="type_of_service" value="<?php echo implode(",", $type_of_service); ?>"/>
 						</td>
 					</tr>
-					
 					<tr>
-						<td><b>Type of Service provided at the Facility: &nbsp; </b><?php
-						$type_of_service = array();
-						if ($facility_object -> service_art == "1") {
-							$type_of_service[] = "ART";
-						}
-						if ($facility_object -> service_pmtct == "1") {
-							$type_of_service[] = "PMTCT";
-						}
-						if ($facility_object -> service_pep == "1") {
-							$type_of_service[] = "PEP";
-						}
-						echo implode(",", $type_of_service);
-						?><input type="hidden" name="type_of_service" value="<?php echo implode(",", $type_of_service); ?>"/></td>
+						<td><b>County: &nbsp;</b><?php echo ucwords($facility_object -> County -> county);?></td>
+						<td><b>Sub-County: &nbsp;</b><?php echo $facility_object -> Parent_District -> Name;?></td>
+					</tr>
+					
+					<!--
+					<tr>
+						<td colspan='2'><b>Programme Sponsor: &nbsp;</b><?php //echo $facility_object -> support -> Name;?>
+							<input type="hidden" name="sponsor" value="<?php //echo $facility_object -> support -> Name; ?>"/>
+						</td>
+					</tr>
+					<tr>
+						<td><b>Type of Service provided at the Facility: &nbsp; </b>
+						<input type="hidden" name="type_of_service" value="<?php //echo implode(",", $type_of_service); ?>"/></td>
 						<td><b>Non-ARV: &nbsp;</b>
 						<input type="checkbox" name="non_arv" id="non_arv" value="0"/>
 						</td>
-					</tr>
+					</tr>-->
 					<tr>
 						<?php
 						if (empty($cdrr_array)) {
@@ -144,7 +148,7 @@ o		<a href='<?php echo site_url("order/download_order/cdrr/".$cdrr_id);?>'><?php
 						</select>			
 						<?php
 						  } 
-						  if($hide_generate !=1){
+						  if($hide_generate !=1 && $hide_btn==0){
 						?>
 
                        	<select class="multiselect" id="stores" name="stores" multiple="multiple">
@@ -187,33 +191,26 @@ o		<a href='<?php echo site_url("order/download_order/cdrr/".$cdrr_id);?>'><?php
 	if($hide_generate==2){
 		$header_text = '<thead style="text-align:left;background:#c3d9ff;">
 					<tr>
-						<th class="col_drug" rowspan="3">Drug Name</th>
-						<th class="number" rowspan="3">Unit Pack Size</th>
-						<th class="number">Beginning Balance</th>
-						<th class="number">Quantity <br/>Received in this period</th>
-						<th class="col_dispensed_units">Total Quantity ISSUED to <br/> ARV dispensing sites <br/>(Satellite sites plus<br/>Central site dispensing <br/>point(s) where relevant)</th>
-						<th class="col_losses_units">Losses<br/>(Damages, Expiries, Missing)</th>
-						<th class="col_adjustments">Adjustments (Borrowed from <br/>or Issued out to Other Facilities)</th>
-						<th class="number">End of Month Physical Count</th>
-						<th class="number">Reported Aggregated Quantity CONSUMED in the reporting period (Satellite sites plus Central site dispensing point where relevant)</th>
-						<th class="number">Reported Aggregated Physical Stock on Hand at end of reporting period (Satellite sites plus Central site dispensing point where relevant)</th>
-						<th class="number" colspan="2">Drugs with less than 6 months to expiry(Central Site/District Store)</th>
-						<th class="number">Days out of stock this Month</th>
-						<th class="number">Quantity required for RESUPPLY</th>
+						<th colspan="2" style="text-align:center;"></th>
+						<th colspan="7" style="text-align:center;">Central site store / Sub-county store data</th>
+						<th colspan="2" style="text-align:center;">Data from the Satellite sites plus Central site dispensing point(s)</th>
+						<th colspan="4" style="text-align:center;">Central site store / Sub-county store data</th>
 					</tr>
 					<tr>
-						<th>In Packs</th>
-						<th>In Packs</th>
-						<th class="col_dispensed_units">In Packs</th>
-						<th class="col_dispensed_units">In Packs</th>
-						<th>In Packs</th>
-						<th>In Packs</th>
-						<th>In Packs</th>
-						<th>In Packs</th>
-						<th>Quantity</th>
-						<th>Expiry Date</th>
-						<th></th>
-						<th>In Packs</th>
+						<th class="col_drug" rowspan="3">Commodity Name</th>
+						<th class="number" rowspan="3">Unit of Issue /<br/>Pack Size</th>
+						<th class="number">Beginning Balance</th>
+						<th class="number">Total Quantity <br/>Received this month</th>
+						<th class="col_dispensed_units">Total Quantity Issued this month</th>
+						<th class="col_losses_units">Losses &amp Wastages</th>
+						<th class="col_adjustments">Positive</br>Adjustments</th>
+						<th class="col_adjustments">Negative</br>Adjustments</th>				
+						<th class="number">End of Month Physical Count</th>
+						<th class="number">AGGREGATED Quantity Dispensed this Month</th>
+						<th class="number">AGGREGATED End of Month Physical Stock Count this Month</th>
+						<th class="number" colspan="2">Commmodities expiring in <u>less than</u> 6 months</th>
+						<th class="number">Days out of stock <u>this Month</u></th>
+						<th class="number">Quantity requested for RE-SUPPLY</th>
 					</tr>
 					<tr>
 						<th>A</th>
@@ -224,81 +221,61 @@ o		<a href='<?php echo site_url("order/download_order/cdrr/".$cdrr_id);?>'><?php
 						<th>F</th>
 						<th>G</th>
 						<th>H</th>
-						<th>In Packs</th>
-						<th>mm-yy</th>
 						<th>I</th>
+						<th>Quantity</th>
+						<th>Earliest expiry<br/> date mm/yyyy</th>
 						<th>J</th>
+						<th>K</th>
 					</tr>
 			</thead>';
+
+	// this is the start of a standalone form. 
 	}else if($stand_alone==1){
 		$header_text = '<thead style="text-align:left;background:#c3d9ff;">
 					<tr>
-						<th class="col_drug" rowspan="3">Drug Name</th>
-						<th class="number" rowspan="3">Basic Unit</th>
+						<th class="col_drug" rowspan="3">Commodity Name</th>
+						<th class="number" rowspan="3">Unit of Issue /<br/>Pack Size</th>
 						<th class="number">Beginning Balance</th>
-						<th class="number">Quantity <br/>Received in this period</th>
-						<th class="col_dispensed_units" colspan="2">Total Quantity Dispensed <br/>this period</th>
-						<th class="col_losses_units">Losses <br/>(Damages, Expiries, Missing)</th>
-						<th class="col_adjustments">Adjustments (Borrowed from <br/>or Issued out to Other Facilities)</th>
-						<th class="number">End of Month Physical Count</th>
-						<th class="number" colspan="2">Drugs with less than 6 months to expiry</th>
-						<th class="number">Days out of stock this Month</th>
-						<th class="number">Quantity required for RESUPPLY</th>
-					</tr>
-					<tr>
-						<th>In Packs</th>
-						<th>In Packs</th>
-						<th class="col_dispensed_units">In Units</th>
-						<th class="col_dispensed_units">In Packs</th>
-						<th class="col_dispensed_units">In Packs</th>
-						<th>In Packs</th>
-						<th>In Packs</th>
-						<th>Quantity</th>
-						<th>Expiry Date</th>
-						<th></th>
-						<th>In Packs</th>
+						<th class="number">Total Quantity <br/>Received this month</th>
+						<th class="col_dispensed_units" colspan="2">Total Quantity Dispensed <br/>this month</th>
+						<th class="col_losses_units">Losses &amp Wastages</th>
+						<th class="col_adjustments">Positive</br>Adjustments</th>
+						<th class="col_adjustments">Negative</br>Adjustments</th>
+						<th class="number">End of Month</br> Physical Count</th>
+						<th class="number" colspan="2">Commodities expiring in <u>less than</u> 6 months to expiry</th>
+						<th class="number">Days out of stock <u>this</u> Month</th>
+						<th class="number">Quantity required for RE-SUPPLY</th>
 					</tr>
 					<tr>
 						<th>A</th>
 						<th>B</th>
-						<th></th>
-						<th>C</th>
+						<th colspan="2">C</th>
 						<th>D</th>
 						<th>E</th>
 						<th>F</th>
-						<th>In Units</th>
-						<th>mm-yy</th>
 						<th>G</th>
+						<th>Quantity</th>
+						<th>Earliest Expiry<br/> date mm/yyyy</th>
 						<th>H</th>
+						<th>I</th>
 					</tr>
 			</thead>';
 		
 	}else if($stand_alone==0 && $hide_generate !=2){
 		$header_text = '<thead style="text-align:left;background:#c3d9ff;">
 					<tr>
-						<th class="col_drug" rowspan="3">Drug Name</th>
-						<th class="number" rowspan="3">Basic Unit</th>
+						<th class="col_drug" rowspan="2">Drug Name</th>
+						<th class="number" rowspan="2">Unit Pack Size</th>
 						<th class="number">Beginning Balance</th>
-						<th class="number">Quantity <br/>Received in this period</th>
-						<th class="col_dispensed_units">Total Quantity Dispensed <br/>this period</th>
-						<th class="col_losses_units">Losses <br/>(Damages, Expiries, Missing)</th>
-						<th class="col_adjustments">Adjustments (Borrowed from <br/>or Issued out to Other Facilities)</th>
-						<th class="number">End of Month Physical Count</th>
-						<th class="number" colspan="2">Drugs with less than 6 months to expiry</th>
-						<th class="number">Days out of stock this Month</th>
-						<th class="number">Quantity required for RESUPPLY</th>
-					</tr>
-					<tr>
-						<th>In Units</th>
-						<th>In Units</th>
-						<th class="col_dispensed_units">In Units</th>
-						<th class="col_dispensed_units">In Units</th>
-						<th>In Units</th>
-						<th>In Units</th>
-						<th>Quantity</th>
-						<th>Expiry Date</th>
-						<th></th>
-						<th>In Units</th>
+						<th class="number">Total Quantity <br/>Received this month</th>
+						<th class="col_dispensed_units">Total Quantity Dispensed <br/>this month</th>
+						<th class="col_losses_units">Losses &amp Wastages</font></th>
+						<th class="col_adjustments">Positive</br>Adjustments</th>
+						<th class="col_adjustments">Negative</br>Adjustments</th>
+						<th class="number">End of Month</br> Physical Stock Count</br><font style="font-weight:lighter; color:blue;">(For CS </br>Dispensing </br>Point, please </br><strong>exclude</strong> the central site Store stocks)</font></th>
+						<th class="number" colspan="2">Commodities expiring in <u>less than</u> 6 months to expiry</th>
+						<th class="number">Days out of stock <u>this</u> Month</th>
+						<th class="number">Quantity required for RE-SUPPLY</th>
 					</tr>
 					<tr>
 						<th>A</th>
@@ -307,10 +284,11 @@ o		<a href='<?php echo site_url("order/download_order/cdrr/".$cdrr_id);?>'><?php
 						<th>D</th>
 						<th>E</th>
 						<th>F</th>
-						<th>In Units</th>
-						<th>mm-yy</th>
 						<th>G</th>
+						<th>Quantity</th>
+						<th>Earliest Expiry<br/> date mm/yyyy</th>
 						<th>H</th>
+						<th>I</th>
 					</tr>
 			</thead>';}echo $header_text;?>
 				<tbody>
@@ -319,6 +297,7 @@ o		<a href='<?php echo site_url("order/download_order/cdrr/".$cdrr_id);?>'><?php
 					$count_one=0;
 					$count_two=0;
 					$count_three=0;
+					$count_four=0;
 					foreach($commodities as $commodity){
 				         if($commodity -> Drug !=NULL){
 				         	$counter++;
@@ -328,19 +307,25 @@ o		<a href='<?php echo site_url("order/download_order/cdrr/".$cdrr_id);?>'><?php
 			                   }
 						  if($hide_generate==2){
 						  if($commodity->Category==1 && $count_one==0){
-						  	  echo '<tr><td colspan="14" style="text-align:center;background:#999;">Adult Preparations</td></tr>';
+						  	  echo '<tr><td colspan="15" style="text-align:center;background:#998;">ARVs</td></tr>';
+						  	  echo '<tr><td colspan="15" style="text-align:center;background:#999;">Adult Preparations</td></tr>';
 							  $count_one++;
 						  }	   
 						  if($commodity->Category==2 && $count_two==0){
-						  	  echo '<tr><td colspan="14" style="text-align:center;background:#999;">Pediatric Preparations</td></tr>';
+						  	  echo '<tr><td colspan="15" style="text-align:center;background:#999;">Pediatric Preparations</td></tr>';
 							  $count_two++;
 						  }
                           if($commodity->Category==3 && $count_three==0){
-						  	  echo '<tr><td colspan="14" style="text-align:center;background:#999;">Drugs for OIs</td></tr>';
+						  	  echo '<tr><td colspan="15" style="text-align:center;background:#999;">Medicines for OIs</td></tr>';
 							  $count_three++;
+						  }
+						  if($commodity->Category==4 && $count_four==0){
+						  	  echo '<tr><td colspan="15" style="text-align:center;background:#999;">TB/ HIV DRUGS</td></tr>';
+							  $count_four++;
 						  }
 						  }else{
 						  if($commodity->Category==1 && $count_one==0){
+						  	  echo '<tr><td colspan="13" style="text-align:center;background:#998;">ARVs</td></tr>';
 						  	  echo '<tr><td colspan="13" style="text-align:center;background:#999;">Adult Preparations</td></tr>';
 							  $count_one++;
 						  }	   
@@ -349,14 +334,17 @@ o		<a href='<?php echo site_url("order/download_order/cdrr/".$cdrr_id);?>'><?php
 							  $count_two++;
 						  }
                           if($commodity->Category==3 && $count_three==0){
-						  	  echo '<tr><td colspan="13" style="text-align:center;background:#999;">Drugs for OIs</td></tr>';
+						  	  echo '<tr><td colspan="13" style="text-align:center;background:#999;">Medicines for OIs</td></tr>';
 							  $count_three++;
+						  }
+						  if($commodity->Category==4 && $count_four==0){
+						  	  echo '<tr><td colspan="13" style="text-align:center;background:#999;">TB/ HIV DRUGS</td></tr>';
+							  $count_four++;
 						  }
 						  }
 					?>
 					<tr class="ordered_drugs" drug_id="<?php echo $commodity -> id;?>">
 						<td class="col_drug"><?php echo $commodity -> Drug;?>
-							<input type="hidden" class="pack_size" name="pack_size[]" id="pack_size_<?php echo $commodity -> id;?>" value="<?php echo $commodity ->Pack_Size;?>"/>
 							<?php 
 							if($options=="update" || $options=="view"){
 							?>
@@ -365,42 +353,53 @@ o		<a href='<?php echo site_url("order/download_order/cdrr/".$cdrr_id);?>'><?php
 							}
 							?>
 						</td>
+
 						<?php
 	                    if($hide_generate==2){
 	                    ?>
-						<td class="number calc_count"><?php echo $commodity ->Pack_Size;?></td>
+<!-- showing the input of the column unit pack size -->
+						<td class="number calc_count">
+							<input type="text"  class="pack_size" name="pack_size[]" id="pack_size_<?php echo $commodity -> id;?>" value="<?php echo $commodity ->Pack_Size;?>" style="color: blue; font-weight: bold; text-align:center;"/>
+						</td>
 						<?php
-						}else{
+
+						}else{ 
 						?>
-						<td class="number calc_count"><?php if($options=="view"){echo $commodity->Unit_Name;}else{echo $commodity->Unit_Name;}?></td>
+<!-- showing the input of the column unit pack size -->
+
+<!-- Devide the displayed output by the number of packsize -->
+						<td class="number calc_count"><input type="text"  class="pack_size" name="pack_size[]" id="pack_size_<?php echo $commodity -> id;?>" value="<?php echo $commodity ->Pack_Size;?>" style="color: blue; font-weight: bold; text-align:center;"/></td>
 						<?php	
 						}
 						?>
-						<td> <input name="opening_balance[]" id="opening_balance_<?php echo $commodity -> id;?>" type="text" class="opening_balance"/></td>
-						<td> <input name="quantity_received[]" id="received_in_period_<?php echo $commodity -> id;?>" type="text" class="quantity_received"/></td>
-						<td> <input name="quantity_dispensed[]" id="dispensed_in_period_<?php echo $commodity -> id;?>" type="text" class="quantity_dispensed"/></td>
+						<td> <input name="opening_balance[]" id="opening_balance_<?php echo $commodity->id;?>" type="text" class="opening_balance" style="width:100%; text-align:center;"/></td>
+						<td> <input name="quantity_received[]" id="received_in_period_<?php echo $commodity -> id;?>" type="text" class="quantity_received" style="width:100%; text-align:center;"/></td>
+						<td> <input name="quantity_dispensed[]" id="dispensed_in_period_<?php echo $commodity -> id;?>" type="text" class="quantity_dispensed" style="width:100%; text-align:center;"/></td>
 						<?php
 	                    if($stand_alone==1){
 	                    ?>
-	                    <td> <input name="quantity_dispensed_packs[]" id="dispensed_in_period_packs_<?php echo $commodity -> id;?>" type="text" class="quantity_dispensed_packs"/></td>
+	                    <td> <input name="quantity_dispensed_packs[]" id="dispensed_in_period_packs_<?php echo $commodity -> id;?>" type="text" class="quantity_dispensed_packs" style="width:100%; text-align:center;"/></td>
 	                    <?php
 						}
 	                    ?>
-						<td> <input name="losses[]" id="losses_in_period_<?php echo $commodity->id;?>" type="text" class="losses"/></td>
-						<td> <input name="adjustments[]" id="adjustments_in_period_<?php echo $commodity->id;?>" type="text" class="adjustments"/></td>
-						<td> <input tabindex="-1" name="physical_count[]" id="physical_in_period_<?php echo $commodity->id;?>" type="text" class="physical_count"/></td>
+						<td> <input name="losses[]" id="losses_in_period_<?php echo $commodity->id;?>" type="text" class="losses" style="width:100%; text-align:center;"/></td>
+						<!-- added column to the new cdrr templates ... Positive Adjustments -->
+						<td> <input name="adjustments[]" id="positive_adjustment_<?php echo $commodity->id;?>" type="text" class="adjustments" style="width:100%; text-align:center;"/></td>
+						<!-- end of added column to the new cdrr templates ... Negative Adjustments -->
+						<td> <input name="adjustments_neg[]" id="adjustments_in_period_<?php echo $commodity->id;?>" type="text" class="adjustments_neg" style="width:100%; text-align:center;"/></td>
+						<td> <input tabindex="-1" name="physical_count[]" id="physical_in_period_<?php echo $commodity->id;?>" type="text" class="physical_count" style="width:100%; text-align:center;"/></td>
 						<?php
 	                    if($hide_generate==2){
 	                    ?>
-						<td> <input tabindex="-1" name="aggregated_qty[]" id="aggregated_qty_<?php echo $commodity->id;?>" type="text" class="aggregated_qty"/></td>
-						<td> <input tabindex="-1" name="aggregated_physical_qty[]" id="aggregated_physical_qty_<?php echo $commodity->id;?>" type="text" class="aggregated_physical_qty"/></td>
+						<td> <input tabindex="-1" name="aggregated_qty[]" id="aggregated_qty_<?php echo $commodity->id;?>" type="text" class="aggregated_qty" style="width:100%; text-align:center;"/></td>
+						<td> <input tabindex="-1" name="aggregated_physical_qty[]" id="aggregated_physical_qty_<?php echo $commodity->id;?>" type="text" class="aggregated_physical_qty" style="width:100%; text-align:center;"/></td>
 						<?php
 						}
 						?>
-						<td> <input tabindex="-1" name="expire_qty[]" id="expire_qty_<?php echo $commodity -> id;?>" type="text" class="expire_qty"/></td>
-						<td> <input tabindex="-1" name="expire_period[]" id="expire_period_<?php echo $commodity -> id;?>" type="text" class="expire_period"/></td>	
-						<td> <input tabindex="-1" name="out_of_stock[]" id="out_of_stock_<?php echo $commodity -> id;?>" type="text" class="out_of_stock"/></td>
-						<td> <input tabindex="-1" name="resupply[]" id="resupply_<?php echo $commodity -> id;?>" type="text" class="resupply"/></td>	
+						<td> <input tabindex="-1" name="expire_qty[]" id="expire_qty_<?php echo $commodity -> id;?>" type="text" class="expire_qty" style="width:100%; text-align:center;"/></td>
+						<td> <input tabindex="-1" name="expire_period[]" id="expire_period_<?php echo $commodity -> id;?>" type="text" class="expire_period" style="width:100%; text-align:center;"/></td>	
+						<td> <input tabindex="-1" name="out_of_stock[]" id="out_of_stock_<?php echo $commodity -> id;?>" type="text" class="out_of_stock" style="width:100%; text-align:center;"/></td>
+						<td> <input tabindex="-1" name="resupply[]" id="resupply_<?php echo $commodity -> id;?>" type="text" class="resupply" style="width:100%; text-align:center;"/></td>	
 						<input type="hidden" name="commodity[]" value="<?php echo $commodity -> id;?>"/>					
 					</tr>					
 					<?php 
@@ -412,13 +411,9 @@ o		<a href='<?php echo site_url("order/download_order/cdrr/".$cdrr_id);?>'><?php
 		</div>
 		<div>
 			<span style="vertical-align:bottom;font-size:1.2em;">Comments (Explain ALL Losses and Adjustments):</span>
-			<textarea style="width:100%;font-size:18px;" rows="8" name="comments" id="comments">
-				<?php 
-				  if($options=="update" || $options=="view"){
-					 echo @$cdrr_array[0]['comments'];
-					}
-				 ?>
-			</textarea>
+			<textarea style="width:100%;font-size:18px;" rows="8" name="comments" id="comments"><?php 
+				if($options=="update" || $options=="view") echo @$cdrr_array[0]['comments'];
+			?></textarea>
 			<?php
 	           if($hide_generate==2){
 	        ?>
@@ -442,13 +437,13 @@ o		<a href='<?php echo site_url("order/download_order/cdrr/".$cdrr_id);?>'><?php
 					<td><b>Report <?php echo $log->description;?> by:</b> 
 					<input type="hidden" name="log_id[]" id="log_id_<?php echo $log -> id;?>" value="<?php echo $log -> id;?>"/>	
 					</td>
-					<td><?php echo $log->s_user->name; ?></td>
+					<td><?php echo $log->user->Name; ?></td>
 					<td><b>Designation:</b></td>
-					<td><?php echo $log->s_user->role; ?></td>
+					<td><?php echo $log->user->Access->Level_Name; ?></td>
 				</tr>
 				<tr>
 					<td><b>Contact Telephone:</b></td>
-					<td>N/A</td>
+					<td><?php echo $log->user->Phone_Number; ?></td>
 					<td><b>Date:</b></td>
 					<td><?php echo $log->created; ?></td>
 				</tr>
@@ -555,10 +550,13 @@ o		<a href='<?php echo site_url("order/download_order/cdrr/".$cdrr_id);?>'><?php
 				calculatePacks($(this));
 			}
 		});
+        $(".adjustments").live('change',function() {
+            calculateResupply($(this));
+        });
 		$(".losses").live('change',function() {
 			calculateResupply($(this));
 		});
-		$(".adjustments").live('change',function() {
+		$(".adjustments_neg").live('change',function() {
 			calculateResupply($(this));
 		});
 		$(".physical_count").live('change',function() {
@@ -606,8 +604,9 @@ o		<a href='<?php echo site_url("order/download_order/cdrr/".$cdrr_id);?>'><?php
 		<?php	
 		}
 		?>
+          $("#positive_adjustment_<?php echo $cdrr['drug_id']; ?>").val("<?php echo $cdrr['adjustments']; ?>");
 		  $("#losses_in_period_<?php echo $cdrr['drug_id']; ?>").val("<?php echo $cdrr['losses']; ?>");
-		  $("#adjustments_in_period_<?php echo $cdrr['drug_id']; ?>").val("<?php echo $cdrr['adjustments']; ?>");
+		  $("#adjustments_in_period_<?php echo $cdrr['drug_id']; ?>").val("<?php echo $cdrr['adjustments_neg']; ?>");
 		  $("#physical_in_period_<?php echo $cdrr['drug_id']; ?>").val("<?php echo $cdrr['count']; ?>");
 		  <?php
 		  if($cdrr_array[0]['code']=='D-CDRR'){
@@ -692,6 +691,7 @@ o		<a href='<?php echo site_url("order/download_order/cdrr/".$cdrr_id);?>'><?php
 		?>
 		var losses = parseInt(row_element.find(".losses").attr("value"));
 		var adjustments = parseInt(row_element.find(".adjustments").attr("value"));
+		var adjustments_neg = parseInt(row_element.find(".adjustments_neg").attr("value"));
 		var physical_count = parseInt(row_element.find(".physical_count").attr("value"));
 		var resupply = 0;
 		if(!(opening_balance + 0)) {
@@ -710,10 +710,15 @@ o		<a href='<?php echo site_url("order/download_order/cdrr/".$cdrr_id);?>'><?php
 		if(!(adjustments + 0)) {
 			adjustments = 0;
 		}
+
+		if(!(adjustments_neg + 0)) {
+			adjustments_neg = 0;
+		}
+
 		if(!(physical_count + 0)) {
 			physical_count = 0;
 		}
-		calculated_physical = (opening_balance + quantity_received - quantity_dispensed - losses + adjustments);
+		calculated_physical = (opening_balance + quantity_received - quantity_dispensed - losses + adjustments - adjustments_neg);
 		if(element.attr("class") == "physical_count") {
 		 resupply = 0 - physical_count;
 		 } else {

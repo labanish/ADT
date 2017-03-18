@@ -32,8 +32,22 @@
 			?>
         </div>
     </div>
+
+    <h3 style="margin-top: 0; width: auto;">
+
+    Filter Patients Based on Status: 
+    	<select id="filter">
+    		<option value="0"><strong>Active</strong></option>
+    		<option value="1"><strong>Inactive</strong></option>
+    		<option value="2"><strong>All</strong></option>
+    	</select>
+
+ <!--    	<button id="btn_filter">Filter</button> -->
+
+    </h3>
+
     <!--table row-->
-    <div class="row-fluid">
+    <div class="row-fluid" style="margin-top: 0;">
         <div class="span12">
             <div class="table-responsive">
                 <table class="table table-bordered table-condensed table-hover" id="patient_listing">
@@ -69,3 +83,4 @@
 
 <!--custom js-->
 <script src="./assets/modules/patients/listing.js"></script>
+

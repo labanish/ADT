@@ -3,7 +3,7 @@
 class Cdrr_Logic extends MY_Controller {
     
     var $nascop_url = "http://192.168.133.10/NASCOP/";
-    var $escm_url = "http://api.kenyapharma.org/";
+    var $escm_url = "http://portal.kemsa.co.ke/escm-api/";
     var $facility_code = "";
     var $default_url = "";
 

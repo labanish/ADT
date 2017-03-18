@@ -22,7 +22,7 @@ class report_management extends MY_Controller {
 		$this -> listing();
 	}
 
-	public function getMOHForm($type = "711", $period_start = "", $period_end) {
+	public function getMOHForm($type = "", $period_start = "", $period_end) {
 		$this -> load -> library('PHPExcel');
 		$dir = "Export";
 		if ($type == "711") {
@@ -39,7 +39,7 @@ class report_management extends MY_Controller {
 		if (is_dir($dir)) {
 			$files = scandir($dir);
 			foreach ($files as $object) {
-				if ($object != "." && $object != "..") {
+				if (!in_array($object, array('.','..','.gitkeep'))) {
 					unlink($dir . "/" . $object);
 				}
 			}
@@ -956,9 +956,9 @@ class report_management extends MY_Controller {
 	public function enrolled_in_care($selected_period = "") {
 		//Variables
 		$period = explode('-', $selected_period);
-		$year = $period[1];
-		$month = date('m', strtotime($period[0]));
-		$today = date('Y-m-d', strtotime("01-$selected_period"));
+		$year = date('Y', strtotime($selected_period));
+		$month = date('m', strtotime($selected_period));
+		$today = date('Y-m-d', strtotime("$selected_period"));
 		$below_one_year = 0;
 		$male_below_fifteen_years = 0;
 		$female_below_fifteen_years = 0;
@@ -974,6 +974,7 @@ class report_management extends MY_Controller {
 		        AND active='1'";
 		$query = $this -> db -> query($sql);
 		$results = $query -> result_array();
+
 		if ($results) {
 			$below_one_year = $results[0]['total'];
 		}
@@ -986,7 +987,7 @@ class report_management extends MY_Controller {
 		        AND DATEDIFF('$today',dob)>=365 
 		        AND DATEDIFF('$today',dob)<(365*15) 
 		        AND active='1' group by gender";
-		$query = $this -> db -> query($sql);
+		$query = $this -> db-> query($sql);
 		$results = $query -> result_array();
 		if ($results) {
 			foreach ($results as $result) {
@@ -1021,7 +1022,7 @@ class report_management extends MY_Controller {
 		$data = array();
 		$data['J13'] = $below_one_year;
 		$data['J14'] = $male_below_fifteen_years;
-		$data['L15'] = $female_below_fifteen_years;
+		$data['L14'] = $female_below_fifteen_years;
 		$data['J15'] = $male_above_fifteen_years;
 		$data['L15'] = $female_above_fifteen_years;
 		return $data;
@@ -1057,7 +1058,7 @@ class report_management extends MY_Controller {
 				AND ps.Name LIKE '%active%'
 				GROUP BY p.patient_number_ccc";
 		$query = $this -> db -> query($sql);
-		$results = $query -> result_array();
+		$results = $query->result_array();
 		if ($results) {
 			foreach ($results as $result) {
 				if (strtolower($result['gender']) == "female") {
@@ -1855,6 +1856,109 @@ class report_management extends MY_Controller {
 		$this -> base_params($data);
 	}
 
+	public function get_prep_patients($period_start = "", $period_end=""){
+		$report_items = array(
+			"new_registration" => "SELECT 
+										COUNT(IF(LOWER(g.name) = 'male' AND (YEAR(CURDATE())-YEAR(dob)) >= 15 AND (YEAR(CURDATE())-YEAR(dob)) < 25 , 1, NULL)) as male_15,
+										COUNT(IF(LOWER(g.name) = 'male' AND (YEAR(CURDATE())-YEAR(dob)) >= 25  , 1, NULL)) as male_25,
+										COUNT(IF(LOWER(g.name) = 'female' AND (YEAR(CURDATE())-YEAR(dob)) >= 15 AND (YEAR(CURDATE())-YEAR(dob)) < 25 , 1, NULL)) as female_15,
+										COUNT(IF(LOWER(g.name) = 'female' AND (YEAR(CURDATE())-YEAR(dob)) >= 25  , 1, NULL)) as female_25
+									FROM patient p
+									LEFT JOIN gender g ON g.id = p.gender
+									WHERE date_enrolled BETWEEN  ? AND ?",
+			"enrollment_in_prep" => "SELECT 
+											COUNT(IF(LOWER(g.name) = 'male' AND (YEAR(CURDATE())-YEAR(dob)) >= 15 AND (YEAR(CURDATE())-YEAR(dob)) < 25 , 1, NULL)) as male_15,
+											COUNT(IF(LOWER(g.name) = 'male' AND (YEAR(CURDATE())-YEAR(dob)) >= 25  , 1, NULL)) as male_25,
+											COUNT(IF(LOWER(g.name) = 'female' AND (YEAR(CURDATE())-YEAR(dob)) >= 15 AND (YEAR(CURDATE())-YEAR(dob)) < 25 , 1, NULL)) as female_15,
+											COUNT(IF(LOWER(g.name) = 'female' AND (YEAR(CURDATE())-YEAR(dob)) >= 25  , 1, NULL)) as female_25
+										FROM patient p
+										LEFT JOIN gender g ON g.id = p.gender
+										LEFT JOIN regimen_service_type rst ON rst.id = p.service
+										WHERE date_enrolled BETWEEN  ? AND ?
+										AND rst.name LIKE '%prep%'",
+			"tested_positive" => "SELECT 
+											COUNT(IF(LOWER(g.name) = 'male' AND (YEAR(CURDATE())-YEAR(dob)) >= 15 AND (YEAR(CURDATE())-YEAR(dob)) < 25 , 1, NULL)) as male_15,
+											COUNT(IF(LOWER(g.name) = 'male' AND (YEAR(CURDATE())-YEAR(dob)) >= 25  , 1, NULL)) as male_25,
+											COUNT(IF(LOWER(g.name) = 'female' AND (YEAR(CURDATE())-YEAR(dob)) >= 15 AND (YEAR(CURDATE())-YEAR(dob)) < 25 , 1, NULL)) as female_15,
+											COUNT(IF(LOWER(g.name) = 'female' AND (YEAR(CURDATE())-YEAR(dob)) >= 25  , 1, NULL)) as female_25
+										FROM patient p
+										LEFT JOIN gender g ON g.id = p.gender
+										LEFT JOIN patient_prep_test pst ON pst.patient_id = p.id
+										WHERE pst.test_date BETWEEN  ? AND ?
+										AND pst.test_result = '1'",
+			"currently_on_prep" => "SELECT 
+											COUNT(IF(LOWER(g.name) = 'male' AND (YEAR(CURDATE())-YEAR(dob)) >= 15 AND (YEAR(CURDATE())-YEAR(dob)) < 25 , 1, NULL)) as male_15,
+											COUNT(IF(LOWER(g.name) = 'male' AND (YEAR(CURDATE())-YEAR(dob)) >= 25  , 1, NULL)) as male_25,
+											COUNT(IF(LOWER(g.name) = 'female' AND (YEAR(CURDATE())-YEAR(dob)) >= 15 AND (YEAR(CURDATE())-YEAR(dob)) < 25 , 1, NULL)) as female_15,
+											COUNT(IF(LOWER(g.name) = 'female' AND (YEAR(CURDATE())-YEAR(dob)) >= 25  , 1, NULL)) as female_25
+										FROM patient p
+										LEFT JOIN gender g ON g.id = p.gender
+										LEFT JOIN regimen_service_type rst ON rst.id = p.service
+										LEFT JOIN patient_status ps ON p.current_status = ps.id
+										WHERE p.date_enrolled <= ?
+										AND rst.name LIKE '%prep%'
+										AND ps.Name LIKE '%active%'",
+			"cumulative_ever_on_prep" => "SELECT 
+											COUNT(IF(LOWER(g.name) = 'male' AND (YEAR(CURDATE())-YEAR(dob)) >= 15 AND (YEAR(CURDATE())-YEAR(dob)) < 25 , 1, NULL)) as male_15,
+											COUNT(IF(LOWER(g.name) = 'male' AND (YEAR(CURDATE())-YEAR(dob)) >= 25  , 1, NULL)) as male_25,
+											COUNT(IF(LOWER(g.name) = 'female' AND (YEAR(CURDATE())-YEAR(dob)) >= 15 AND (YEAR(CURDATE())-YEAR(dob)) < 25 , 1, NULL)) as female_15,
+											COUNT(IF(LOWER(g.name) = 'female' AND (YEAR(CURDATE())-YEAR(dob)) >= 25  , 1, NULL)) as female_25
+										FROM patient p
+										LEFT JOIN gender g ON g.id = p.gender
+										LEFT JOIN regimen_service_type rst ON rst.id = p.service
+										WHERE p.date_enrolled <= ?
+										AND rst.name LIKE '%prep%'"
+		);
+
+
+		$dyn_table = "<table border='1' id='patient_listing'  cellpadding='5' class='dataTables'>";
+		$dyn_table .= "<thead>
+							<tr>
+								<th>Description</th>
+								<th>Total</th>
+								<th>Male</th>
+								<th></th>
+								<th>Female
+								<th></th>
+							</tr>
+							<tr>
+								<th></th>
+								<th></th>
+								<th>15 - 24</th>
+								<th>25 & Above</th>
+								<th>15 - 24</th>
+								<th>25 & Above</th>
+							</tr>
+						</thead>
+					<tbody>";
+
+		foreach ($report_items as $report => $sql) {
+			if(!in_array($report, array('currently_on_prep', 'cumulative_ever_on_prep'))){
+				$query = $this->db->query($sql, array($period_start, $period_end));
+			}else{
+				$query = $this->db->query($sql, array($period_end));
+			}
+			$result = $query->row_array();
+			$report = ucwords(str_ireplace("_", " ", $report));
+			$total = ($result['male_15'] + $result['male_25'] + $result['female_15'] + $result['female_25']);
+			$dyn_table .= "<tr><td>".$report ."</td><td>".$total."</td><td>".$result['male_15']."</td><td>".$result['male_25']."</td><td>".$result['female_15']."</td><td>".$result['female_25']."</td></tr>";
+		}
+		$dyn_table .= "</tbody><tfoot></tfoot></table>";
+
+		$data['dyn_table'] = $dyn_table;
+		$data['from'] = date('d-M-Y', strtotime($period_start));
+		$data['to'] = date('d-M-Y', strtotime($period_end));
+		$data['title'] = "webADT | Reports";
+		$data['hide_side_menu'] = 1;
+		$data['banner_text'] = "Facility Reports";
+		$data['selected_report_type_link'] = "standard_report_row";
+		$data['selected_report_type'] = "Standard Reports";
+		$data['report_title'] = "Patients PREP Summary";
+		$data['facility_name'] = $this -> session -> userdata('facility_name');
+		$data['content_view'] = 'reports/patient_prep_summary_v';
+		$this -> load -> view('template', $data);
+	}
+
 	public function patient_enrolled($from = "", $to = "", $supported_by = 0) {
 		//Variables
 		$facility_code = $this -> session -> userdata("facility");
@@ -2196,7 +2300,88 @@ class report_management extends MY_Controller {
 
 	}
 
-	public function getScheduledPatients($from = "", $to = "") {
+
+	public function get_differentiated_care_appointments($from = "", $to = ""){
+		$start_date = date('Y-m-d', strtotime($from));
+		$end_date = date('Y-m-d', strtotime($to));
+		$overall_total = 0;
+
+		$sql = "SELECT 
+					tmp.appointment_description,
+					DATE_FORMAT(min(appointment), '%d-%b-%Y') from_date,
+					DATE_FORMAT(max(appointment), '%d-%b-%Y') to_date,
+					COUNT(*) as total
+				FROM
+				(SELECT 
+					pv.patient_id, 
+					pv.visit_date, 
+					pa.appointment, 
+					DATEDIFF(pa.appointment, pv.visit_date) appointment_days,
+					CASE 
+						WHEN DATEDIFF(pa.appointment, pv.visit_date) > 0 AND DATEDIFF(pa.appointment, pv.visit_date) < 31 THEN '1 Month(s)'
+						WHEN DATEDIFF(pa.appointment, pv.visit_date) > 30 AND DATEDIFF(pa.appointment, pv.visit_date) < 61 THEN '2 Month(s)'
+						WHEN DATEDIFF(pa.appointment, pv.visit_date) > 60 AND DATEDIFF(pa.appointment, pv.visit_date) < 91 THEN '3 Month(s)'
+						WHEN DATEDIFF(pa.appointment, pv.visit_date) > 90 AND DATEDIFF(pa.appointment, pv.visit_date) < 121 THEN '4 Month(s)'
+						WHEN DATEDIFF(pa.appointment, pv.visit_date) > 120 AND DATEDIFF(pa.appointment, pv.visit_date) < 151 THEN '5 Month(s)'
+						WHEN DATEDIFF(pa.appointment, pv.visit_date) > 150 AND DATEDIFF(pa.appointment, pv.visit_date) < 181 THEN '6 Month(s)'
+						WHEN DATEDIFF(pa.appointment, pv.visit_date) > 180 AND DATEDIFF(pa.appointment, pv.visit_date) < 211 THEN '7 Month(s)'
+						WHEN DATEDIFF(pa.appointment, pv.visit_date) > 210 AND DATEDIFF(pa.appointment, pv.visit_date) < 241 THEN '8 Month(s)'
+						WHEN DATEDIFF(pa.appointment, pv.visit_date) > 240 AND DATEDIFF(pa.appointment, pv.visit_date) < 271 THEN '9 Month(s)'
+						WHEN DATEDIFF(pa.appointment, pv.visit_date) > 270 AND DATEDIFF(pa.appointment, pv.visit_date) < 301 THEN '10 Month(s)'
+						WHEN DATEDIFF(pa.appointment, pv.visit_date) > 300 AND DATEDIFF(pa.appointment, pv.visit_date) < 331 THEN '11 Month(s)'
+						WHEN DATEDIFF(pa.appointment, pv.visit_date) > 330 AND DATEDIFF(pa.appointment, pv.visit_date) < 361 THEN '12 Month(s)'
+						WHEN DATEDIFF(pa.appointment, pv.visit_date) > 360 THEN 'Over 1 Year'
+						ELSE 'N/A'
+						END AS appointment_description
+				FROM patient_appointment pa 
+				INNER JOIN 
+				(SELECT patient_id, dispensing_date visit_date
+				FROM patient_visit
+				WHERE dispensing_date BETWEEN ? AND ?
+				GROUP BY patient_id, visit_date) pv ON pv.patient_id = pa.patient AND pa.appointment > visit_date
+				GROUP BY patient_id,visit_date
+				) tmp
+				GROUP BY tmp.appointment_description";
+
+		$query = $this -> db -> query($sql, array($start_date, $end_date));
+		$results = $query -> result_array();
+
+		$row_string = "<table border='1' class='dataTables'>
+							<thead >
+								<tr>
+									<th>Appointment Duration</th>
+									<th>Total</th>
+									<th>Action</th>
+								</tr>
+							</thead>
+							<tbody>";
+		foreach ($results as $result) {
+			$appointment_description = $result['appointment_description'];
+			$app_desc = str_ireplace(array(' ','(s)'), array('_',''), $appointment_description);
+			$total = $result['total'];
+			$overall_total += $total;
+			$action_link = anchor('report_management/getScheduledPatients/'.$result['from_date'].'/'.$result['to_date'].'/'.$from.'/'.$to.'/'.$app_desc, 'View Patients', array('target' => '_blank'));
+			$row_string .= "<tr><td>$appointment_description</td><td>$total</td><td>$action_link</td></tr>";
+		}
+		$row_string .= "</tbody></table>";
+
+		$data['from'] = date('d-M-Y', strtotime($from));
+		$data['to'] = date('d-M-Y', strtotime($to));
+		$data['dyn_table'] = $row_string;
+		$data['overall_total'] = $overall_total;
+		$data['title'] = "webADT | Reports";
+		$data['hide_side_menu'] = 1;
+		$data['banner_text'] = "Facility Reports";
+		$data['selected_report_type_link'] = "visiting_patient_report_row";
+		$data['selected_report_type'] = "Visiting Patients";
+		$data['report_title'] = "Appointment Allocation Analysis for Differentiated Care";
+		$data['facility_name'] = $this -> session -> userdata('facility_name');
+		$data['content_view'] = 'reports/differentiated_care_appointments_v';
+		$this -> load -> view('template', $data);
+
+	}
+
+	public function getScheduledPatients($from = "", $to = "", $filter_from = NULL, $filter_to = NULL, $appointment_description = NULL) {
 		//Variables
 		$visited = 0;
 		$not_visited = 0;
@@ -2210,8 +2395,53 @@ class report_management extends MY_Controller {
 		$from = date('Y-m-d', strtotime($from));
 		$to = date('Y-m-d', strtotime($to));
 
-		//Get all patients who have apppointments on the selected date range
-		$sql = "select patient,appointment from patient_appointment where appointment between '$from' and '$to' and facility='$facility_code' group by patient,appointment";
+		if($filter_from != NULL && $filter_to != NULL && $appointment_description != NULL){
+			$filter_from = date('Y-m-d', strtotime($filter_from));
+			$filter_to = date('Y-m-d', strtotime($filter_to));
+			$app_desc = str_ireplace('_', ' ', $appointment_description);
+			//Get all patients who have apppointments on the selected date range and visited in the filtered date range
+			$sql = "SELECT 
+						tmp.patient,
+						tmp.appointment
+					FROM(
+						SELECT 
+							pa.patient,
+							pa.appointment,
+							CASE 
+								WHEN DATEDIFF(pa.appointment, pv.visit_date) > 0 AND DATEDIFF(pa.appointment, pv.visit_date) < 31 THEN '1 Month'
+								WHEN DATEDIFF(pa.appointment, pv.visit_date) > 30 AND DATEDIFF(pa.appointment, pv.visit_date) < 61 THEN '2 Month'
+								WHEN DATEDIFF(pa.appointment, pv.visit_date) > 60 AND DATEDIFF(pa.appointment, pv.visit_date) < 91 THEN '3 Month'
+								WHEN DATEDIFF(pa.appointment, pv.visit_date) > 90 AND DATEDIFF(pa.appointment, pv.visit_date) < 121 THEN '4 Month'
+								WHEN DATEDIFF(pa.appointment, pv.visit_date) > 120 AND DATEDIFF(pa.appointment, pv.visit_date) < 151 THEN '5 Month'
+								WHEN DATEDIFF(pa.appointment, pv.visit_date) > 150 AND DATEDIFF(pa.appointment, pv.visit_date) < 181 THEN '6 Month'
+								WHEN DATEDIFF(pa.appointment, pv.visit_date) > 180 AND DATEDIFF(pa.appointment, pv.visit_date) < 211 THEN '7 Month'
+								WHEN DATEDIFF(pa.appointment, pv.visit_date) > 210 AND DATEDIFF(pa.appointment, pv.visit_date) < 241 THEN '8 Month'
+								WHEN DATEDIFF(pa.appointment, pv.visit_date) > 240 AND DATEDIFF(pa.appointment, pv.visit_date) < 271 THEN '9 Month'
+								WHEN DATEDIFF(pa.appointment, pv.visit_date) > 270 AND DATEDIFF(pa.appointment, pv.visit_date) < 301 THEN '10 Month'
+								WHEN DATEDIFF(pa.appointment, pv.visit_date) > 300 AND DATEDIFF(pa.appointment, pv.visit_date) < 331 THEN '11 Month'
+								WHEN DATEDIFF(pa.appointment, pv.visit_date) > 330 AND DATEDIFF(pa.appointment, pv.visit_date) < 361 THEN '12 Month'
+								WHEN DATEDIFF(pa.appointment, pv.visit_date) > 360 THEN 'Over 1 Year'
+								ELSE 'N/A'
+							END AS appointment_description
+						FROM patient_appointment pa 
+						INNER JOIN 
+						(SELECT 
+							patient_id, dispensing_date visit_date
+						FROM patient_visit
+						WHERE dispensing_date BETWEEN '$filter_from' AND '$filter_to'
+						GROUP BY patient_id, visit_date) pv ON pv.patient_id = pa.patient AND pa.appointment > visit_date
+						GROUP BY patient_id,visit_date
+					) tmp
+					WHERE tmp.appointment_description = '$app_desc'";
+		}else{
+			//Get all patients who have apppointments on the selected date range
+			$sql = "SELECT patient,appointment 
+					FROM patient_appointment 
+					WHERE appointment BETWEEN '$from' AND '$to' 
+					AND facility='$facility_code' 
+					GROUP BY patient,appointment";
+		}
+
 		$query = $this -> db -> query($sql);
 		$results = $query -> result_array();
 		$row_string = "
@@ -2227,6 +2457,8 @@ class report_management extends MY_Controller {
 						<th> Last Regimen </th>
 						<th> Appointment Date </th>
 						<th> Visit Status</th>
+						<th> Source</th>
+
 					</tr>
 				</thead>
 				<tbody>";
@@ -2258,7 +2490,7 @@ class report_management extends MY_Controller {
 						$status = "<span style='color:red;'>Not Visited</span>";
 					}
 				}
-				$sql = "select patient_number_ccc as art_no,UPPER(first_name)as first_name,UPPER(other_name)as other_name,UPPER(last_name)as last_name, IF(gender=1,'Male','Female')as gender,UPPER(physical) as physical,phone,alternate,FLOOR(DATEDIFF('$today',dob)/365) as age,r.regimen_desc as last_regimen from patient,regimen r where patient_number_ccc='$patient' and current_regimen=r.id and facility_code='$facility_code'";
+				$sql = "select patient_number_ccc as art_no,UPPER(first_name)as first_name,pss.name as source,UPPER(other_name)as other_name,UPPER(last_name)as last_name, IF(gender=1,'Male','Female')as gender,UPPER(physical) as physical,phone,alternate,FLOOR(DATEDIFF('$today',dob)/365) as age,r.regimen_desc as last_regimen from patient LEFT JOIN patient_source pss on pss.id=patient.source,regimen r where patient_number_ccc='$patient' and current_regimen=r.id and facility_code='$facility_code'";
 				$query = $this -> db -> query($sql);
 				$results = $query -> result_array();
 				if ($results) {
@@ -2276,15 +2508,14 @@ class report_management extends MY_Controller {
 						$age = $result['age'];
 						$last_regimen = $result['last_regimen'];
 						$appointment = date('d-M-Y', strtotime($appointment));
+						$source=$result['source'];
 					}
-					$row_string .= "<tr><td>$patient_id</td><td width='300' style='text-align:left;'>$first_name $other_name $last_name</td><td>$phone</td><td>$address</td><td>$gender</td><td>$age</td><td style='white-space:nowrap;'>$last_regimen</td><td>$appointment</td><td width='200px'>$status</td></tr>";
+					$row_string .= "<tr><td>$patient_id</td><td width='300' style='text-align:left;'>$first_name $other_name $last_name</td><td>$phone</td><td>$address</td><td>$gender</td><td>$age</td><td style='white-space:nowrap;'>$last_regimen</td><td>$appointment</td><td width='200px'>$status</td><td>$source</td></tr>";
 					$overall_total++;
 				}
 			}
+		} 
 
-		} else {
-			//$row_string .= "<tr><td colspan='8'>No Data Available</td></tr>";
-		}
 		$row_string .= "</tbody></table>";
 		$data['from'] = date('d-M-Y', strtotime($from));
 		$data['to'] = date('d-M-Y', strtotime($to));
@@ -2336,6 +2567,7 @@ class report_management extends MY_Controller {
 					<th> Contacts/Address </th>
 					<th> Appointment Date </th>
 					<th> Late by (days)</th>
+					<th> Source</th>
 				</tr>
 			</thead>";
 		if ($results) {
@@ -2355,12 +2587,14 @@ class report_management extends MY_Controller {
 					               UPPER(first_name)as first_name,
 					               UPPER(other_name)as other_name,
 					               UPPER(last_name)as last_name,
+					               pss.name as source,
                                                        FLOOR(DATEDIFF('$today',dob)/365) as age,
 					               IF(gender=1,'Male','Female')as gender,
 					               UPPER(physical) as physical,
 					               DATEDIFF('$today',nextappointment) as days_late, 
                                                        rst.name AS service_type
 					        FROM patient 
+					       		   LEFT JOIN patient_source pss on pss.id=patient.source
 	                               LEFT JOIN regimen_service_type rst 
 	                               ON rst.id=patient.service
 					        WHERE patient_number_ccc='$patient' 
@@ -2379,7 +2613,8 @@ class report_management extends MY_Controller {
 							$address = $result['physical'];
 							$appointment = date('d-M-Y', strtotime($appointment));
 							$days_late_by = $result['days_late'];
-							$row_string .= "<tr><td>$patient_no</td><td>$patient_name</td><td>$service_type</td><td>$gender</td><td>$age</td><td>$address</td><td>$appointment</td><td>$days_late_by</td></tr>";
+							$source=$result['source'];
+							$row_string .= "<tr><td>$patient_no</td><td>$patient_name</td><td>$service_type</td><td>$gender</td><td>$age</td><td>$address</td><td>$appointment</td><td>$days_late_by</td><td>$source</td></tr>";
 						}
 					}
 					$overall_total++;
@@ -2415,8 +2650,9 @@ class report_management extends MY_Controller {
 		$from = date('Y-m-d', strtotime($from));
 		$to = date('Y-m-d', strtotime($to));
 
-		$sql = "SELECT p.patient_number_ccc as art_no,UPPER(p.first_name) as first_name,UPPER(p.last_name) as last_name,UPPER(p.other_name)as other_name,FLOOR(DATEDIFF('$today',p.dob)/365) as age, p.dob, IF(p.gender=1,'Male','Female') as gender, p.weight, r.regimen_desc,r.regimen_code,p.start_regimen_date, t.name AS service_type, s.name AS supported_by 
+		$sql = "SELECT p.patient_number_ccc as art_no,UPPER(p.first_name) as first_name,pss.name as source, UPPER(p.last_name) as last_name,UPPER(p.other_name)as other_name,FLOOR(DATEDIFF('$today',p.dob)/365) as age, p.dob, IF(p.gender=1,'Male','Female') as gender, p.weight, r.regimen_desc,r.regimen_code,p.start_regimen_date, t.name AS service_type, s.name AS supported_by 
 				from patient p 
+				LEFT JOIN patient_source pss on pss.id=p.source
 				LEFT JOIN regimen r ON p.start_regimen =r.id
 				LEFT JOIN regimen_service_type t ON t.id = p.service
 				LEFT JOIN supporter s ON s.id = p.supported_by
@@ -2437,6 +2673,7 @@ class report_management extends MY_Controller {
 					<th> Start Regimen Date </th>
 					<th> Regimen </th>
 					<th> Current Weight (Kg)</th>
+					<th> Source</th>
 				</tr>
 				</thead>
 				<tbody>";
@@ -2451,7 +2688,8 @@ class report_management extends MY_Controller {
 				$start_regimen_date = date('d-M-Y', strtotime($result['start_regimen_date']));
 				$regimen_desc = "<b>" . $result['regimen_code'] . "</b>|" . $result['regimen_desc'];
 				$weight = number_format($result['weight'], 2);
-				$row_string .= "<tr><td>$patient_no</td><td>$service_type</td><td>$supported_by</td><td>$patient_name</td><td>$gender</td><td>$age</td><td>$start_regimen_date</td><td>$regimen_desc</td><td>$weight</td></tr>";
+				$source = $result['source'];
+				$row_string .= "<tr><td>$patient_no</td><td>$service_type</td><td>$supported_by</td><td>$patient_name</td><td>$gender</td><td>$age</td><td>$start_regimen_date</td><td>$regimen_desc</td><td>$weight</td><td>$source</td></tr>";
 				$overall_total++;
 			}
 
@@ -2474,8 +2712,324 @@ class report_management extends MY_Controller {
 		$this -> load -> view('template', $data);
 
 	}
+//************************************************************added patients on isoniazid*****************************************************************8
+	  public function getisoniazidPatients($from = "", $to = "") {
+		//Variables
+		
+		$row_string = "";
+		$status = "";
+		$overall_total = 0;
+		$today = date('Y-m-d');
+		$late_by = "";
+		$facility_code = $this -> session -> userdata("facility");
+		$from = date('Y-m-d', strtotime($from));
+		$to = date('Y-m-d', strtotime($to));
+
+		//Get all patients who have apppointments on the selected date range
+		
+		//Routine Isoniazid
+		//male adult
+		$sql1 = "SELECT * FROM patient WHERE (isoniazid_end_date > '$to') AND gender=1 AND FLOOR(DATEDIFF('$from',dob)/365)>15 AND current_status=1";
+		
+		$query1 = $this -> db -> query($sql1);
+		$result = $query1 ->num_rows();
+		//$count=$result['COUNT(*)'];
+		//female adult
+		$sql2 = "SELECT * FROM patient WHERE (isoniazid_end_date > '$to') AND gender=2 AND FLOOR(DATEDIFF('$from',dob)/365)>15 AND current_status=1";
+		
+		$query2 = $this -> db -> query($sql2);
+		$result1 = $query2 -> num_rows();
+		//male child
+		$sql3 = "SELECT * FROM patient WHERE (isoniazid_end_date > '$to') AND gender=1 AND FLOOR(DATEDIFF('$from',dob)/365)<15 AND current_status=1";
+		
+		$query3 = $this -> db -> query($sql3);
+		$result3 = $query3 -> num_rows();
+		//female adult
+		$sql4 = "SELECT * FROM patient WHERE (isoniazid_end_date > '$to') AND gender=2 AND FLOOR(DATEDIFF('$from',dob)/365)<15 AND current_status=1 ";
+		
+		$query4 = $this -> db -> query($sql4);
+		$result4 = $query4 -> num_rows();
+
+		//started on isoniazid
+		//male adult
+		$sql5 = "SELECT * FROM patient WHERE (isoniazid_start_date > '$from') AND gender=1 AND FLOOR(DATEDIFF('$from',dob)/365)>15 AND current_status=1 ";
+		
+		$query5 = $this -> db -> query($sql5);
+		$result5 = $query5 ->num_rows();
+		//$count=$result['COUNT(*)'];
+		//female adult
+		$sql6 = "SELECT * FROM patient WHERE (isoniazid_start_date > '$from') AND gender=2 AND FLOOR(DATEDIFF('$from',dob)/365)>15 AND current_status=1";
+		
+		$query6 = $this -> db -> query($sql6);
+		$result6= $query6 -> num_rows();
+//male child
+		$sql7 = "SELECT * FROM patient WHERE (isoniazid_start_date > '$from') AND gender=1 AND FLOOR(DATEDIFF('$from',dob)/365)<15 AND current_status=1";
+		
+		$query7 = $this -> db -> query($sql7);
+		$result7 = $query7 -> num_rows();
+		//female adult
+		$sql8 = "SELECT * FROM patient WHERE (isoniazid_start_date > '$from') AND gender=2 AND FLOOR(DATEDIFF('$from',dob)/365)<15 AND current_status=1";
+		
+		$query8 = $this -> db -> query($sql8);
+		$result8 = $query8 -> num_rows();
+
+		//completed on isoniazid
+		//male adult
+		$sql9 = "SELECT * FROM patient WHERE (isoniazid_end_date > '$from') AND (isoniazid_end_date < '$to') AND gender=1 AND FLOOR(DATEDIFF('$from',dob)/365)>15 AND current_status=1 ";
+		
+		$query9 = $this -> db -> query($sql9);
+		$result9 = $query9 ->num_rows();
+		//$count=$result['COUNT(*)'];
+		//female adult
+		$sql10 = "SELECT * FROM patient WHERE (isoniazid_end_date > '$from') AND (isoniazid_end_date < '$to') AND gender=2 AND FLOOR(DATEDIFF('$from',dob)/365)>15 AND current_status=1";
+		
+		$query10 = $this -> db -> query($sql10);
+		$result10= $query10 -> num_rows();
+		//male child
+		$sql11 = "SELECT * FROM patient WHERE (isoniazid_end_date > '$from') AND (isoniazid_end_date < '$to') AND gender=1 AND FLOOR(DATEDIFF('$from',dob)/365)<15 AND current_status=1";
+		
+		$query11 = $this -> db -> query($sql11);
+		$result11 = $query11 -> num_rows();
+		//female adult
+		$sql12 = "SELECT * FROM patient WHERE (isoniazid_end_date > '$from') AND (isoniazid_end_date < '$to') AND gender=2 AND FLOOR(DATEDIFF('$from',dob)/365)<15 AND current_status=1";
+		
+		$query12 = $this -> db -> query($sql12);
+		$result12 = $query12 -> num_rows();
+		
+		//cotrimoxazole
+		//male adult
+		$sql13 = "SELECT * FROM patient WHERE drug_prophylaxis=1 AND gender=1 AND FLOOR(DATEDIFF('$from',dob)/365)>15 AND current_status=1";
+		
+		$query13 = $this -> db -> query($sql13);
+		$result13 = $query13 ->num_rows();
+		//$count=$result['COUNT(*)'];
+		//female adult
+		$sql14 = "SELECT * FROM patient WHERE drug_prophylaxis=1 AND gender=2 AND FLOOR(DATEDIFF('$from',dob)/365)>15 AND current_status=1";
+		
+		$query14 = $this -> db -> query($sql14);
+		$result14= $query14 -> num_rows();
+		//male child
+		$sql15 = "SELECT * FROM patient WHERE drug_prophylaxis=1 AND gender=1 AND FLOOR(DATEDIFF('$from',dob)/365)<15 AND current_status=1";
+		
+		$query15 = $this -> db -> query($sql15);
+		$result15 = $query15 -> num_rows();
+		//female adult
+		$sql16 = "SELECT * FROM patient WHERE drug_prophylaxis=1 AND gender=2 AND FLOOR(DATEDIFF('$from',dob)/365)<15 AND current_status=1";
+		
+		$query16 = $this -> db -> query($sql16);
+		$result16 = $query16 -> num_rows();
+		
+		//dapsone
+		//male adult
+		$sql17 = "SELECT * FROM patient WHERE drug_prophylaxis=2 AND gender=1 AND FLOOR(DATEDIFF('$from',dob)/365)>15 AND current_status=1 ";
+		
+		$query17 = $this -> db -> query($sql17);
+		$result17 = $query17 ->num_rows();
+		//$count=$result['COUNT(*)'];
+		//female adult
+		$sql18 = "SELECT * FROM patient WHERE drug_prophylaxis=2 AND gender=2 AND FLOOR(DATEDIFF('$from',dob)/365)>15 AND current_status=1";
+		
+		$query18 = $this -> db -> query($sql18);
+		$result18= $query18 -> num_rows();
+		//male child
+		$sql19 = "SELECT * FROM patient WHERE drug_prophylaxis=2 AND gender=1 AND FLOOR(DATEDIFF('$from',dob)/365)<15 AND current_status=1 ";
+		
+		$query19 = $this -> db -> query($sql19);
+		$result19 = $query19 -> num_rows();
+		//female adult
+		$sql20 = "SELECT * FROM patient WHERE drug_prophylaxis=2 AND gender=2 AND FLOOR(DATEDIFF('$from',dob)/365)<15 AND current_status=1";
+		
+		$query20 = $this -> db -> query($sql20);
+		$result20 = $query20 -> num_rows();
+		
+		//Fluconazole
+		//male adult
+		$sql21 = "SELECT * FROM patient WHERE drug_prophylaxis=4 AND gender=1 AND FLOOR(DATEDIFF('$from',dob)/365)>15 AND current_status=1";
+		
+		$query21 = $this -> db -> query($sql21);
+		$result21 = $query21->num_rows();
+		//$count=$result['COUNT(*)'];
+		//female adult
+		$sql22 = "SELECT * FROM patient WHERE drug_prophylaxis=4 AND gender=2 AND FLOOR(DATEDIFF('$from',dob)/365)>15 AND current_status=1";
+		
+		$query22 = $this -> db -> query($sql22);
+		$result22= $query22 -> num_rows();
+		//male child
+		$sql23 = "SELECT * FROM patient WHERE drug_prophylaxis=4 AND gender=1 AND FLOOR(DATEDIFF('$from',dob)/365)<15 AND current_status=1";
+		
+		$query23 = $this -> db -> query($sql23);
+		$result23 = $query23 -> num_rows();
+		//female adult
+		$sql24 = "SELECT * FROM patient WHERE drug_prophylaxis=4 AND gender=2 AND FLOOR(DATEDIFF('$from',dob)/365)<15 AND current_status=1";
+		
+		$query24 = $this -> db -> query($sql24);
+		$result24 = $query24 -> num_rows();
+
+				$row_string = "
+			<table border='1' class='dataTables'>
+				<thead >
+					<tr>
+						<th> </th>
+						<th> Male Adults </th>
+						<th> Female Adults</th>
+						<th> Male Children </th>
+						<th> Female Children</th>
+						
+						
+
+					</tr></thead><tbody>
+					<tr>
+			<td>No of patients on Routine isoniazid </td>
+			<td>".$result."</td>
+			<td>".$result1."</td>
+			<td>".$result3 ."</td>
+			<td>".$result4."</td>
+			</tr>
+			<tr>
+			<td>No of patients started on  isoniazid </td>
+		<td>".$result5."</td>
+			<td>".$result6."</td>
+			<td>".$result7 ."</td>
+			<td>".$result8."</td>
+			</tr>
+			<tr>
+			<td>No of patients completed  isoniazid </td>
+		<td>".$result9."</td>
+			<td>".$result10."</td>
+			<td>".$result11 ."</td>
+			<td>".$result12."</td>
+		</tr>
+		<tr>
+			<td>No of patients on Cotrimoxazole</td>
+		<td>".$result13."</td>
+			<td>".$result14."</td>
+			<td>".$result15 ."</td>
+			<td>".$result16."</td>
+		</tr>
+		<tr>
+			<td>No of patients on Dapsone</td>
+		<td>".$result17."</td>
+			<td>".$result18."</td>
+			<td>".$result19 ."</td>
+			<td>".$result20."</td>
+		</tr>
+		<tr>
+			<td>No of patients on Fluconazole</td>
+		<td>".$result21."</td>
+			<td>".$result22."</td>
+			<td>".$result23 ."</td>
+			<td>".$result24."</td>
+		</tr>
+		";
+	
+
+		$row_string .= "</tbody></table>";
+		$data['from'] = date('d-M-Y', strtotime($from));
+		$data['to'] = date('d-M-Y', strtotime($to));
+		$data['dyn_table'] = $row_string;
+		$data['visited_later'] = $visited_later;
+		
+		$data['title'] = "webADT | Reports";
+		$data['hide_side_menu'] = 1;
+		$data['banner_text'] = "Facility Reports";
+		//$data['selected_report_type_link'] = "visiting_patient_report_row";
+		//$data['selected_report_type'] = "Visiting Patients";
+		$data['report_title'] = "List of Patients on isoniazid";
+		$data['facility_name'] = $this -> session -> userdata('facility_name');
+		$data['content_view'] = 'reports/patients_on_isoniazid_v';
+		$this -> load -> view('template', $data);
+	}
 
 	public function getPatientsforRefill($from = "", $to = "") {
+		//Variables
+		$overall_total = 0;
+		$today = date('Y-m-d');
+		$facility_code = $this -> session -> userdata("facility");
+		$from = date('Y-m-d', strtotime($from));
+		$to = date('Y-m-d', strtotime($to));
+
+		$sql = "SELECT pv.*
+				FROM vw_routine_refill_visit pv
+				WHERE pv.visit_date 
+				BETWEEN '$from' 
+				AND '$to'";
+		
+		$query = $this -> db -> query($sql);
+		$results = $query -> result_array();
+		$row_string = "<table border='1'   class='dataTables'>
+			<thead>
+			<tr>
+				<th> Patient No </th>
+				<th> Type of Service </th>
+				<th> Client Support </th>
+				<th> Patient Name </th>
+				<th> Current Age </th>
+				<th> Sex</th>
+				<th> Regimen </th>
+				<th> Visit Date</th>
+				<th> Current Weight (Kg) </th>
+				<th> Missed Pills Adherence (%)</th>
+				<th> Pill Count Adherence (%)</th>
+				<th> Appointment Adherence (%)</th>
+				<th> Average Adherence (%)</th>
+				<th> Source </th>
+			</tr>
+			</thead>
+			<tbody>";
+		if ($results) {
+			foreach ($results as $result) {
+				$patient_no = $result['patient_number'];
+				$service_type = $result['type_of_service'];
+				$supported_by = $result['client_support'];
+				$patient_name = $result['patient_name'];
+				$age = $result['current_age'];
+				$gender = $result['sex'];				
+				$appointments = $result['appointment_adherence'];
+				$appointments = str_replace(">","",$appointments);
+				$appointments = str_replace("=","",$appointments);
+				if(strpos($appointments, "-")!==false){
+					$pos = strpos($appointments, "-");
+					$val1 = substr($appointments, 0,$pos);
+					$val2 = substr($appointments,$pos+1);
+					$sum = intval($val1)+intval($val2);
+					$appointments = $sum / 2;					
+				}
+				$dispensing_date = date('d-M-Y', strtotime($result['visit_date']));
+				$regimen_desc = "<b>" . $result['regimen'] . "</b>";
+				$weight = $result['current_weight'];
+				$source = $result['source'];
+				$pill_count = $result['pill_count_adherence'];
+				$missed_pills = $result['missed_pill_adherence'];
+				$adherence_array = array($missed_pills, $pill_count, $appointments );
+				$avg_adherence = number_format(array_sum($adherence_array) / count($adherence_array), 2);
+				$row_string .= "<tr><td>$patient_no</td><td>$service_type</td><td>$supported_by</td><td>$patient_name</td><td>$age</td><td>$gender</td><td>$regimen_desc</td><td>$dispensing_date</td><td>$weight</td>
+				<td>$missed_pills</td><td>$pill_count</td><td>$appointments</td><td>$avg_adherence</td><td>$source</td></tr>";
+
+				$overall_total++;
+			}
+
+		} else {
+			//$row_string .= "<tr><td colspan='6'>No Data Available</td></tr>";
+		}
+		
+		$row_string .= "</tbody></table>";
+		$data['from'] = date('d-M-Y', strtotime($from));
+		$data['to'] = date('d-M-Y', strtotime($to));
+		$data['dyn_table'] = $row_string;
+		$data['all_count'] = $overall_total;
+		$data['title'] = "webADT | Reports";
+		$data['hide_side_menu'] = 1;
+		$data['banner_text'] = "Facility Reports";
+		$data['selected_report_type_link'] = "visiting_patient_report_row";
+		$data['selected_report_type'] = "Visiting Patients";
+		$data['report_title'] = "List of Patients Visited For Refill";
+		$data['facility_name'] = $this -> session -> userdata('facility_name');
+		$data['content_view'] = 'reports/patients_for_refill_v';
+		$this -> load -> view('template', $data);
+	}
+
+
+	public function getPatientsforRefill1($from = "", $to = "") {
 		//Variables
 		$overall_total = 0;
 		$today = date('Y-m-d');
@@ -2486,17 +3040,21 @@ class report_management extends MY_Controller {
 
         $sql = "SELECT 
 				pv.patient_id as art_no,
+				pv.pill_count,
+				pv.missed_pills,
 				pv.dispensing_date, 
 				t.name AS service_type,
 				s.name AS supported_by,
 				UPPER(p.first_name) as first_name ,
 				UPPER(p.other_name) as other_name ,
 				UPPER(p.last_name)as last_name,
+				pss.name as source,
 				FLOOR(DATEDIFF('$today',p.dob)/365) as age,
 				pv.current_weight as weight, 
 				IF(p.gender=1,'Male','Female')as gender,
 				r.regimen_desc,
 				r.regimen_code,
+				DATEDIFF(pv.dispensing_date,pa.appointment) as no_of_days,
 				AVG(pv.adherence) as avg_adherence 
 				FROM patient_visit pv 
 				LEFT JOIN patient p ON p.patient_number_ccc=pv.patient_id
@@ -2504,13 +3062,16 @@ class report_management extends MY_Controller {
 				LEFT JOIN supporter s ON s.id=p.supported_by
 				LEFT JOIN regimen r ON r.id=p.current_regimen
 				LEFT JOIN regimen_service_type t ON t.id=p.service
+				LEFT JOIN patient_source pss on pss.id=p.source
 				LEFT JOIN patient_status ps ON ps.id=p.current_status
-				WHERE pv.dispensing_date 
+				LEFT JOIN patient_appointment pa ON p.patient_number_ccc=pa.patient
+				WHERE (pv.dispensing_date 
 				BETWEEN '$from' 
-				AND '$to' 
+				AND '$to') 
 				AND v.name like '%routine%' 
 				AND ps.name LIKE '%active%' 
 				AND pv.facility = '$facility_code' 
+				AND (pa.appointment BETWEEN '$from' AND '$to')
 				GROUP BY pv.patient_id,pv.dispensing_date";
 
 		$query = $this -> db -> query($sql);
@@ -2527,7 +3088,11 @@ class report_management extends MY_Controller {
 				<th> Regimen </th>
 				<th> Visit Date</th>
 				<th> Current Weight (Kg) </th>
+				<th> Missed Pills </th>
+				<th> Pill Count </th>
+				<th> Appointment </th>
 				<th> Average Adherence </th>
+				<th> Source </th>
 			</tr>
 			</thead>
 			<tbody>";
@@ -2539,11 +3104,33 @@ class report_management extends MY_Controller {
 				$patient_name = $result['first_name'] . " " . $result['other_name'] . " " . $result['last_name'];
 				$age = $result['age'];
 				$gender = $result['gender'];
+				$appointments = $result['no_of_days'];
+				if($appointments >= 90){
+					$appointment="Lost Followup";
+
+				}
+				else if($appointments >= 15 && $appointments <= 90){
+					$appointment="Defaulter";
+					
+				}
+				else if($appointments >= 3 && $appointments <= 14){
+		              
+		               $appointment = "Missed";
+		        }
+		        else if($appointments <= 2) {
+		        	 $appointment = "On time";
+		        }
+
 				$dispensing_date = date('d-M-Y', strtotime($result['dispensing_date']));
 				$regimen_desc = "<b>" . $result['regimen_code'] . "</b>|" . $result['regimen_desc'];
 				$weight = $result['weight'];
+				$source = $result['source'];
+				$pill_count = $result['pill_count'];
+				$missed_pills = $result['missed_pills'];
 				$avg_adherence = number_format($result['avg_adherence'], 2);
-				$row_string .= "<tr><td>$patient_no</td><td>$service_type</td><td>$supported_by</td><td>$patient_name</td><td>$age</td><td>$gender</td><td>$regimen_desc</td><td>$dispensing_date</td><td>$weight</td><td>$avg_adherence</td></tr>";
+				$row_string .= "<tr><td>$patient_no</td><td>$service_type</td><td>$supported_by</td><td>$patient_name</td><td>$age</td><td>$gender</td><td>$regimen_desc</td><td>$dispensing_date</td><td>$weight</td>
+				<td>$missed_pills</td><td>$pill_count</td><td>$appointment</td><td>$avg_adherence</td><td>$source</td></tr>";
+
 				$overall_total++;
 			}
 
@@ -2727,7 +3314,7 @@ class report_management extends MY_Controller {
 							$total_adult_male_art = number_format($total_adult_male);
 							$total_adult_male_art_percentage = number_format(($total_adult_male / $source_total) * 100, 1);
 						} else if ($service_name == "PEP") {
-							$overall_adult_male_pep += $total_adult_male;
+							$oaverall_adult_male_pep += $total_adult_male;
 							$total_adult_male_pep = number_format($total_adult_male);
 							$total_adult_male_pep_percentage = number_format(($total_adult_male_pep / $source_total) * 100, 1);
 						} else if ($service_name == "OI Only") {
@@ -3357,13 +3944,18 @@ class report_management extends MY_Controller {
 		$tot_drugs = $this -> db -> get();
 		$iTotal = count($tot_drugs -> result_array());
 
+		//echo "<pre>";print_r($rResult->result_array());die;
 		// Output
-		$output = array('sEcho' => intval($sEcho), 'iTotalRecords' => $iTotal, 'iTotalDisplayRecords' => $iFilteredTotal, 'aaData' => array());
-
+		$output = array('sEcho' => intval($sEcho), 'iTotalRecords' => $iTotal, 'iTotalDisplayRecords' => $iFilteredTotal, 'aaData' => array());		
 		foreach ($rResult->result_array() as $aRow) {
+			/*json is sensitive on ' so we need to replace the drugs with ' to have /
+			Victoria Wasonga
+			*/
+			$aRow['drug'] = addslashes($aRow['drug']);
 			$sql = "select '" . $aRow['drug'] . "' as drug_name,'" . $aRow['pack_size'] . "' as pack_size,'" . $aRow['name'] . "' as unit, month(DATE(d_c.period)) as month,d_c.amount as total_consumed 
 					from drug_cons_balance d_c 
 					where d_c.drug_id='" . $aRow['id'] . "' and d_c.period LIKE '%" . $year . "%' and facility='" . $facility_code . "' order by d_c.period asc";
+
 			$drug_details_sql = $this -> db -> query($sql);
 			$sql_array = $drug_details_sql -> result_array();
 			$drug_consumption = array();
@@ -3408,7 +4000,7 @@ class report_management extends MY_Controller {
 				}
 			}
 			$output['aaData'][] = $row;
-		}
+		}		
 		echo json_encode($output);
 	}
 
@@ -4284,7 +4876,8 @@ class report_management extends MY_Controller {
 					    WHERE YEAR(p.date_enrolled)='$year' 
 					    AND MONTH(p.date_enrolled)='$month'
 					    AND rst.name LIKE '%$service%'
-					    AND p.facility_code='$facility_code'";
+					    AND p.facility_code='$facility_code'
+					    AND p.active = '1'";
 				$query = $this -> db -> query($sql);
 				$results = $query -> result_array();
 				if($results){
@@ -4364,326 +4957,457 @@ class report_management extends MY_Controller {
 		$data['banner_text'] = "Facility Reports";
 		$data['selected_report_type_link'] = "early_warning_report_select";
 		$data['selected_report_type'] = "Early Warning Indicators";
-			
-		if($type=="appointment"){
-			$data['report_title'] = "Graphical Patient Adherence By Appointment";
-		}
-		else if($type=="pill_count"){
-			$data['report_title'] = "Graphical Patient Adherence By Pill Count";
-		} 
-		
+		$data['report_title'] = "Graphical Patient Adherence By ".ucwords(str_replace('_', ' ', $type));
 		$data['facility_name'] = $this -> session -> userdata('facility_name');
 		$data['content_view'] = 'reports/graphical_adherence_v';
 		$this -> load -> view('template', $data);
 	}
 
-	public function getAdherence($type="appointment",$start_date = "", $end_date = "" ,$type = "")
+	public function getAdherence($name="appointment",$start_date = "", $end_date = "" ,$type = "")
 	{	
-		$ontime = 0;
-		$missed = 0;
-		$defaulter = 0;
-		$lost_to_followup = 0;
-		$overview_total = 0;
+		if($name == "appointment"){
+			$ontime = 0;
+			$missed = 0;
+			$defaulter = 0;
+			$lost_to_followup = 0;
+			$overview_total = 0;
 
-		$art_total = 0;
-		$non_art_total = 0;
-		$male_total = 0;
-		$female_total = 0;
-		$fifteen_total = 0;
-		$over_fifteen_total = 0;
-		$twenty_four_total = 0;
+			$art_total = 0;
+			$non_art_total = 0;
+			$male_total = 0;
+			$female_total = 0;
+			$fifteen_total = 0;
+			$over_fifteen_total = 0;
+			$twenty_four_total = 0;
 
-		$adherence = array( 
-						'total' => 0,
-			            'on_time' => 0,
-			            'missed' => 0,
-			            'defaulter'=> 0,
-			            'lost_to_followup'=> 0);
+			$adherence = array( 
+							'total' => 0,
+				            'on_time' => 0,
+				            'missed' => 0,
+				            'defaulter'=> 0,
+				            'lost_to_followup'=> 0);
 
-		$art_adherence['art']  = array( 
-			                        'total' => 0,
-						            'on_time' => 0,
-						            'missed' => 0,
-						            'defaulter'=> 0,
-						            'lost_to_followup'=> 0);
-		$art_adherence['non_art']  = array( 
+			$art_adherence['art']  = array( 
 				                        'total' => 0,
 							            'on_time' => 0,
 							            'missed' => 0,
 							            'defaulter'=> 0,
 							            'lost_to_followup'=> 0);
+			$art_adherence['non_art']  = array( 
+					                        'total' => 0,
+								            'on_time' => 0,
+								            'missed' => 0,
+								            'defaulter'=> 0,
+								            'lost_to_followup'=> 0);
 
-		$gender_adherence['male']  = array( 
-			                        'total' => 0,
-						            'on_time' => 0,
-						            'missed' => 0,
-						            'defaulter'=> 0,
-						            'lost_to_followup'=> 0);
-		$gender_adherence['female']  = array( 
-			                            'total' => 0,
+			$gender_adherence['male']  = array( 
+				                        'total' => 0,
 							            'on_time' => 0,
 							            'missed' => 0,
 							            'defaulter'=> 0,
 							            'lost_to_followup'=> 0);
+			$gender_adherence['female']  = array( 
+				                            'total' => 0,
+								            'on_time' => 0,
+								            'missed' => 0,
+								            'defaulter'=> 0,
+								            'lost_to_followup'=> 0);
 
-		$age_adherence['<15']  = array( 
-			                        'total' => 0,
-						            'on_time' => 0,
-						            'missed' => 0,
-						            'defaulter'=> 0,
-						            'lost_to_followup'=> 0);
-		$age_adherence['15_24']  = array( 
-			                            'total' => 0,
+			$age_adherence['<15']  = array( 
+				                        'total' => 0,
 							            'on_time' => 0,
 							            'missed' => 0,
 							            'defaulter'=> 0,
 							            'lost_to_followup'=> 0);
+			$age_adherence['15_24']  = array( 
+				                            'total' => 0,
+								            'on_time' => 0,
+								            'missed' => 0,
+								            'defaulter'=> 0,
+								            'lost_to_followup'=> 0);
 
-		$age_adherence['>24']  = array( 
-			                            'total' => 0,
-							            'on_time' => 0,
-							            'missed' => 0,
-							            'defaulter'=> 0,
-							            'lost_to_followup'=> 0);
+			$age_adherence['>24']  = array( 
+				                            'total' => 0,
+								            'on_time' => 0,
+								            'missed' => 0,
+								            'defaulter'=> 0,
+								            'lost_to_followup'=> 0);
 
 
-        
-        /*
-         * Get all appointments for a patient in selected period
-         * For each appointment, get corresponding visit that is equal or greater than date of appointment
-         * e.g. if appointment is 2014-09-01 and visits for this period are 2014-09-03, 2014-09-15, use 2014-09-03
-         * Calculate the difference of days between those two dates and find adherence
-         */
-       $sql = "SELECT 
-                    pa.appointment,
-                    pa.patient,
-                    IF(UPPER(rst.Name) ='ART','art','non_art') as service,
-        		    IF(UPPER(g.name) ='MALE','male','female') as gender,
-        		    IF(FLOOR(DATEDIFF(CURDATE(),p.dob)/365)<15,'<15', IF(FLOOR(DATEDIFF(CURDATE(),p.dob)/365) >= 15 AND FLOOR(DATEDIFF(CURDATE(),p.dob)/365) <= 24,'15_24','>24')) as age
-                FROM patient_appointment pa
-                LEFT JOIN patient p ON p.patient_number_ccc = pa.patient
-                LEFT JOIN regimen_service_type rst ON rst.id = p.service
-                LEFT JOIN gender g ON g.id = p.gender 
-                WHERE pa.appointment 
-                BETWEEN '$start_date'
-                AND '$end_date'
-                GROUP BY pa.patient,pa.appointment
-                ORDER BY pa.appointment";
-        $query = $this ->db ->query($sql);
-        $results = $query -> result_array();
-        if($results)
-        {   
-        	foreach($results as $result){
-        		$patient = $result['patient'];
-        		$appointment = $result['appointment'];
-        		$service = $result['service'];
-	            $gender = $result['gender'];
-	            $age = $result['age'];
+	        
+	        /*
+	         * Get all appointments for a patient in selected period
+	         * For each appointment, get corresponding visit that is equal or greater than date of appointment
+	         * e.g. if appointment is 2014-09-01 and visits for this period are 2014-09-03, 2014-09-15, use 2014-09-03
+	         * Calculate the difference of days between those two dates and find adherence
+	         */
+	       $sql = "SELECT 
+	                    pa.appointment,
+	                    pa.patient,
+	                    IF(UPPER(rst.Name) ='ART','art','non_art') as service,
+	        		    IF(UPPER(g.name) ='MALE','male','female') as gender,
+	        		    IF(FLOOR(DATEDIFF(CURDATE(),p.dob)/365)<15,'<15', IF(FLOOR(DATEDIFF(CURDATE(),p.dob)/365) >= 15 AND FLOOR(DATEDIFF(CURDATE(),p.dob)/365) <= 24,'15_24','>24')) as age
+	                FROM patient_appointment pa
+	                LEFT JOIN patient p ON p.patient_number_ccc = pa.patient
+	                LEFT JOIN regimen_service_type rst ON rst.id = p.service
+	                LEFT JOIN gender g ON g.id = p.gender 
+	                WHERE pa.appointment 
+	                BETWEEN '$start_date'
+	                AND '$end_date'
+	                GROUP BY pa.patient,pa.appointment
+	                ORDER BY pa.appointment";
+	        $query = $this ->db ->query($sql);
+	        $results = $query -> result_array();
+	        if($results)
+	        {   
+	        	foreach($results as $result){
+	        		$patient = $result['patient'];
+	        		$appointment = $result['appointment'];
+	        		$service = $result['service'];
+		            $gender = $result['gender'];
+		            $age = $result['age'];
 
-            	$sql = "SELECT 
-        		            DATEDIFF('$appointment',pv.dispensing_date) as no_of_days
-	                    FROM v_patient_visits pv
-	                    WHERE pv.patient_id='$patient'
-	                    AND pv.dispensing_date >= '$appointment'
-	                    GROUP BY pv.patient_id,pv.dispensing_date
-	                    ORDER BY pv.dispensing_date ASC
-	                    LIMIT 1";
-	            $query = $this ->db ->query($sql);
-	            $results = $query -> result_array();
+	            	$sql = "SELECT 
+	        		            DATEDIFF('$appointment',pv.dispensing_date) as no_of_days
+		                    FROM v_patient_visits pv
+		                    WHERE pv.patient_id='$patient'
+		                    AND pv.dispensing_date >= '$appointment'
+		                    GROUP BY pv.patient_id,pv.dispensing_date
+		                    ORDER BY pv.dispensing_date ASC
+		                    LIMIT 1";
+		            $query = $this ->db ->query($sql);
+		            $results = $query -> result_array();
 
-	            $period = 90;
+		            /*
+						Create date object for appointment date (datetime1)
+						Get the date difference between the appointment date and now (datetime2)
+		            */
+					$datetime1 = new DateTime($appointment);
+					$datetime2 = new DateTime('now');
+					$interval = $datetime1->diff($datetime2);
+					$period = $interval->format('%a');
 
-	            if($results)
-	            {
-	            	$period = $results[0]['no_of_days'];
+		            if($results)
+		            {
+		            	$period = $results[0]['no_of_days'];
+		            }
+
+			        if($type == "overview")
+		            {
+			            //Add period to array
+			            if($period < 3){
+			               $ontime++;
+		                   $adherence['on_time'] += 1;
+			            }
+			            else if($period >= 3 && $period <= 14){
+			               $missed++;
+			               $adherence['missed'] += 1;
+			            }
+			            else if($period >= 15 && $period <= 89){
+			               $defaulter++;
+			               $adherence['defaulter'] += 1;
+			            }
+			            else{
+			               $lost_to_followup++;
+			               $adherence['lost_to_followup'] += 1;
+			            } 
+			            $overview_total++;
+			        }
+			        else if($type == "service")
+		            {        
+	               	    //Add period to array
+			            if($period < 3){
+			               $ontime++;
+		                   $art_adherence[$service]['on_time'] += 1;
+			            }
+			            else if($period >= 3 && $period <= 14){
+			               $missed++;
+			               $art_adherence[$service]['missed'] += 1;
+			            }
+			            else if($period >= 15 && $period <= 89){
+			               $defaulter++;
+			               $art_adherence[$service]['defaulter'] += 1;
+			            }
+			            else{
+			               $lost_to_followup++;
+			               $art_adherence[$service]['lost_to_followup'] += 1;
+			            } 
+
+		            } 
+		            else if($type == "gender")
+		            {         
+	               	    //Add period to array
+			            if($period < 3){
+			               $ontime++;
+		                   $gender_adherence[$gender]['on_time'] += 1;
+			            }
+			            else if($period >= 3 && $period <= 14){
+			               $missed++;
+			               $gender_adherence[$gender]['missed'] += 1;
+			            }
+			            else if($period >= 15 && $period <= 89){
+			               $defaulter++;
+			               $gender_adherence[$gender]['defaulter'] += 1;
+			            }
+			            else{
+			               $lost_to_followup++;
+			               $gender_adherence[$gender]['lost_to_followup'] += 1;
+			            } 
+		            } 
+		            else if($type == "age")
+		            {         
+	               	    //Add period to array
+			            if($period < 3){
+			               $ontime++;
+		                   $age_adherence[$age]['on_time'] += 1;
+			            }
+			            else if($period >= 3 && $period <= 14){
+			               $missed++;
+			               $age_adherence[$age]['missed'] += 1;
+			            }
+			            else if($period >= 15 && $period <= 89){
+			               $defaulter++;
+			               $age_adherence[$age]['defaulter'] += 1;
+			            }
+			            else{
+			               $lost_to_followup++;
+			               $age_adherence[$age]['lost_to_followup'] += 1;
+			            }
+		            } 
 	            }
 
 		        if($type == "overview")
-	            {
-		            //Add period to array
-		            if($period <= 3){
-		               $ontime++;
-	                   $adherence['on_time'] = $ontime;
-		            }
-		            else if($period > 3 && $period <= 14){
-		               $missed++;
-		               $adherence['missed'] = $missed++;
-		            }
-		            else if($period >= 15 && $period <= 89){
-		               $defaulter++;
-		               $adherence['defaulter'] = $defaulter;
-		            }
-		            else{
-		               $lost_to_followup++;
-		               $adherence['lost_to_followup'] = $lost_to_followup;
-		            } 
-		            $overview_total++;
-		        }
-		        else if($type == "service")
-	            {         
-               	    //Add period to array
-		            if($period <= 3){
-		               $ontime++;
-	                   $art_adherence[$service]['on_time'] = $ontime;
-		            }
-		            else if($period > 3 && $period <= 14){
-		               $missed++;
-		               $art_adherence[$service]['missed'] = $missed++;
-		            }
-		            else if($period >= 15 && $period <= 89){
-		               $defaulter++;
-		               $art_adherence[$service]['defaulter'] = $defaulter;
-		            }
-		            else{
-		               $lost_to_followup++;
-		               $art_adherence[$service]['lost_to_followup'] = $lost_to_followup;
-		            } 
-
-	            } 
-	            else if($type == "gender")
-	            {         
-               	    //Add period to array
-		            if($period <= 3){
-		               $ontime++;
-	                   $gender_adherence[$gender]['on_time'] = $ontime;
-		            }
-		            else if($period > 3 && $period <= 14){
-		               $missed++;
-		               $gender_adherence[$gender]['missed'] = $missed++;
-		            }
-		            else if($period >= 15 && $period <= 89){
-		               $defaulter++;
-		               $gender_adherence[$gender]['defaulter'] = $defaulter;
-		            }
-		            else{
-		               $lost_to_followup++;
-		               $gender_adherence[$gender]['lost_to_followup'] = $lost_to_followup;
-		            } 
-	            } 
-	            else if($type == "age")
-	            {         
-               	    //Add period to array
-		            if($period <= 3){
-		               $ontime++;
-	                   $age_adherence[$age]['on_time'] = $ontime;
-		            }
-		            else if($period > 3 && $period <= 14){
-		               $missed++;
-		               $age_adherence[$age]['missed'] = $missed++;
-		            }
-		            else if($period >= 15 && $period <= 89){
-		               $defaulter++;
-		               $age_adherence[$age]['defaulter'] = $defaulter;
-		            }
-		            else{
-		               $lost_to_followup++;
-		               $age_adherence[$age]['lost_to_followup'] = $lost_to_followup;
-		            }
-	            } 
-            }
-
-	        if($type == "overview")
-		    {   
-		    	$adherence['total'] = $overview_total;
-	            $data_array = $adherence;
-		    }
-		    else if($type == "service")
-		    {   
-				foreach ($art_adherence as $column=>$values) {
-					foreach ($values as $value) {
-						if($column == "art")
-			            {
-	                       $art_total+=$value;
-			            }
-			            else
-			            {
-	                       $non_art_total+=$value;
-			            }
+			    {   
+			    	$adherence['total'] = $overview_total;
+		            $data_array = $adherence;
+			    }
+			    else if($type == "service")
+			    {   
+					foreach ($art_adherence as $column=>$values) {
+						foreach ($values as $value) {
+							if($column == "art")
+				            {
+		                       $art_total+=$value;
+				            }
+				            else
+				            {
+		                       $non_art_total+=$value;
+				            }
+						}
 					}
-				}
 
-				$art_adherence['art']['total'] = $art_total;	
-				$art_adherence['non_art']['total'] = $non_art_total;            
-				$data_array = $art_adherence;
-		    }
-		    else if($type == "gender")
-		    {   
-                foreach ($gender_adherence as $column=>$values) {
-					foreach ($values as $value) {
-						if($column == "male")
-			            {
-	                       $male_total+=$value;
-			            }
-			            else
-			            {
-	                       $female_total+=$value;
-			            }
+					$art_adherence['art']['total'] = $art_total;	
+					$art_adherence['non_art']['total'] = $non_art_total;            
+					$data_array = $art_adherence;
+			    }
+			    else if($type == "gender")
+			    {   
+	                foreach ($gender_adherence as $column=>$values) {
+						foreach ($values as $value) {
+							if($column == "male")
+				            {
+		                       $male_total+=$value;
+				            }
+				            else
+				            {
+		                       $female_total+=$value;
+				            }
+						}
 					}
-				}
 
-		    	$gender_adherence['male']['total'] = $male_total;	
-				$gender_adherence['female']['total'] = $female_total; 
-	            $data_array = $gender_adherence;
-		    }
+			    	$gender_adherence['male']['total'] = $male_total;	
+					$gender_adherence['female']['total'] = $female_total; 
+		            $data_array = $gender_adherence;
+			    }
 
-		    else if($type == "age")
-		    {   
-		    	foreach ($age_adherence as $column=>$values) {
-					foreach ($values as $value) {
-						if($column == "<15")
-			            {
-	                       $fifteen_total+=$value;
-			            }
-			            else if($column == "15_24")
-			            {
-	                       $over_fifteen_total+=$value;
-			            }
-			            else
-			            {
-	                       $twenty_four_total+=$value;
-			            }
+			    else if($type == "age")
+			    {   
+			    	foreach ($age_adherence as $column=>$values) {
+						foreach ($values as $value) {
+							if($column == "<15")
+				            {
+		                       $fifteen_total+=$value;
+				            }
+				            else if($column == "15_24")
+				            {
+		                       $over_fifteen_total+=$value;
+				            }
+				            else
+				            {
+		                       $twenty_four_total+=$value;
+				            }
+						}
 					}
-				}
-				$age_adherence['<15']['total'] = $fifteen_total;	
-				$age_adherence['15_24']['total'] = $over_fifteen_total; 
-				$age_adherence['>24']['total'] = $twenty_four_total; 	            
-				$data_array = $age_adherence;
-		    }
+					$age_adherence['<15']['total'] = $fifteen_total;	
+					$age_adherence['15_24']['total'] = $over_fifteen_total; 
+					$age_adherence['>24']['total'] = $twenty_four_total; 	            
+					$data_array = $age_adherence;
+			    }
 
-		    foreach($data_array as $index => $mydata)
-		    {
-		    	if($type == 'overview')
-		    	{   
-		    		$main_array = array();
-		    		$temp_array['name'] = "Status";
-		    	    $temp_array['data'] = array_values($data_array);
-		    	    $main_array[]=$temp_array;
-		    	}
-		    	else{
-		    	    $temp_array['name'] = $index;
-		    	    $temp_array['data'] = array_values($mydata);
-		    	    $main_array[]=$temp_array;
-		    	}
-		    }
-        }
-		//chart data
-		$resultArray = json_encode($main_array);
-		$categories = json_encode(array('Total','On Time','Missed','Defaulter','Lost to Followup'));
+			    foreach($data_array as $index => $mydata)
+			    {
+			    	if($type == 'overview')
+			    	{   
+			    		$main_array = array();
+			    		$temp_array['name'] = "Status";
+			    	    $temp_array['data'] = array_values($data_array);
+			    	    $main_array[]=$temp_array;
+			    	}
+			    	else{
+			    	    $temp_array['name'] = $index;
+			    	    $temp_array['data'] = array_values($mydata);
+			    	    $main_array[]=$temp_array;
+			    	}
+			    }
+	        }
+
+			$categories = json_encode(array('Total','On Time','Missed','Defaulter','Lost to Followup'));
+			$data['xAxix'] = 'Status';
+			$data['yAxix'] = 'Visits';
+
+		}else{
+			$categories = json_encode(array('Total','>=95','90-95','80-90','<80'));
+			$main_array = $this->get_pill_adherence($start_date, $end_date, $name, $type);
+			$data['xAxix'] = 'Adherence Rate (%)';
+			$data['yAxix'] = 'Visits';
+		}
 
 		//chart settings
+		$resultArray = json_encode($main_array);
 		$data['resultArraySize'] = 6;
 		$data['container'] = 'chart_sales_'.$type;
 		$data['chartType'] = 'column';
 		$data['title'] = 'Chart';
 		$data['chartTitle'] = 'Adherence By '.ucwords($type).' Between '.date('d/M/Y', strtotime($start_date)).' And '.date('d/M/Y', strtotime($end_date));
 		$data['categories'] = $categories;
-		$data['xAxix'] = 'Status';
 		$data['suffix']= '';
-		$data['yAxix'] = 'Totals';
 		$data['resultArray'] = $resultArray;
 		$this -> load -> view('graph_v', $data);
 	}
 
+	public function get_pill_adherence($start_date, $end_date, $report_name, $report_filter){
+		//Parameters
+		$params = array(
+			'pill_count' => array(
+				'overview' => array(
+					'select_filter' => '',
+					'group_filter' => '',
+					'data_array' => array('Total' => 0, '>=95' => 0, '90-95' => 0, '80-90' => 0, '<80' => 0)
+				),
+				'service' => array(
+					'select_filter' => 'service,',
+					'group_filter' => ',service',
+					'data_array' => array(
+						'art' => array('Total' => 0, '>=95' => 0, '90-95' => 0, '80-90' => 0, '<80' => 0),
+						'non_art' => array('Total' => 0, '>=95' => 0, '90-95' => 0, '80-90' => 0, '<80' => 0)
+					)
+				),
+				'gender' => array(
+					'select_filter' => 'gender,',
+					'group_filter' => ',gender',
+					'data_array' => array(
+						'male' => array('Total' => 0, '>=95' => 0, '90-95' => 0, '80-90' => 0, '<80' => 0),
+						'female' => array('Total' => 0, '>=95' => 0, '90-95' => 0, '80-90' => 0, '<80' => 0)
+					)
+				),
+				'age' => array(
+					'select_filter' => 'age,',
+					'group_filter' => ',age',
+					'data_array' => array(
+						'>24' => array('Total' => 0, '>=95' => 0, '90-95' => 0, '80-90' => 0, '<80' => 0),
+						'15_25' => array('Total' => 0, '>=95' => 0, '90-95' => 0, '80-90' => 0, '<80' => 0),
+						'<15' => array('Total' => 0, '>=95' => 0, '90-95' => 0, '80-90' => 0, '<80' => 0)
+					)
+				)
+			),
+			'missed_pill' => array(
+				'overview' => array(
+					'select_filter' => '',
+					'group_filter' => '',
+					'data_array' => array('Total' => 0, '>=95' => 0, '90-95' => 0, '80-90' => 0, '<80' => 0)
+				),
+				'service' => array(
+					'select_filter' => 'service,',
+					'group_filter' => ',service',
+					'data_array' => array(
+						'art' => array('Total' => 0, '>=95' => 0, '90-95' => 0, '80-90' => 0, '<80' => 0),
+						'non_art' => array('Total' => 0, '>=95' => 0, '90-95' => 0, '80-90' => 0, '<80' => 0)
+					)
+				),
+				'gender' => array(
+					'select_filter' => 'gender,',
+					'group_filter' => ',gender',
+					'data_array' => array(
+						'male' => array('Total' => 0, '>=95' => 0, '90-95' => 0, '80-90' => 0, '<80' => 0),
+						'female' => array('Total' => 0, '>=95' => 0, '90-95' => 0, '80-90' => 0, '<80' => 0)
+					)
+				),
+				'age' => array(
+					'select_filter' => 'age,',
+					'group_filter' => ',age',
+					'data_array' => array(
+						'>24' => array('Total' => 0, '>=95' => 0, '90-95' => 0, '80-90' => 0, '<80' => 0),
+						'15_25' => array('Total' => 0, '>=95' => 0, '90-95' => 0, '80-90' => 0, '<80' => 0),
+						'<15' => array('Total' => 0, '>=95' => 0, '90-95' => 0, '80-90' => 0, '<80' => 0)
+					)
+				)
+			)
+		);
+
+		//Default data
+		$main_data = $params[$report_name][$report_filter]['data_array'];
+		//Filters
+		$column_filter = $report_filter+'_adherence';
+		$select_filter = $params[$report_name][$report_filter]['select_filter'];
+		$group_filter = $params[$report_name][$report_filter]['group_filter'];
+
+		//Get data from adherence view 
+	   	$sql = "SELECT 
+	   				CASE WHEN $column_filter >= 95 THEN '>=95'
+	   				WHEN $column_filter >= 90 AND $column_filter < 96 THEN '90-95'
+	   				WHEN $column_filter >= 80 AND $column_filter < 91 THEN '80-90'
+	   				ELSE '<80' END AS adherence,
+	   				$select_filter
+	   				COUNT(*) AS total
+	   			FROM vw_patient_pill_adherence
+	   			WHERE visit_date 
+	   			BETWEEN '$start_date' AND '$end_date'
+	   			GROUP BY CASE WHEN $column_filter >= 95 THEN '>=95'
+	   				WHEN $column_filter >= 90 AND $column_filter < 96 THEN '90-95'
+	   				WHEN $column_filter >= 80 AND $column_filter < 91 THEN '80-90'
+	   				ELSE '<80' END
+	   				$group_filter";
+
+		$results = $this ->db ->query($sql) -> result_array();
+		if($results)
+		{
+			foreach($results as $result){
+				if($report_filter == 'overview'){
+					$main_data[$result['adherence']] = floatval($result['total']);
+					$main_data['Total'] += floatval($main_data[$result['adherence']]);
+				}else{
+					$main_data[$result[$report_filter]][$result['adherence']] = floatval($result['total']);
+					$main_data[$result[$report_filter]]['Total'] += floatval($main_data[$result[$report_filter]][$result['adherence']]);
+				}
+			}
+		}
+
+		//Format chart data
+		$main_array = array();
+		if($report_filter == 'overview')
+    	{  
+    		$main_array[] = array('name'=>'Overall', 'data' => array_values($main_data));
+    	}else
+    	{
+    		foreach($main_data as $index => $mydata)
+	    	{
+	    	    $main_array[] = array('name'=> $index, 'data' => array_values($mydata));;
+			}
+    	}
+
+	    return $main_array;
+	}
+	
 	public function patients_nonadherence($start_date = "", $end_date = "") {
 		$data['from'] = $start_date;
 		$data['to'] = $end_date;
@@ -5412,7 +6136,7 @@ class report_management extends MY_Controller {
 		$end_date = date('Y-m-d',strtotime($end_date));
         
         //Get Drugs Received in Period
-		$this->db->select("UPPER(d.drug) as drug_name,IF(ds.name IS NOT NULL,UPPER(ds.name),UPPER(dsm.source_destination)) as drug_source,SUM(dsm.quantity) as total")
+		$this->db->select("UPPER(d.drug) as drug_name,IF(ds.name IS NOT NULL,UPPER(ds.name),UPPER(dsm.source_destination)) as drug_source,SUM(dsm.quantity_out) as total")
 		    ->from("drug_stock_movement dsm")
 		    ->join("transaction_type t","t.id = dsm.transaction_type","LEFT")
 			->join("drugcode d","d.id = dsm.drug","LEFT")
@@ -5506,120 +6230,6 @@ class report_management extends MY_Controller {
 		$data['content_view'] = 'reports/drugissued_v';
 		$this -> load -> view('template', $data);
 	}
-
-	public function getDrugsIssued_old($stock_type, $start_date = "", $end_date = "") {
-		$data['from'] = $start_date;
-		$data['to'] = $end_date;
-		$start_date = date('Y-m-d', strtotime($start_date));
-		$end_date = date('Y-m-d', strtotime($end_date));
-		$facility_code = $this -> session -> userdata('facility');
-		$facilty_value = "";
-		$param = "";
-		$facilty_value = "dsm.ccc_store_sp=$stock_type";
-		$ccc = CCC_store_service_point::getCCC($stock_type);
-		$data['transaction_type'] = $ccc['Name'];
-		
-		$sql = "select d.id,d.drug,du.Name as unit,d.pack_size,SUM(dsm.quantity_out) as total from drug_stock_movement dsm 
-				LEFT JOIN transaction_type t ON t.id=dsm.transaction_type 
-				LEFT JOIN drugcode d ON d.id=dsm.drug 
-				LEFT JOIN drug_unit du ON du.id=d.unit 
-				where dsm.transaction_date between '$start_date' and '$end_date' and $facilty_value and dsm.facility='$facility_code' 
-				AND t.name LIKE '%Issued To%' AND d.id IS  NOT NULL GROUP BY d.drug";
-		//echo $sql;die();
-		$query = $this -> db -> query($sql);
-		$dest_array =Drug_destination::getAllHydrate();
-		$all_other_ccc_stores = CCC_store_service_point::getAllBut($stock_type);
-		
-		$dyn_table = "<table border='1' class='dataTables' cellpadding='5'>";
-		$dyn_table .= "<thead>
-						<tr><th>Drug Name</th>
-					";
-		$dest_array =array_merge($all_other_ccc_stores,$dest_array);
-		//echo json_encode($dest_array);die();
-		foreach ($dest_array as $value) {
-			$dyn_table .= "<th>" . $value['Name'] . "</th>";
-		}
-		$dyn_table .= "</tr>
-						</thead>
-						<tbody>";
-
-		$results = $query -> result_array();
-		if ($results) {
-			foreach ($results as $result) {
-				$dyn_table .= "<tr><td>" . $result['drug'] . "</td>";
-				//Get all destinations for that drug
-			    $get_drugs = "
-			    			SELECT table1.name,table1.total FROM
-			    			(
-								(
-								SELECT csp.name as name,temp.total 
-					              FROM ccc_store_service_point csp
-					              LEFT JOIN 
-					              (SELECT source_destination,SUM(dsm.quantity_out) as total 
-					              	         FROM drug_stock_movement dsm 
-					              	         LEFT JOIN transaction_type t ON t.id=dsm.transaction_type 
-					              	         LEFT JOIN drugcode d ON d.id=dsm.drug 
-					              	         LEFT JOIN drug_unit du ON du.id=d.unit 
-					              	         WHERE dsm.transaction_date 
-					              	         BETWEEN '$start_date' 
-					              	         AND '$end_date' 
-					              	         AND $facilty_value 
-					              	         AND t.name LIKE '%Issued To%' 
-					              	         AND dsm.drug='" . $result['id'] . "' 
-					              	         GROUP BY source_destination) as temp ON temp.source_destination = csp.name
-					              	         
-					              WHERE csp.id !=$stock_type AND csp.active = 1 
-								)
-								UNION ALL
-								(
-								SELECT des.name as name,temp.total 
-					              FROM drug_destination des  
-					              LEFT JOIN (SELECT source_destination,SUM(dsm.quantity_out) as total 
-					              	         FROM drug_stock_movement dsm 
-					              	         LEFT JOIN transaction_type t ON t.id=dsm.transaction_type 
-					              	         LEFT JOIN drugcode d ON d.id=dsm.drug 
-					              	         LEFT JOIN drug_unit du ON du.id=d.unit 
-					              	         WHERE dsm.transaction_date 
-					              	         BETWEEN '$start_date' 
-					              	         AND '$end_date' 
-					              	         AND $facilty_value 
-					              	         AND t.name LIKE '%Issued To%' 
-					              	         AND dsm.drug='" . $result['id'] . "' 
-					              	         GROUP BY source_destination) as temp ON temp.source_destination=des.id 
-					              	         WHERE des.active=1
-	                                         ORDER BY des.id ASC
-								)
-							) as table1
-			    			";                       
-				$get_dest = $this -> db -> query($get_drugs);
-				$get_des_array = $get_dest -> result_array();
-				if($get_des_array){
-					foreach ($get_des_array as $value) {
-						$total = $value['total'];
-						if ($value['total'] == null) {
-							$total = 0;
-						}
-						$dyn_table .= "<td>" . $total . "</td>";
-					}
-				}
-				$dyn_table .= "</tr>";
-			}
-		} else {
-			//$dyn_table .= "<tr><td colspan='4'>No Data Available</td></tr>";
-		}
-		$dyn_table .= "</tbody></table>";
-		$data['dyn_table'] = $dyn_table;
-		$data['title'] = "webADT | Reports";
-		$data['hide_side_menu'] = 1;
-		$data['banner_text'] = "Facility Reports";
-		$data['selected_report_type_link'] = "drug_inventory_report_row";
-		$data['selected_report_type'] = "Drug Inventory";
-		$data['report_title'] = "Stock Consumption";
-		$data['facility_name'] = $this -> session -> userdata('facility_name');
-		$data['content_view'] = 'reports/drugissued_v';
-		$this -> load -> view('template', $data);
-	}
-
 
 	public function get_lost_followup($from = "",$to ="")
 	{
@@ -6787,7 +7397,7 @@ class report_management extends MY_Controller {
 		if (is_dir($dir)) {
 			$files = scandir($dir);
 			foreach ($files as $object) {
-				if ($object != "." && $object != "..") {
+				if (!in_array($object, array('.','..','.gitkeep'))) {
 					unlink($dir . "/" . $object);
 				}
 			}
@@ -6852,12 +7462,26 @@ class report_management extends MY_Controller {
 	public function dispensingReport($start_date="",$end_date=""){
 		ini_set("max_execution_time", "1000000");
 		$filter = "";
-		if($start_date!="" && $end_date!=""){
+		if($start_date != "" && $end_date != ""){
 			$start_date = date("Y-m-d",strtotime($start_date));
 			$end_date = date("Y-m-d",strtotime($end_date));
 			$filter = " WHERE dispensing_date BETWEEN '$start_date' AND '$end_date' ";
 		}
-		$sql = "SELECT pv.patient_id as 'CCC No', p.first_name as 'First Name', p.last_name as 'Last Name',pv.current_weight as 'Current Weight',pv.dispensing_date as 'Date of Visit',r.regimen_desc as 'Regimen', d.drug as 'Drug Name',pv.quantity as 'Quantity',pv.batch_number as 'Batch Number', IF(b.brand IS NULL,'',b.brand) as 'Brand Name',pv.dose as 'Dose',pv.duration as 'Duration',pv.user as 'Operator'
+
+		$sql = "SELECT 
+					pv.patient_id as 'CCC No', 
+					p.first_name as 'First Name', 
+					p.last_name as 'Last Name',
+					pv.current_weight as 'Current Weight',
+					pv.dispensing_date as 'Date of Visit',
+					r.regimen_desc as 'Regimen', 
+					d.drug as 'Drug Name',
+					pv.quantity as 'Quantity',
+					pv.batch_number as 'Batch Number', 
+					IF(b.brand IS NULL,'',b.brand) as 'Brand Name',
+					pv.dose as 'Dose',
+					pv.duration as 'Duration',
+					pv.user as 'Operator'
 				FROM patient_visit pv
 				LEFT JOIN patient p ON p.patient_number_ccc = pv.patient_id
 				LEFT JOIN drugcode d ON d.id = pv.drug_id
@@ -6865,7 +7489,7 @@ class report_management extends MY_Controller {
 				LEFT JOIN regimen r ON r.id = pv.regimen
 				$filter
 				ORDER BY dispensing_date DESC ";	
-		//echo $sql;die();
+
 		$query = $this ->db ->query($sql);
 		$result = $query->result_array();
 		$counter = 0;
@@ -6895,9 +7519,7 @@ class report_management extends MY_Controller {
 		$this->mpdf->WriteHTML($table);
 		$this->mpdf->ignore_invalid_utf8 = true;
 		$name = "Dispensing History as of ".date("Y_m_d").".pdf";
-		$this ->deleteAllFiles("./assets/download/");//Delete all files in folder first
-		write_file("./assets/download/$name", $this->mpdf->Output($name,'D'));
-		
+		$this->mpdf->Output($name,'D');
 	}
 
 	function deleteAllFiles($directory=""){
@@ -6907,7 +7529,9 @@ class report_management extends MY_Controller {
 		        if(is_dir($file)) { 
 		            deleteAllFiles($file);
 		        } else {
-		            unlink($file);
+		        	if($file != '.gitkeep'){
+		            	unlink($file);
+		            }
 		        }
 		    }
 		}
@@ -6939,6 +7563,142 @@ class report_management extends MY_Controller {
 	    $data['facility_name'] = $this -> session -> userdata('facility_name');
 		$data['content_view']='guidelines_listing_v';
 	    $this -> base_params($data);
+    }
+
+    //Differentiated Care
+    public function differenciated_package_of_care($start_date, $end_date){    	
+    	$start_date = date('Y-m-d', strtotime($start_date));
+    	$end_date = date('Y-m-d', strtotime($end_date));   	
+    	$viralcount = 1000;
+    	$longterm_duration = 180;
+    	$row_string .= "<table border='1' class='dataTables'>
+			<thead>
+				<tr>
+					<th> </th>
+					<th>Male</th>
+                   <th>Female</th>
+				</tr>
+			</thead>";
+		$count_all_male = 0;$count_all_female = 0;
+		$count_less_male = 0;$count_more_male = 0;
+		$count_less_female = 0;$count_more_female = 0;
+
+		$row_string .= "<tr><td> > $viralcount cp/ml</td>";
+
+		$sql_more = "SELECT 
+						t.name, 
+						COUNT(t.gender) AS count,
+						t.result
+					FROM(
+						SELECT 
+							patient_id,dispensing_date,patient,appointment,p.gender,g.name,vl.result
+						FROM patient_visit pv
+						INNER JOIN patient p ON p.patient_number_ccc = pv.patient_id
+						INNER JOIN gender g ON p.gender = g.id
+						INNER JOIN (
+							SELECT 
+								patient_ccc_number,MAX(test_date) test_date,result
+							FROM patient_viral_load 
+							WHERE test_date < '$end_date'
+							AND result > '$viralcount'
+							GROUP BY patient_ccc_number,test_date
+						) vl ON vl.patient_ccc_number = p.patient_number_ccc
+						INNER JOIN (
+							SELECT 
+								patient,min(appointment) appointment
+							FROM patient_appointment ipa 
+							INNER JOIN patient_visit ipv ON ipv.patient_id = ipa.patient AND ipa.appointment > ipv.dispensing_date
+							WHERE ipv.dispensing_date BETWEEN '$start_date' AND '$end_date'
+							GROUP BY patient
+						) pa ON pa.patient = pv.patient_id 
+						WHERE pv.dispensing_date BETWEEN '$start_date' AND '$end_date' AND DATEDIFF(pa.appointment,pv.dispensing_date) >= $longterm_duration
+						GROUP BY patient_id,dispensing_date
+					)t 
+					GROUP BY t.gender";
+		$query = $this ->db ->query($sql_more);
+		$result_more = $query->result_array();	
+		
+		if (count($result_more)>0) {
+			foreach ($result_more as $result) {
+				$gender_all = $result['name'];				
+				if($gender_all=='Male'){
+					$count = ($result['count']=='') ? 0 : $result['count'];				
+					$count_more_male +=$count;					
+				}
+				if($gender_all=='Female'){
+					$count = ($result['count']=='') ? 0 : $result['count'];				
+					$count_more_female +=$count;				
+				}
+			}
+		}
+		$row_string .= "<td>$count_more_male</<td><td>$count_more_female</td>";
+		$row_string .= "</tr><tr><td>< 1000 cp/ml</td>";
+		$sql_less = "SELECT 
+						t.name, 
+						COUNT(t.gender) AS count,
+						t.result
+					FROM(
+						SELECT 
+							patient_id,dispensing_date,patient,appointment,p.gender,g.name,vl.result
+						FROM patient_visit pv
+						INNER JOIN patient p ON p.patient_number_ccc = pv.patient_id
+						INNER JOIN gender g ON p.gender = g.id
+						INNER JOIN (
+							SELECT 
+								patient_ccc_number,MAX(test_date) test_date,result
+							FROM patient_viral_load 
+							WHERE test_date < '$end_date'
+							AND result <= '$viralcount'
+							GROUP BY patient_ccc_number,test_date
+						) vl ON vl.patient_ccc_number = p.patient_number_ccc
+						INNER JOIN (
+							SELECT 
+								patient,min(appointment) appointment
+							FROM patient_appointment ipa 
+							INNER JOIN patient_visit ipv ON ipv.patient_id = ipa.patient AND ipa.appointment > ipv.dispensing_date
+							WHERE ipv.dispensing_date BETWEEN '$start_date' AND '$end_date'
+							GROUP BY patient
+						) pa ON pa.patient = pv.patient_id 
+						WHERE pv.dispensing_date BETWEEN '$start_date' AND '$end_date' AND DATEDIFF(pa.appointment,pv.dispensing_date) >= $longterm_duration
+						GROUP BY patient_id,dispensing_date
+					)t 
+					GROUP BY t.gender";
+        $query = $this ->db ->query($sql_less);
+		$result_less = $query->result_array();
+		
+		if (count($result_less)>0) {
+			foreach ($result_less as $result) {
+				$gender_all = $result['name'];				
+				if($gender_all=='Male'){
+					$count = ($result['count']=='') ? 0 : $result['count'];				
+					$count_less_male +=$count;					
+				}
+				if($gender_all=='Female'){
+					$count = ($result['count']=='') ? 0 : $result['count'];				
+					$count_less_female +=$count;					
+				}
+			}
+		}
+		$row_string .= "<td>$count_less_male</<td><td>$count_less_female</td>";
+		$row_string .= "</tr><tr><td>On Long appointment ≥ 180 Days</td>";		
+		$count_all_male = $count_less_male + $count_more_male;
+		$count_all_female = $count_less_female + $count_more_female;
+		$row_string .= "<td>$count_all_male</<td><td>$count_all_female</td>";
+		$row_string .= "</tr></tbody></table>";
+		$data['overall_total'] = $count_all_male+$count_all_female;
+		$data['from'] = $start_date;
+		$data['to'] = $end_date;
+		$data['dyn_table'] = $row_string;		
+		$data['title'] = "webADT | Reports";
+		$data['hide_side_menu'] = 1;
+		$data['banner_text'] = "Facility Reports";
+		$data['selected_report_type_link'] = "visiting_patient_report_row";
+		$data['selected_report_type'] = "Visiting Patients";
+		$data['report_title'] = "Differenciated Package of care";
+		$data['facility_name'] = $this -> session -> userdata('facility_name');
+		$data['content_view'] = 'reports/differenciated_package_of_care_v';
+		$this -> load -> view('template', $data);
+
     }
 	public function base_params($data) {
 		$data['reports'] = true;

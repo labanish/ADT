@@ -19,11 +19,22 @@ class System_management extends MY_Controller {
 	}
 
 	public function load_assets() {
+
+		// Clear cache Details
+		/*
+		$files = glob('assets/cache/*'); // get all file names in Cache
+		foreach($files as $file){ // iterate files
+		  if(is_file($file))
+		    unlink($file); // delete file
+		}*/
+
+		// Clear cache Details
+
 		$this -> load -> library('carabiner');
 
 		$date_past = date('o-m-d H:i:s', time() - 1 * 60);
 
-		$jsArray = array( array('jquery-1.11.1.min.js'), array('jquery-1.7.2.min.js'), array('jquery-migrate-1.2.1.js'), array('jquery.form.js'), array('jquery.gritter.js'), array('jquery-ui.js'), array('sorttable.js'), array('datatable/jquery.dataTables.min.js'), array('datatable/columnFilter.js'), array('bootstrap/bootstrap.min.js'), array('bootstrap/paging.js'), array('jquery.multiselect.js'), array('jquery.multiselect.filter.js'), array('validator.js'), array('validationEngine-en.js'), array('menus.js'), array('jquery.blockUI.js'), array('amcharts/amcharts.js'), array('highcharts/highcharts.js'), array('highcharts/highcharts-more.js'), array('highcharts/modules/exporting.js'),array('toastr.js'),array('select2-3.4.8/select2.min.js'),array('bootbox.min.js'), array('Merged_JS.js'));
+		$jsArray = array( array('jquery-1.11.1.min.js'), array('jquery-1.7.2.min.js'), array('jquery-migrate-1.2.1-min.js'), array('jquery.form.js'), array('jquery.gritter.js'), array('jquery-ui.js'), array('sorttable.js'), array('datatable/jquery.dataTables.min.js'), array('datatable/columnFilter.js'), array('bootstrap/bootstrap.min.js'), array('bootstrap/paging.js'), array('jquery.multiselect.js'), array('jquery.multiselect.filter.js'), array('validator.js'), array('validationEngine-en.js'), array('menus.js'), array('jquery.blockUI.js'), array('amcharts/amcharts.js'), array('highcharts/highcharts.js'), array('highcharts/highcharts-more.js'), array('highcharts/modules/exporting.js'),array('toastr.js'),array('select2-3.4.8/select2.min.js'),array('bootbox.min.js'), array('Merged_JS.js'));
 		$cssArray = array( array('amcharts/style.css'), array('bootstrap.css'), array('bootstrap.min.css'), array('bootstrap-responsive.min.css'), array('datatable/jquery.dataTables.css'), array('datatable/jquery.dataTables_themeroller.css'), array('datatable/demo_table.css'), array('jquery-ui.css'), array('style.css'), array('assets/jquery.multiselect.css'), array('assets/jquery.multiselect.filter.css'), array('assets/prettify.css'), array('style_report.css'), array('validator.css'), array('jquery.gritter.css'),array('toastr.min.css'),array('select2-3.4.8/select2.css'));
 
 		$this -> carabiner -> css($cssArray);

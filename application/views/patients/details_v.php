@@ -99,9 +99,11 @@
 						</select>
 					</div>
 				</div>
-				<div class="row-fluid parent">
-					<label>Match to parent/guardian in ccc?</label>
-					<input type="text" class="span8" name="parent" id="parent">
+				<div class="row-fluid parent_view">
+					 <div class="span12">
+						<label>Match to parent/guardian in ccc?</label>
+						<input type="text" class="span8" name="parent" id="parent">
+					</div>
 				</div>
 				<div class="row-fluid">
 					<div class="span6">
@@ -370,6 +372,26 @@
 					<select name="pep_reason" id="pep_reason" class="span8">
 					</select>
 			    </div>
+			    <div class="row-fluid prep_test_question">
+					<label>Have you been Tested?</label>
+					<select name="prep_test_answer" id="prep_test_answer" class="span8">
+						<option value="0">No</option>
+						<option value="1">Yes</option>
+					</select>
+				</div>
+				<div class="row-fluid prep_test_question">
+					<div class="span4">
+						<label>Test Date</label>
+						<input type="text" name="prep_test_date" id="prep_test_date" class="span12">
+					</div>
+					<div class="span4">
+						<label>Was the Test Positive?</label>
+						<select name="prep_test_result" id="prep_test_result" class="span12">
+							<option value="0">No</option>
+							<option value="1">Yes</option>
+						</select>
+					</div>
+				</div>
 				<div class="row-fluid start_regimen">
 					<label><span class='astericks'>*</span>Start Regimen</label>
 					<select name="start_regimen" id="start_regimen" class="validate[required] span8">
@@ -562,6 +584,7 @@
                     <tr>
                         <th>Date Tested</th>
                         <th>Result</th>
+                        <th>Justification</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -571,8 +594,10 @@
                 </tbody>
                 <tfoot>
                     <tr>
-                        <th>Date Tested</th>
+                     <th>Date Tested</th>
                         <th>Result</th>
+                        <th>Justification</th>
+                 
                     </tr>
                 </tfoot>
             </table>
@@ -583,4 +608,3 @@
 <!-- custom scripts-->
 <script src="<?php echo base_url().'assets/modules/forms/forms.js'; ?>"></script>
 <script src="<?php echo base_url().'assets/modules/patients/details.js'; ?>"></script>
-

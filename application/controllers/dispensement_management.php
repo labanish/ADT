@@ -1,4 +1,6 @@
 <?php
+ob_start();
+
 class Dispensement_Management extends MY_Controller {
 	function __construct() {
 		parent::__construct();
@@ -15,9 +17,68 @@ class Dispensement_Management extends MY_Controller {
 		$this->load->model('patientmodel');
 		print_r($this->patientmodel->get_patient_details($patientID));
 	}
+
+
+	/************
+	*************
+	iqcare changes
+	**************
+	***************
+	**************/
+
+	public function get_pharmacy_order($record_no){
+		$this->load->dbutil();
+		$iqcare_data = array('size' => 0, 'orders' => array());
+		if ($this->dbutil->database_exists('mirth_adt_db')){
+			//Get patient ptnk
+			$row = $this->db->query('SELECT medical_record_number FROM patient where id='.$record_no.'')->row();
+			$ptnpk = $row->medical_record_number;
+			if($ptnpk){	
+				//Get pharmacy orders for ptnpk
+				$order_query = "SELECT 
+									ord.weight,
+									ord.height,
+									ord.adt_regimen_id current_regimen,
+									dtl.adt_drugId drug_id,
+									dtl.dose,
+									dtl.duration,
+									dtl.quantity 
+								FROM ord_patientpharmacyorder ord 
+							INNER JOIN dtl_patientpharmacyorder dtl ON ord.Ptnpk_pharmacy_pk = dtl.ptn_pharmacyPK
+								WHERE ord.PtnPk = $ptnpk";
+			$mirth_db=$this->load->database('mirth_db',TRUE);
+				$results = $mirth_db->query($order_query)->result_array();
+				$main_elements = array('weight', 'height', 'current_regimen');
+				$stem_length =  sizeof($results);
+				foreach ($results as $counter => $result) {
+					$stem_elements = array();
+					foreach ($result as $key => $value) {
+						if(in_array($key, $main_elements)){
+							$iqcare_data['orders'][$key] = $value;
+						}else{
+							$stem_elements[$key] = $value;
+						}
+					}
+					$iqcare_data['orders']['items'][] = $stem_elements;	
+				}
+				$iqcare_data['size'] = $stem_length;
+			}
+		}
+		echo json_encode($iqcare_data);
+	}
+	public function get_patient_details(){
+		$record_no = $this -> input -> post('record_no');
+		$facility_code = $this -> session -> userdata('facility');
+		$sql = "select ps.name as patient_source,p.patient_number_ccc,FLOOR(DATEDIFF(CURDATE(),p.dob)/365) as age from patient p 
+				LEFT JOIN patient_source ps ON ps.id = p.source
+				where p.id='$record_no' and facility_code='$facility_code'
+				";
+		$query = $this -> db -> query($sql);
+		$results = $query -> result_array();
+		echo json_encode($results);
+
+	}
 	public function dispense($record_no) {
-		
-		//$this->db->save_queries = FALSE;
 		$facility_code = $this -> session -> userdata('facility');
                 
 		$dispensing_date = "";
@@ -26,150 +87,76 @@ class Dispensement_Management extends MY_Controller {
 		$data['appointments'] = "";
 		$dispensing_date = date('Y-m-d');
 
-		$sql = "select ps.name as patient_source,p.patient_number_ccc,FLOOR(DATEDIFF(CURDATE(),p.dob)/365) as age from patient p 
+		$sql = "select ps.name as patient_source,p.patient_number_ccc,FLOOR(DATEDIFF(CURDATE(),p.dob)/365) as age, LOWER(rst.name) as service_name from patient p 
 				LEFT JOIN patient_source ps ON ps.id = p.source
+				LEFT JOIN regimen_service_type rst ON rst.id = p.service
 				where p.id='$record_no' and facility_code='$facility_code'
 				";
 		$query = $this -> db -> query($sql);
 		$results = $query -> result_array();
+		
 		       
 		if ($results) {
 			$patient_no = $results[0]['patient_number_ccc'];
 			$age=@$results[0]['age'];
+			$service_name = $results[0]['service_name'];
 			$data['results'] = $results;
-	
 		}
 
-		/***********/
-		/*$sql = "SELECT r.id,
-		               r.regimen_desc,
-                       r.regimen_code,
-                       pv.dispensing_date,
-                       pv.current_weight,
-                       pv.current_height,
-                       v.name as visit_purpose_name
-                FROM patient_visit pv
-                LEFT JOIN regimen r ON r.id = pv.regimen
-                LEFT JOIN visit_purpose v ON v.id = pv.visit_purpose
-                WHERE pv.patient_id =  '$patient_no'
-                ORDER BY pv.dispensing_date DESC";
-		$query = $this -> db -> query($sql);
-		$results = $query -> result_array();
-		if ($results) {
-			$data['last_regimens'] = $results[0];
-			$dispensing_date = $results[0]['dispensing_date'];
-
-			//Check if patient had startART or enrollment purpose in previous visits
-			$enrollment_check = 0;
-			$start_art_check = 0;
-			foreach($results as $result)
-			{ 
-				$visit_purpose = strtolower($result['visit_purpose_name']);
-				
-				if (strpos($visit_purpose,'startart') !== false)
-				{
-                   $start_art_check = 1;
-				} 
-				if(strpos($visit_purpose,'enrollment') !== false) {
-				    $enrollment_check = 1;
-				}
-			}
-
-			$data['purposes'] = Visit_Purpose::getFiltered($enrollment_check,$start_art_check);
-		}else{
-			$data['purposes'] = Visit_Purpose::getAll();
-		}
-
-		$sql = "SELECT DISTINCT(d.drug),
-		               pv.quantity,
-		               pv.pill_count,
-		               pv.months_of_stock as mos,
-		               pv.drug_id,
-		               pv.dispensing_date,
-		               ds.value,
-		               ds.frequency,
-		               pv.dose,
-		               pv.duration
-		        FROM v_patient_visits pv
-		        LEFT JOIN drugcode d 
-		                    ON d.id=pv.drug_id
-		        LEFT JOIN dose ds 
-		                    ON ds.Name=d.dose 
-		        WHERE pv.patient_id = '$patient_no' 
-		        AND pv.dispensing_date = '$dispensing_date' 
-		        ORDER BY pv.id DESC";
-		$query = $this -> db -> query($sql);
-		$results = $query -> result_array();
-		$data['prev_visit'] = "";
-		if ($results) {
-			$data['visits'] = $results;//Get latest dispensed drug;
-			$data['prev_visit'] = json_encode($results);
-		}
-        $sql="UPDATE drugcode SET quantity='' WHERE quantity=0";
-        $this->db->query($sql);
-		$sql = "SELECT appointment "
-                        . "FROM patient_appointment pa "
-                        . "WHERE pa.patient = '$patient_no' "
-                        . "AND pa.facility =  '$facility_code' "
-                        . "ORDER BY appointment DESC LIMIT 1";
-		$query = $this -> db -> query($sql);
-		$results = $query -> result_array();
-		if ($results) {
-			$data['appointments'] = $results[0];
-		}
-
-		$data['facility'] = $facility_code;
-		$data['user'] = $this -> session -> userdata('full_name');
-
-		if($age==''){
-		   $data['regimens'] = Regimen::getRegimens();
-		}else{
-			if($age>=15){
-				//adult regimens
-				$data['regimens']=Regimen::getAdultRegimens();
-			}else if($age<15){
-				//paediatric regimens
-				$data['regimens']=Regimen::getChildRegimens();
-			}
-		}
-*/
 		/*************/
-		$sql1="SELECT dispensing_date FROM patient_visit pv WHERE pv.patient_id =  '$patient_no' AND pv.active=1 ORDER BY dispensing_date DESC LIMIT 1";
+		$sql1="SELECT dispensing_date FROM patient_visit pv WHERE pv.patient_id =  ".$record_no." AND pv.active=1 ORDER BY dispensing_date DESC LIMIT 1";
 		$query = $this -> db -> query($sql1);
 		$results1 = $query -> row_array();
-		
-		
-$dated=$results1['dispensing_date'];
-		
-		//die();
-
-		$sql = "SELECT d.id as drug_id,d.drug,d.dose,d.duration, pv.quantity,pv.dispensing_date,pv.pill_count,r.id as regimen_id,r.regimen_desc,r.regimen_code,pv.months_of_stock as mos,ds.value,ds.frequency
-					FROM patient_visit pv
-					LEFT JOIN drugcode d ON d.id = pv.drug_id
-					LEFT JOIN dose ds ON ds.Name=d.dose
-					LEFT JOIN regimen r ON r.id = pv.regimen
-					WHERE pv.patient_id =  '$patient_no'
-					AND pv.active=1
-					AND pv.dispensing_date = '$dated'
-				ORDER BY dispensing_date DESC";	
-		$query = $this -> db -> query($sql);
-		$results = $query -> result_array();
-		//getPreviouslyDispensedDrugs();
+		$dated='';
+		$results=array();
+		if($results1){
+			$dated=$results1['dispensing_date'];
+			$sql = "SELECT d.id as drug_id,d.drug,d.dose,d.duration, pv.quantity,pv.dispensing_date,pv.pill_count,r.id as regimen_id,r.regimen_desc,r.regimen_code,pv.months_of_stock as mos,ds.value,ds.frequency
+						FROM patient_visit pv
+						LEFT JOIN drugcode d ON d.id = pv.drug_id
+						LEFT JOIN dose ds ON ds.Name=d.dose
+						LEFT JOIN regimen r ON r.id = pv.regimen
+						WHERE pv.patient_id =  '$patient_no'
+						AND pv.active=1
+						AND pv.dispensing_date = '$dated'
+					ORDER BY dispensing_date DESC";	
+			$query = $this -> db -> query($sql);
+			$results = $query -> result_array();
+		}
 		$data = array();
 		$data['non_adherence_reasons'] = Non_Adherence_Reasons::getAllHydrated();
 		$data['regimen_changes'] = Regimen_Change_Purpose::getAllHydrated();
 		$data['purposes'] = Visit_Purpose::getAll();
-		$data['dated']=$dated;
-		
+		$data['dated'] = $dated;
 		$data['patient_id'] = $record_no; 
+		$data['service_name'] = $service_name;
 		$data['purposes'] = Visit_Purpose::getAll();
 		$data['patient_appointment']=$results;
-		
 		$data['hide_side_menu'] = 1;
 		$data['content_view'] = "patients/dispense_v";
 		$this -> base_params($data);
                 
-        
+	}
+
+	public function update_prep_test($patient_id, $is_tested, $test_date, $test_result){
+		$message = '';
+		$test_data = array(
+            'patient_id' => $patient_id,
+            'is_tested' => $is_tested,
+            'test_date' => $test_date,
+            'test_result' => $test_result
+        );
+		$prev_test_data = $this->db->get_where('patient_prep_test', $test_data)->row_array();
+        if(empty($prev_test_data)){
+            $this->db->insert('patient_prep_test', $test_data);
+            $message .= 'Test Result Updated Successfully!<br/>';
+        }else{
+        	$message .= 'Test Result Already Exist!<br/>';
+        }
+    	if($test_result == TRUE){
+        	$message .= 'Switch Patient from PREP to ART service!<br/>';
+        }
+        echo $message;
 	}
 	
 	public function get_other_dispensing_details(){
@@ -182,38 +169,10 @@ $dated=$results1['dispensing_date'];
 		echo json_encode($data);
 	}
 
-// 	public function getPreviouslyDispensedDrugs(){
-//       $patient_ccc = $this ->input ->post("patient_ccc");
-// 		//$patient_ccc=0887679;
-// 		$sql1="SELECT dispensing_date FROM patient_visit WHERE patient_id =  '$patient_ccc' AND active=1 ORDER BY dispensing_date DESC LIMIT 1";
-// 		$query = $this -> db -> query($sql1);
-// 		$results1 = $query -> result_array();
-		
-		
-// $dated=$results1[];
-// 		echo $dated;
-// 	die();
-
-// 		$sql = "SELECT d.id as drug_id,d.drug,d.dose,d.duration, pv.quantity,pv.dispensing_date,pv.pill_count,r.id as regimen_id,r.regimen_desc,r.regimen_code,pv.months_of_stock as mos,ds.value,ds.frequency
-// 					FROM patient_visit pv
-// 					LEFT JOIN drugcode d ON d.id = pv.drug_id
-// 					LEFT JOIN dose ds ON ds.Name=d.dose
-// 					LEFT JOIN regimen r ON r.id = pv.regimen
-// 					WHERE pv.patient_id =  '$patient_ccc'
-// 					AND pv.active=1
-// 					AND pv.dispensing_date = '$dated'
-// 				ORDER BY dispensing_date DESC";	
-
-// 		$query = $this -> db -> query($sql);
-// 		$results = $query -> result_array();
-// 		echo json_encode($results);
-// 		die();
-// 	} 
-
 	public function getPreviouslyDispensedDrugs(){
 		$patient_ccc = $this ->input ->post("patient_ccc");
 		//$patient_ccc=1088816;
-		$sql = "SELECT d.id as drug_id,d.drug,d.dose,d.duration, pv.quantity,pv.dispensing_date,pv.pill_count,r.id as regimen_id,r.regimen_desc,r.regimen_code,pv.months_of_stock as mos,ds.value,ds.frequency
+		$sql = "SELECT d.id as drug_id,d.drug,d.dose,pv.duration, pv.quantity,pv.dispensing_date,pv.pill_count,r.id as regimen_id,r.regimen_desc,r.regimen_code,pv.months_of_stock as mos,ds.value,ds.frequency
 					FROM patient_visit pv
 					LEFT JOIN drugcode d ON d.id = pv.drug_id
 					LEFT JOIN dose ds ON ds.Name=d.dose
@@ -234,7 +193,7 @@ $dated=$results1['dispensing_date'];
 			$stock_type = $this -> input -> post('stock_type');
 			$and_stocktype = "AND dsb.stock_type = '$stock_type' ";
 		}  
-		$sql = "SELECT DISTINCT(d.id),UPPER(d.drug) as drug
+		$sql = "SELECT DISTINCT(d.id),UPPER(d.drug) as drug,IF(none_arv = 1, FALSE, TRUE) as is_arv
 		        FROM regimen_drug rd
 		        LEFT JOIN regimen r ON r.id = rd.regimen 
 		        LEFT JOIN drugcode d ON d.id=rd.drugcode 
@@ -248,7 +207,7 @@ $dated=$results1['dispensing_date'];
 //die();
 	}
 
-        public function getBrands() {
+    public function getBrands() {
 		$drug_id = $this -> input -> post("selected_drug");
 		$get_drugs_sql = $this -> db -> query("SELECT DISTINCT id,brand FROM brand WHERE drug_id='" . $drug_id . "' AND brand!=''");
 		$get_drugs_array = $get_drugs_sql -> result_array();
@@ -259,6 +218,19 @@ $dated=$results1['dispensing_date'];
 		$get_doses_sql = $this -> db -> query("SELECT id,Name,value,frequency FROM dose");
 		$get_doses_array = $get_doses_sql -> result_array();
 		echo json_encode($get_doses_array);
+	}
+
+	public function getDrugDose($drug_id) {
+		$get_doses_sql = $this -> db -> query("SELECT id,dose FROM drugcode where id='$drug_id'");
+		$get_doses_array = $get_doses_sql -> result_array();
+		echo json_encode($get_doses_array);
+	}
+	public function getFacililtyAge(){
+		$facility_code = $this -> session -> userdata('facility');
+		$get_adult_age_sql = $this -> db -> query("SELECT adult_age FROM facilities where facilitycode='$facility_code'");
+		$get_adult_age_array = $get_adult_age_sql -> result_array();
+		//echo $facility_code;
+		echo json_encode($get_adult_age_array);
 	}
 
 //function to return drugs on the sync_drugs
@@ -679,18 +651,17 @@ $dated=$results1['dispensing_date'];
 		$facility_name=$this->input->post("print_facility_name");
 		$facility_phone=$this->input->post("print_facility_phone");
 		$str="";
-		
 		$this -> load -> library('mpdf');
 
 		//MPDF Config
 		$mode = 'utf-8';
-		$format = array(80,90);
-		$default_font_size = '11';
-		$default_font = 'Helvetica';
-		$margin_left = '5';
-		$margin_right = '5';
+		$format = array(88.9,38.1);
+		$default_font_size = '9';
+		$default_font = 'Segoe UI';
+		$margin_left = '2';
+		$margin_right = '2';
 		$margin_top = '4';
-		$margin_bottom = '4';
+		$margin_bottom = '2';
 		$margin_header = '';
 		$margin_footer = '';
 		$orientation = 'P';
@@ -702,45 +673,44 @@ $dated=$results1['dispensing_date'];
 			foreach($check_if_print as $counter=>$check_print){
 				//selected to print
 				if($check_print){
-	               //count no. to print
-	               $count=1;
-				   
-	               while($count<=$no_to_print[$counter]){
-	               	     $this -> mpdf -> addPage();
-	               	     $str='<table border="1"  style="border-collapse:collapse;font-size:11px;">';
-						 $str.='<tr>';
-						 $str.='<td colspan="2">Drugname: <b>'.strtoupper($drug_name[$counter]).'</b></td>';
-						 $str.='<td>Qty: <b>'.$qty[$counter].'</b></td>';
-						 $str.='</tr>';
-						 $str.='<tr>';
-						 $str.='<td colspan="3">Tablets/Capsules: ';
-						 $str.='<b>'.$dose_value[$counter].'</b> to be taken <b>'.$dose_frequency[$counter].'</b> times a day after every <b>'.$dose_hours[$counter].'</b> hours</td>';
-						 $str.='</tr>';
-						 $str.='<tr>';
-						 $str.='<td colspan="3">Before/After Meals: ';
-						 $str.='<b>'.$drug_instructions[$counter].'</b></td>';
-						 $str.='</tr>';
-						 $str.='<tr>';
-						 $str.='<td>Patient Name: <b>'.$patient_name.'</b> </td><td> Pharmacy :<b>'.$pharmacy_name[$counter].'</b> </td> <td>Date:<b>'.$dispensing_date.'</b></td>';
-						 $str.='</tr>';
-						 $str.='<tr>';
-						 $str.='<td colspan="3" style="text-align:center;">Keep all medicines in a cold dry place out of reach of children.</td></tr>';
-						 $str.='<tr><td colspan="2">Facility Name: <b>'.$this->session->userdata("facility_name").'</b></td><td> Facility Phone: <b>'.$this->session->userdata("facility_phone").'</b>';
-						 $str.='</td>';
-						 $str.='</tr>';
-						 $str.='</table>';
-						 //write to page
-						 $this -> mpdf -> WriteHTML($str);
-						 $count++;
-					}
-	            }
-			}
+					//count no. to print
+					$count=1;
+					while($count<=$no_to_print[$counter]){
+						$this -> mpdf -> addPage();
+						$str='<table border="1"  style="border-collapse:collapse;font-size:9px;">';
+						$str.='<tr>';
+						$str.='<td colspan="2">Drugname: <b>'.strtoupper($drug_name[$counter]).'</b></td>';
+						$str.='<td>Qty: <b>'.$qty[$counter].'</b></td>';
+						$str.='</tr>';
+						$str.='<tr>';
+						$str.='<td colspan="3">Tablets/Capsules: ';
+						$str.='<b>'.$dose_value[$counter].'</b> to be taken <b>'.$dose_frequency[$counter].'</b> times a day after every <b>'.$dose_hours[$counter].'</b> hours</td>';
+						$str.='</tr>';
+						$str.='<tr>';
+						$str.='<td colspan="3">Before/After Meals: ';
+						$str.='<b>'.$drug_instructions[$counter].'</b></td>';
+						$str.='</tr>';
+						$str.='<tr>';
+						$str.='<td>Patient Name: <b>'.$patient_name.'</b> </td><td> Pharmacy :<b>'.$pharmacy_name[$counter].'</b> </td> <td>Date:<b>'.$dispensing_date.'</b></td>';
+						$str.='</tr>';
+						$str.='<tr>';
+						$str.='<td colspan="3" style="text-align:center;">Keep all medicines in a cold dry place out of reach of children.</td></tr>';
+						$str.='<tr><td colspan="2">Facility Name: <b>'.$this->session->userdata("facility_name").'</b></td><td> Facility Phone: <b>'.$this->session->userdata("facility_phone").'</b>';
+						$str.='</td>';
+						$str.='</tr>';
+						$str.='</table>';
+						//write to page
+						$this -> mpdf -> WriteHTML($str);
+						$count++;
+					} //end while
+				}//end if
+			} //end foreach
 			$file_name='Export/'.$patient_name.'(Labels).pdf';
 			$this -> mpdf -> Output($file_name, 'F');
 			echo base_url().$file_name;
-	    }else{
-	    	echo 0;
-	    }
+		}else{
+			echo 0;
+		}
 	}
 
 	public function getInstructions($drug_id){
@@ -787,4 +757,5 @@ $dated=$results1['dispensing_date'];
 
 
 }
+ob_get_clean();
 ?>

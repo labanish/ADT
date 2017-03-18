@@ -55,6 +55,7 @@ if ($facility_object -> service_pep == "1") {
 		<?php if (empty($fmaps_array)) {?>
 		var report_period="<?php echo date('F-Y', strtotime(date('Y-m-d') . "-1 month")); ?>";
 		$("#reporting_period").val(report_period);
+		$("#reporting_period_end").val(report_period);
 		var month=parseInt("<?php echo date('m', strtotime(date('Y-m-d') . "-1 month")); ?>");
 		var year=parseInt("<?php echo date('Y', strtotime(date('Y-m-d') . "-1 month")); ?>");
         var last_day_month=LastDayOfMonth(year,month);
@@ -67,6 +68,7 @@ if ($facility_object -> service_pep == "1") {
 		<?php }else{?>
 		var report_period="<?php echo date('F-Y', strtotime($fmaps_array[0]['period_begin'])); ?>";
 		$("#reporting_period").val(report_period);	
+		$("#reporting_period_end").val(report_period);	
 		var month=parseInt("<?php echo date('m', strtotime($fmaps_array[0]['period_begin'])); ?>");
 		var year=parseInt("<?php echo date('Y', strtotime($fmaps_array[0]['period_begin'])); ?>");
         var last_day_month=LastDayOfMonth(year,month);
@@ -77,7 +79,7 @@ if ($facility_object -> service_pep == "1") {
 		var start_date = reporting_period + "-" + $("#period_start_date").attr("value");
 		var end_date = reporting_period + "-" + $("#period_end_date").attr("value");			
 		<?php }?>
-        //getPeriodRegimenPatients(start_date, end_date);
+        // getPeriodRegimenPatients(start_date, end_date);
 	});
 	function LastDayOfMonth(Year, Month) {
 		return (new Date((new Date(Year, Month, 1)) - 1)).getDate();
@@ -130,7 +132,7 @@ if ($facility_object -> service_pep == "1") {
 					<?php
 				if($options=='view'){
 						echo "<h4>".@$maps_id.' '.@ucfirst($status)."</h4>";
-						echo "<a href='".site_url("order/download_order/maps/".$map_id)."'>".$maps_id." ".$fmaps_array[0]['facility_name']." ".$fmaps_array[0]['period_begin']." to ".$fmaps_array[0]['period_end'].".xls</a><p>";
+						echo "<a href='".site_url("order/download_order/maps/".$map_id)."'>".$maps_id." ".$fmaps_array[0]['facility_name']." ".$fmaps_array[0]['period_begin']." to ".$fmaps_array[0]['period_end'].".xlsx</a><p>";
 						$access_level = $this -> session -> userdata("user_indicator");
 				      	if($access_level=="facility_administrator"){
 					      	if($status=="prepared"){
@@ -166,9 +168,13 @@ if ($facility_object -> service_pep == "1") {
 				<table class="table"  border="1"  style="border:1px solid #DDD; font-size: 1em;">
 					<tbody>
 						<tr>
+							<input type="hidden" id="reports_expected" name="reports_expected" value="" />
+							<input type="hidden" id="reports_actual" name="reports_actual" value="" />
 							<input type="hidden" name="facility_id" value="<?php echo @$facility_id;?>" />
 							<input type="hidden" name="central_facility" value="<?php echo @$facility_object -> parent;?>" />
 							<input type="hidden" name="order_type" value="0"/>
+							<input type="hidden" name="sponsor" value="<?php echo @$supporter;?>" />
+							<input type="hidden" name="services" value="<?php echo @$type_of_service;?>" />
 							<th width="180px">Facility code:</th>
 							<td><span class="_green"><?php echo @$facility_object -> facilitycode;?></span></td>
 							<th width="160px">Facility Name:</th>
@@ -176,43 +182,41 @@ if ($facility_object -> service_pep == "1") {
 						</tr>
 						<tr>
 							<th>County:</th>
-							<td><span class="_green"><?php echo @$facility_object -> County -> county;?></span></td>
-							<th>District:</th>
+							<td><span class="_green"><?php echo ucwords(@$facility_object -> County -> county);?></span></td>
+							<th>Sub-County:</th>
 							<td><span class="_green"><?php echo @$facility_object -> Parent_District -> Name;?></span></td>
 						</tr>
+						<!--
 						<tr>
 							<th>Programme Sponsor:</th>
-							<td><span name="sponsors" id="fmap_sponsors" class="_green"><?php echo @$supporter;?></span>
-								<input type="hidden" name="sponsor" value="<?php echo @$supporter;?>" />
+							<td><span name="sponsors" id="fmap_sponsors" class="_green"><?php //echo @$supporter;?></span>
+								<input type="hidden" name="sponsor" value="<?php //echo @$supporter;?>" />
 							</td>
 							<th>Service provided:</th>
-							<td><span name="service" id="fmap_services" class="_green"><?php echo @$type_of_service;?></span>
-								<input type="hidden" name="services" value="<?php echo @$type_of_service;?>" />
+							<td><span name="service" id="fmap_services" class="_green"><?php //echo @$type_of_service;?></span>
+								<input type="hidden" name="services" value="<?php //echo @$type_of_service;?>" />
 							</td>
 						</tr>
+						-->
 						<tr>
-							<th>Reporting Period : </th><td>
-							<input class="_green" name="reporting_period" id="reporting_period" type="text" placeholder="Click here to select period" readonly="readonly">
+							<th>Reporting Period : </th>
+							<td colspan="1">
+								<strong>Beginning:</strong> <input name="start_date" id="period_start" type="text" style="width:10%" readonly="readonly"> <input class="_green" name="reporting_period" id="reporting_period" type="text" placeholder="Click here to select period" style="width:35%" readonly="readonly">
 							</td>
-							<input name="start_date" id="period_start" type="hidden">
-							<input name="end_date" id="period_end" type="hidden">
+							<th colspan="2">Ending : <input name="end_date" id="period_end" type="text" readonly="readonly" style="width:10%" disabled="true"> <input class="_green" name="reporting_period_end" id="reporting_period_end" type="text" style="width:35%" readonly="readonly"></th>
+
+						<!-- add start and end date -->
+							<!-- <input name="start_date" id="period_start" type="text"> -->
+							<!-- <input name="end_date" id="period_end" type="text"> -->
 							</td> 
 							<td colspan="2"></td>
 						</tr>
-						<tr>
-							<th colspan="2">Total Number of Patients on ART ONLY:</th>
-							<td><span>Adults (&gt;15yrs)</span><input type="text"  class="validate[requied] tbl_header_input f_right"  name="art_adult" id="art_adult" readonly="readonly" value="<?php echo @$fmaps_array[0]['art_adult'];?>"/></td>
-							<td><span>Children (&lt;= 15yrs)</span><input type="text" class="validate[requied] tbl_header_input f_right" name="art_child" id="art_child" readonly="readonly" value="<?php echo @$fmaps_array[0]['art_child'];?>"/></td>
-						</tr>
-						<tr><th style="text-align: center" colspan="2">Males</th><th style="text-align: center" colspan="2">Females</th></tr>
-						<tr>
-							<th>New <input type="text"  class="validate[requied] tbl_header_input f_right" name="new_male" id="new_male" value="<?php echo @$fmaps_array[0]['new_male'];?>" /></th>
-							<th>Revisit <input type="text"  class="validate[requied] tbl_header_input f_right" name="revisit_male" id="revisit_male" value="<?php echo @$fmaps_array[0]['new_female'];?>" /></th>
-							<th>New <input type="text"  class="validate[requied] tbl_header_input f_right" name="new_female" id="new_female" value="<?php echo @$fmaps_array[0]['revisit_male'];?>" /></th>
-							<th>Revisit <input type="text"  class="validate[requied] tbl_header_input f_right" name="revisit_female" id="revisit_female" value="<?php echo @$fmaps_array[0]['revisit_female'];?>"/></th>				
-						</tr>
+								</tr>
+
 					</tbody>
 				</table>
+
+<!-- End of the top section -->
 				<?php
 					if($hide_generate==2 && $hide_btn==0){
 				?>
@@ -239,6 +243,8 @@ if ($facility_object -> service_pep == "1") {
 							</span>No of Cumulative Active Patients/Clients on this regimen at the End of the Reporting period<span></th>
 						</tr>
 					</thead>
+
+			<!-- start to display the available Regimens from the system DB -->
 					<?php
 			$counter = 1;
 			foreach($regimen_categories as $category){
@@ -247,7 +253,7 @@ if ($facility_object -> service_pep == "1") {
 					<tbody>
 						<?php
 						if($options=='view'){
-							//Don't displai OI regimens
+							//Don't display OI regimens
 							if(strtoupper($category) == 'OI REGIMEN'){
 								continue;
 							}
@@ -256,62 +262,48 @@ if ($facility_object -> service_pep == "1") {
 							$regimen_list=array_filter($regimen_array,function($item) use ($category){
 								return $item['name']==$category;
 							});
-							if($supplier=="KEMSA"){
-							foreach($regimen_list as $regimen){
-								?>
-							<tr>
-								<td style="border-right:2px solid #DDD;"><?php echo @$regimen['code'];?></td>
-								<td regimen_id="<?php echo $regimen['reg_id'];?>" class="regimen_desc col_drug"><?php echo @$regimen ['description'];?></td>
-								<td regimen_id="<?php echo $regimen['reg_id'];?>" class="regimen_numbers">
-								<input type="text" class="f_right patient_number" data-cat="<?php echo $cat; ?>" name="patient_numbers[]" id="patient_numbers_<?php echo $regimen['reg_id'];?>" value="<?php echo $regimen['total'];?>" >
-								<input name="patient_regimens[]"class="regimen_list" value="<?php echo $regimen['reg_id'];?>" type="hidden">
-								<input type="hidden" name="item_id[]" class="item_id"/>
-								</td>
-							</tr>
-							<?php
-							}
-						   }else{
 						   	foreach($regimen_list as $regimen){
 						   	?>
 								<tr>
 								<td style="border-right:2px solid #DDD;"><?php echo $regimen['code'];?></td>
 								<td regimen_id="<?php echo $regimen['reg_id'];?>" class="regimen_desc col_drug"><?php echo $regimen['description'];?></td>
 								<td regimen_id="<?php echo $regimen['reg_id'];?>" class="regimen_numbers">
-								<input type="text" class="f_right patient_number" name="patient_numbers[]" id="patient_numbers_<?php echo $regimen['reg_id'];?>" value="<?php echo $regimen['total'];?>" >
-								<input name="patient_regimens[]"class="regimen_list" value="<?php echo $regimen['reg_id'];?>" type="hidden">
+								<input type="text" class="f_right patient_number" name="patient_numbers[]" id="patient_numbers_<?php echo $regimen['reg_id'];?>" style="text-align: center; color: blue; font-weight: bold;" value="<?php echo $regimen['total'];?>" >
+								<input name="patient_regimens[]"class="regimen_list" style="text-align: center; color: blue; font-weight: bold;" value="<?php echo $regimen['reg_id'];?>" type="hidden">
 								<input type="hidden" name="item_id[]" class="item_id"/>
 								</td>
 							</tr>
 							<?php	
 						   }
-						   }
 						}
 						else{
-							//Don't displai OI regimens
+							//Don't display OI regimens
 							if(strtoupper($category -> Name) == 'OI REGIMEN'){
 							 continue;
 							}
 							$regimens = $category -> Regimens;
 							$cat = str_replace(' ', '_',$category -> Name);
 						?><tr class="accordion"><th colspan="3" class="reg_cat_name" id="<?php echo $cat; ?>" ><?php echo $category -> Name;?></th></tr><?php
-						 if($supplier=="KEMSA"){
 							foreach($regimens as $regimen){
-								?>
-							<tr>
+
+								//Checking if the regimens are OI and assigning them the corresponding classes (that is the class that the input field is in, to enable easier calling from js - GT)
+								$regimen_io_code = $regimen['code'];								
+								if($regimen_io_code=='OI1A'||$regimen_io_code=='OI1C'||$regimen_io_code=='OI2A'||$regimen_io_code=='OI2C'||$regimen_io_code=='OI4A'||$regimen_io_code=='OI4C'){?>
+						   		<tr>
 								<td style="border-right:2px solid #DDD;"><?php echo $regimen -> code;?>
 									<!--<input type="hidden" name="item_id[]" class="item_id" id="item_id_<?php echo $regimen -> id;?>" value=""/>-->
 								</td>
 								<td regimen_id="<?php echo $regimen -> id;?>" class="regimen_desc col_drug"><?php echo $regimen -> name;?></td>
 								<td regimen_id="<?php echo $regimen -> id;?>" class="regimen_numbers">
-								<input type="text" class="f_right patient_number" data-cat="<?php echo $cat; ?>" name="patient_numbers[]" id="patient_numbers_<?php echo $regimen -> id;?>" >
-								<input name="patient_regimens[]"class="regimen_list" value="<?php echo $regimen -> id;?>" type="hidden">
-								<input type="hidden" name="item_id[]" class="item_id"/>
+
+								<!--  Adding the clas to the input field. The class name is called by the php variable $regimen_io_code  -->
+								<input type="text" style="text-align: center; color: blue; font-weight: bold;" class="f_right patient_number <?php echo $regimen_io_code;?>" data-cat="<?php echo $cat; ?>" name="patient_numbers[]" id="patient_numbers_<?php echo $regimen -> id;?>" value="0">
+								<input name="patient_regimens[]" style="text-align: center; color: blue; font-weight: bold;" class="regimen_list" value="<?php echo $regimen -> id;?>" type="hidden">
+								<input type="hidden" style="text-align: center; color: blue; font-weight: bold;" name="item_id[]" class="item_id"/>
+								
 								</td>
 							</tr>
-							<?php
-							}
-						}else{
-							foreach($regimens as $regimen){
+						   	<?php }else{
 								?>
 							<tr>
 								<td style="border-right:2px solid #DDD;"><?php echo $regimen -> code;?>
@@ -319,9 +311,9 @@ if ($facility_object -> service_pep == "1") {
 								</td>
 								<td regimen_id="<?php echo $regimen -> id;?>" class="regimen_desc col_drug"><?php echo $regimen -> name;?></td>
 								<td regimen_id="<?php echo $regimen -> id;?>" class="regimen_numbers">
-								<input type="text" class="f_right patient_number" data-cat="<?php echo $cat; ?>" name="patient_numbers[]" id="patient_numbers_<?php echo $regimen -> id;?>" >
-								<input name="patient_regimens[]"class="regimen_list" value="<?php echo $regimen -> id;?>" type="hidden">
-								<input type="hidden" name="item_id[]" class="item_id"/>
+								<input type="text" style="text-align: center; color: blue; font-weight: bold;" class="f_right patient_number" data-cat="<?php echo $cat; ?>" name="patient_numbers[]" id="patient_numbers_<?php echo $regimen -> id;?>" value="0">
+								<input name="patient_regimens[]" style="text-align: center; color: blue; font-weight: bold;" class="regimen_list" value="<?php echo $regimen -> id;?>" type="hidden">
+								<input type="hidden" style="text-align: center; color: blue; font-weight: bold;" name="item_id[]" class="item_id"/>
 								
 								</td>
 							</tr>
@@ -335,64 +327,6 @@ if ($facility_object -> service_pep == "1") {
 					?>
 				</table>
 			</div>
-			<div class="facility_info_bottom" style="width:100%;">
-				<table class=" table table-bordered ">
-					<tr>
-						<td colspan="3">
-							<strong>List Any Other Regimen</strong><br>
-							<textarea name="other_regimen" id="other_regimen" style="width:100%" value="<?php echo @$fmaps_array[0]['comments'];?>" ></textarea>
-						</td>
-					</tr>
-					<tr>
-						<th>Totals for PMTCT Clients (Pregnant Women ONLY):</th>
-						<td><span>New Clients</span><input type="text"  class="validate[requied] tbl_header_input f_right" name="new_pmtct" id="new_pmtct" value="<?php echo @$fmaps_array[0]['new_pmtct'];?>"  /></td>
-						<td><span>Revisit Clients</span><input type="text"  class="validate[requied] tbl_header_input f_right" name="revisit_pmtct" id="revisit_pmtct" value="<?php echo @$fmaps_array[0]['revisit_pmtct'];?>"  /></td>
-					</tr>
-					<tr>
-						<th colspan="2">Total No. of Infants receiving ARV prophylaxis for PMTCT:</th>
-						<td><input type="text"  class="validate[requied] tbl_header_input f_right" name="total_infant" id="total_infant" value="<?php echo @$fmaps_array[0]['total_infant'];?>" /></td>
-					</tr>
-					<tr>
-						<th>Totals for PEP Clients ONLY:</th>
-						<td><span>Adults (&gt;15yrs)</span><input type="text"  class="validate[requied] tbl_header_input f_right" name="pep_adult" id="pep_adult" value="<?php echo @$fmaps_array[0]['pep_adult'];?>" /></td>
-						<td><span>Children (&lt;=15yrs)</span><input type="text"  class="validate[requied] tbl_header_input f_right" name="pep_child" id="pep_child" value="<?php echo @$fmaps_array[0]['pep_child'];?>" /></td>
-					</tr>
-					<tr>
-						<th>Totals for Patients / Clients (ART plus Non-ART) on Cotrimoxazole/Dapsone prophylaxis:</th>
-						<td><span>Adults (&gt;15yrs)</span><input type="text"  class="validate[requied] tbl_header_input f_right" name="tot_cotr_adult" id="total_adult" value="<?php echo @$fmaps_array[0]['total_adult'];?>" /></td>
-						<td><span>Children (&lt;=15yrs)</span><input type="text"  class="validate[requied] tbl_header_input f_right" name="tot_cotr_child" id="total_child" value="<?php echo @$fmaps_array[0]['total_child'];?>" /></td>
-					</tr>
-					<tr>
-						<th>Totals for Patients / Clients on Diflucan (For Diflucan Donation Program ONLY):</th>
-						<td><span>Adults (&gt;15yrs)</span><input type="text"  class="validate[requied] tbl_header_input f_right" name="diflucan_adult" id="diflucan_adult" value="<?php echo @$fmaps_array[0]['diflucan_adult'];?>" /></td>
-						<td><span>Children (&lt;=15yrs)</span><input type="text"  class="validate[requied] tbl_header_input f_right" name="diflucan_child" id="diflucan_child" value="<?php echo @$fmaps_array[0]['diflucan_child'];?>" /></td>
-					</tr>
-				</table>
-				<table class=" table table-bordered ">
-					<tr>
-						<th colspan="2" style="text-align: center">CM</th><th colspan="2" style="text-align: center">OC</th>
-					</tr>
-					<tr>
-						<td>New <input type="text"  class="validate[requied] tbl_header_input f_right" name="new_cm" id="new_cm" value="<?php echo @$fmaps_array[0]['new_cm'];?>" /></td>
-						<td>Revisit <input type="text"  class="validate[requied] tbl_header_input f_right" name="revisit_cm" id="revisit_cm" value="<?php echo @$fmaps_array[0]['revisit_cm'];?>" /></td>
-						<td>New <input type="text"  class="validate[requied] tbl_header_input f_right" name="new_oc" id="new_oc" value="<?php echo @$fmaps_array[0]['new_oc'];?>" /></td>
-						<td>Revisit <input type="text"  class="validate[requied] tbl_header_input f_right" name="revisit_oc" id="revisit_oc" value="<?php echo @$fmaps_array[0]['revisit_oc'];?>" /></td>
-					</tr>
-					<?php
-					if(isset($hide_generate) && $hide_generate==2){
-						?>
-						<tr>
-							<th colspan="4" style="text-align: center">Central site Reporting rate</th>
-						</tr>
-					
-						<tr>
-							<th colspan="2">Total No. of Facility Reports Expected <input type="text"  class="validate[requied] tbl_header_input f_right" name="reports_expected" id="reports_expected" /></th>
-							<th colspan="2">Actual No. of Facility reports Received <input type="text"  class="validate[requied] tbl_header_input f_right" name="reports_actual" id="reports_actual" /></th>
-						</tr>
-						<?php
-					}
-					?>
-				</table>
 				<?php
 				if($is_view==1 || $is_update==1){
 				?>
@@ -404,13 +338,13 @@ if ($facility_object -> service_pep == "1") {
 						<td><b>Report <?php echo $log->description;?> by:</b>
 							<input type="hidden" name="log_id[]" id="log_id_<?php echo $log -> id;?>" value="<?php echo $log -> id;?>"/>
 						</td>
-						<td><?php echo $log->s_user->name; ?></td>
+						<td><?php echo $log->user->Name; ?></td>
 						<td><b>Designation:</b></td>
-						<td><?php echo $log->s_user->role; ?></td>
+						<td><?php echo $log->user->Access->Level_Name; ?></td>
 					</tr>
 					<tr>
 						<td><b>Contact Telephone:</b></td>
-						<td>N/A</td>
+						<td><?php echo $log->user->Phone_Number; ?></td>
 						<td><b>Date:</b></td>
 						<td><?php echo $log->created; ?></td>
 					</tr>
@@ -499,6 +433,10 @@ if ($facility_object -> service_pep == "1") {
 		  	$('#new_oc').val(0);
 		  	$('#revisit_oc').val(0);
             getPeriodRegimenPatients(period_start, period_end);
+        //added
+
+        	//call the function to get the IO patients 
+            getoiPatients();
             getNonMappedRegimen(period_start, period_end);
             getCentralData(period_start, period_end,data_type);
             
@@ -575,7 +513,35 @@ if ($facility_object -> service_pep == "1") {
 		});
 		
 	}
+		//Get the values to Display
+
+	//Generate the function to get the OI patients
+	function getoiPatients(){
+		var base_url = getbaseurl();
+		//Get the data from the controller
+		var link = base_url + 'order/getoiPatients/';
+		$.ajax({
+			url : link,
+			type : 'POST',
+			dataType : 'json',
+			success : function(data) {
+				//receive the data and set it to the values received for the corresponding regimens					
+				var a = data[0]['OI1A'];
+				var b = data[0]['OI1C'];
+				var c = data[0]['OI2A'];
+				var d = data[0]['OI2C'];
+				var e = data[0]['OI4A'];
+				var f = data[0]['OI4C'];
+				$('.OI1A').val(a);
+				$('.OI1C').val(b);
+				$('.OI2A').val(c);
+				$('.OI2C').val(d);
+				$('.OI4A').val(e);
+				$('.OI4C').val(f);								
+			}
+		});
 		
+	}
 	function getCentralData(period_start,period_end,data_type){
 		
 		var base_url = getbaseurl();
@@ -586,6 +552,7 @@ if ($facility_object -> service_pep == "1") {
 				type : 'POST',
 				dataType : 'json',
 				success : function(data) {
+					//console.log(data);
 					var x=0;
 					if('new_patient' in data){
 						var l_new_patient=data.new_patient.length;
@@ -700,7 +667,7 @@ if ($facility_object -> service_pep == "1") {
 								$('#diflucan_adult').val(data.diflucan[1].total);
 								$('#diflucan_child').val(data.diflucan[0].total);
 							}
-							
+					
 						}
 						getCentralData(period_start,period_end,'new_cm_oc');//Recursive function for the next data to be appended
 						

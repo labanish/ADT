@@ -78,7 +78,7 @@ class Facility_Management extends MY_Controller {
 				      'district' => $this -> input -> post('district'), 
 				      'county' => $this -> input -> post('county'), 
 				      'weekday_max' => $this -> input -> post('weekday_max'), 
-				      'weekend_max' => $this -> input -> post('weekend_max'), 
+				      'weekend_max' => $this -> input -> post('weekend_max'),
 				      'supported_by' => $this -> input -> post('supported_by'),
 				      'phone' => $this -> input -> post('phone_number'), 
 				      'service_art' => $art_service, 
@@ -86,11 +86,13 @@ class Facility_Management extends MY_Controller {
 				      'service_pep' => $pep_service, 
 				      'supplied_by' => $this -> input -> post('supplied_by'), 
 				      'parent' => $this -> input -> post('central_site'),
-				      'map'=>$this->input->post("sms_map", TRUE)
+				      'map'=>$this->input->post("sms_map", TRUE),
+				      'lost_to_follow_up' => $this -> input -> post('lost_to_follow_up'), 
 				    );
 			$this -> db -> where('id', $facility_id);
 			$this -> db -> update('facilities', $data);
 			$this->session->set_userdata("facility_sms_consent",$this->input->post("sms_map", TRUE));
+			$this->session->set_userdata("lost_to_follow_up",$this->input->post("lost_to_follow_up")); //Update lost to followup session
 			$this -> session -> set_userdata('msg_success', $this -> input -> post('facility_name') . ' \'s details were successfully Updated!');
 		} else {
 			$this -> session -> set_userdata('msg_error', 'Facility details could not be updated!');
@@ -104,9 +106,12 @@ class Facility_Management extends MY_Controller {
 		$data['quick_link'] = "facility";
 		if ($access_level == "system_administrator") {
 			$data['facilities_list'] = Facilities::getAll($source);
-			$this -> load -> view("facility_v", $data);
-		} else {
-			$data['facilities'] = Facilities::getCurrentFacility($source);
+			$this -> load -> view("facility_v", $data);		} 
+		else {
+			$sql="SELECT * FROM Facilities where facilitycode='$source'";
+   			$query = $this -> db -> query($sql);
+			$data['facilities'] = $query -> result_array();
+			//$data['facilities'] = Facilities::getCurrentFacility($source);
 			$this -> load -> view("facility_user_v", $data);
 
 		}

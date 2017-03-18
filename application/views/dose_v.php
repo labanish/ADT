@@ -3,7 +3,7 @@
 		width: 200px;
 		margin-top: 5px;
 	}
-	#client_form{
+	#client_form, form{
 		background-color:#CCFFFF;
 	}
 	.dataTables_length{
@@ -15,6 +15,10 @@
 </style>
 <script type="text/javascript">
 	$(document).ready(function() {
+		/*Prevent Double Click*/
+		$('input_form').submit(function(){
+		  	$(this).find(':submit').attr('disabled','disabled');
+		});
 		$(".setting_table").find("tr :first").css("min-width","300px");
 		//This loop goes through each table row in the page and applies the necessary modifications
 		$.each($(".table_row"), function(i, v) {
@@ -123,7 +127,7 @@
 						<strong class="label">Dose Name</strong>
 					</td>
 					<td>
-						<input type="text" name="dose_name" id="dose_name" class="input-xlarge" size="30">
+						<input type="text" name="dose_name" id="dose_name" class="input-xlarge" size="30" required="">
 					</td>
 				</tr>
 				<tr>
@@ -131,7 +135,7 @@
 						<strong class="label">Dose Value</strong>
 					</td>
 					<td>
-						<input type="text" name="dose_value" id="dose_value" class="input-xlarge" size="30">
+						<input type="text" name="dose_value" id="dose_value" class="input-xlarge" size="30" required="">
 					</td>
 				</tr>
 				<tr>
@@ -139,7 +143,7 @@
 						<strong class="label">Dose Frequency</strong>
 					</td>
 					<td>
-						<input type="text" name="dose_frequency" id="dose_frequency" class="input-xlarge" size="30">
+						<input type="text" name="dose_frequency" id="dose_frequency" class="input-xlarge" size="30" required="">
 					</td>
 				</tr>
 			</table>
@@ -170,7 +174,7 @@
 				</td>
 				<td>
 					<input type="hidden" name="dose_id" id="edit_dose_id" class="input-xlarge" size="30">
-					<input type="text" name="dose_name" id="edit_dose_name" class="input-xlarge" size="30">
+					<input type="text" name="dose_name" id="edit_dose_name" class="input-xlarge" size="30" required="">
 				</td>
 			</tr>
 			<tr>
@@ -178,7 +182,7 @@
 					<strong class="label">Dose Value</strong>
 				</td>
 				<td>
-					<input type="text" name="dose_value" id="edit_dose_value" class="input-xlarge" size="30">
+					<input type="text" name="dose_value" id="edit_dose_value" class="input-xlarge" size="30" required="">
 				</td>
 			</tr>
 			<tr>
@@ -186,7 +190,7 @@
 					<strong class="label">Dose Frequency</strong>
 				</td>
 				<td>
-					<input type="text" name="dose_frequency" id="edit_dose_frequency" class="input-xlarge" size="30">
+					<input type="text" name="dose_frequency" id="edit_dose_frequency" class="input-xlarge" size="30" required="">
 				</td>
 			</tr>
 		</table>

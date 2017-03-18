@@ -11,7 +11,7 @@ class Maps_Log extends Doctrine_Record {
 	public function setUp() {
 		$this -> setTableName('maps_log');
 		$this -> hasOne('Maps as Maps', array('local' => 'maps_id', 'foreign' => 'id'));
-		$this -> hasOne('Users as user', array('local' => 'user_id', 'foreign' => 'map'));
+		$this -> hasOne('Users as user', array('local' => 'user_id', 'foreign' => 'id'));
 		$this -> hasOne('Sync_User as s_user', array('local' => 'user_id', 'foreign' => 'id'));
 	}
 

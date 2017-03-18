@@ -21,6 +21,10 @@
 </style>
 <script type="text/javascript">
 	$(document).ready(function() {
+		/*Prevent Double Click*/
+		$('input_form').submit(function(){
+		  	$(this).find(':submit').attr('disabled','disabled');
+		});
 		$(".setting_table").find("tr :first").css("min-width","300px");
 		//This loop goes through each table row in the page and applies the necessary modifications
 		$.each($(".table_row"), function(i, v) {
@@ -109,7 +113,7 @@ foreach($actions as $action){
 		<div class="modal-body">
 			<label>
 				<strong class="label">Purpose Name</strong>
-				<input type="text" name="source_name" id="source_name" class="input-xlarge">
+				<input type="text" name="source_name" id="source_name" class="input-xlarge" required="">
 			</label>
 		</div>
 		<div class="modal-footer">
@@ -133,7 +137,7 @@ foreach($actions as $action){
 			<label>
 				<strong class="label">Purpose Name</strong>
 				<input type="hidden" name="source_id" id="edit_source_id" class="input-xlarge">
-				<input type="text" name="source_name" id="edit_source_name" class="input-xlarge">
+				<input type="text" name="source_name" id="edit_source_name" class="input-xlarge" required="">
 			</label>
 		</div>
 		<div class="modal-footer">
